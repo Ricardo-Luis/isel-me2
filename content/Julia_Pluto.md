@@ -6,24 +6,18 @@ layout: "md.jlmd"
 ---
 
 # Linguagem de programação Julia 
-[Julia](https://en.wikipedia.org/wiki/Julia_(programming_language)) é uma linguagem de programação de [alto nível](https://en.wikipedia.org/wiki/High-level_programming_language), [dinâmica](https://en.wikipedia.org/wiki/Dynamic_programming_language) e de elevado desempenho adequada para [computação científica](https://pt.wikipedia.org/wiki/Computa%C3%A7%C3%A3o_cient%C3%ADfica). Apresenta ótimas características para a construção de modelos matemáticos e de técnicas de simulação numérica, permitindo analisar e resolver problemas científicos e de engenharia, através do computador.
+[Julia](https://en.wikipedia.org/wiki/Julia_(programming_language)) é uma linguagem de programação de [alto nível](https://en.wikipedia.org/wiki/High-level_programming_language), [dinâmica](https://en.wikipedia.org/wiki/Dynamic_programming_language) e de elevado desempenho, lançada em 2012 como solução multi-plataforma e de código aberto para [computação científica](https://pt.wikipedia.org/wiki/Computa%C3%A7%C3%A3o_cient%C3%ADfica). Apresenta ótimas características para a construção de modelos matemáticos e de técnicas de simulação numérica, permitindo analisar e resolver problemas científicos e de engenharia, através do computador.
 
-Julia foi lançada em 2012 mantendo-se como uma linguagem de programação gratuita, multi-plataforma e *open source*.
 
 # Pluto.jl
-O [Pluto.jl](https://plutojl.org/) é uma biblioteca Julia que proporciona um ambiente de desenvolvimento integrado para a realização de documentos computacionais (*notebooks*). 
-Um *notebook* Pluto possibilita o ensino e aprendizagem de um modo interativo com o utilizador, através da linguagem de programação Julia.
+O [Pluto.jl](https://plutojl.org/) é uma biblioteca Julia que proporciona um ambiente de desenvolvimento integrado para a criação de documentos computacionais interativos (*notebooks*).
+Utilizando um navegador *web* (recomendado: Mozilla Firefox ou Google Chrome), o Pluto.jl permite combinar código Julia, resultados computacionais, texto explicativo, expressões matemáticas, gráficos, imagens, *etc.*, de forma interligada. Esta abordagem facilita o processo de ensino-aprendizagem, oferecendo uma experiência interativa ao utilizador.
 
 ## *Notebooks* reativos e reproduzíveis
-Pluto é um ambiente de computação interativo para linguagem de programação Julia que utiliza navegador *web* (recomendado: Mozilla Firefox ou Google Chrome). 
-Ele permite combinar o código Julia e os resultados computacionais com texto, expressões matemáticas, imagens, etc., de uma forma interligada e interativa com o utilizador. 
-
 Os *notebooks* Pluto são reativos, pois a atualização de uma parte do código reexecuta automaticamente todas as partes afetadas por essa alteração. 
-Ou seja, o Pluto reconhece as dependências entre as células, nas parcelas de código Julia. Assim, sempre que uma célula é alterada, todas as células que desta dependem são automaticamente atualizadas (como numa folha de cálculo: MS Excel, Google Sheets, ...). Isto torna o *notebook* interativo com o utilizador.
+Ou seja, o Pluto reconhece as dependências entre as células, nas parcelas de código Julia. Por conseguinte, sempre que uma célula é alterada, todas as células dependentes são automaticamente atualizadas (como numa folha de cálculo: MS Excel, Google Sheets, ...). Assim, os resultados são recalculados em tempo real, permitindo ao utilizador a exploração dinâmica dos conceitos de forma interativa.
 
-Os *notebooks* Pluto são reproduzíveis, pois o Pluto regista automaticamente as bibliotecas que estão em uso e gerencia automaticamente o ambiente de trabalho. 
-Assim, para garantir a reprodutibilidade, as informações relativas às bibliotecas utilizadas são armazenadas no arquivo do seu *notebook*. 
-Quando outra pessoa abrir seu *notebook* com o Pluto, o mesmo ambiente de trabalho é recreado e as bibliotecas funcionarão em qualquer outro computador.
+Os *notebooks* Pluto são reproduzíveis, pois configuram automaticamente as dependências necessárias. O Pluto.jl regista as bibliotecas usadas no *notebook* e configura o ambiente de execução, assegurando a qualquer utilizador as mesmas condições computacionais. Esta funcionalidade elimina o problema comum de "funciona no meu computador", permitindo uma colaboração mais eficiente e resultados consistentes entre diferentes máquinas.
 
 
 # *Notebooks* de Máquinas Elétricas II
@@ -38,11 +32,9 @@ Assim, os *notebooks* reativos com Julia/Pluto podem fomentar a transparência, 
 
 
 ## "*Time to first plot*"
-Julia é uma linguagem compilada *just-in-time* (JIT). Isso significa que o compilador irá gerar código binário conforme necessário. Assim, quando abrir/executar o *notebook* pela primeira vez, verificará que tem de aguardar algum tempo pela compilação do código Julia, dependendo da complexidade do mesmo e da capacidade de processamento do seu computador. Por exemplo, a biblioteca `Plots.jl` para realização de gráficos tem uma dimensão considerável e exige tempo de compilação. Esta latência na compilação de um programa Julia é conhecida por "**_time to first plot_**", que teve melhorias significativas nas versões [1.6](https://lwn.net/Articles/856819/) e [1.9](https://lwn.net/Articles/933019/) do Julia. Após a 1ª execução, apenas as alterações que realize (no código, nos dados, por interação) serão compiladas, pelo que verificará, a partir daí o [elevado desempenho](https://julialang.org/benchmarks/) da linguagem Julia.
+Julia é uma linguagem compilada *just-in-time* (JIT). Isso significa que o compilador irá gerar código binário conforme necessário. Assim, quando abrir/executar o *notebook* pela primeira vez, verificará que tem de aguardar algum tempo pela compilação do código Julia, dependendo da complexidade do mesmo e da capacidade de processamento do seu computador. Por exemplo, a biblioteca `Plots.jl` para realização de gráficos tem uma dimensão considerável e exige tempo de compilação. Esta latência na compilação de um programa Julia é conhecida por "**_time to first plot_**", que teve melhorias significativas nas versões [1.6](https://lwn.net/Articles/856819/), [1.9](https://lwn.net/Articles/933019/) e [1.10](https://lwn.net/Articles/958337/) do Julia. Após a 1ª execução, apenas as alterações que realize (no código, nos dados, por interação) serão compiladas, pelo que verificará, a partir daí o [elevado desempenho](https://julialang.org/benchmarks/) da linguagem Julia.
 
 Assim, como sugestão, após abrir um dos *notebooks* de Máquinas Elétricas II no seu Julia/Pluto, pode fazer uma primeira leitura desse *notebook* na versão estática do mesmo, disponibilizada neste *website*, até a 1ª compilação/execução terminar, para então depois poder utilizá-lo.
-
-No final de cada *notebook* é indicado o tempo da 1ª compilação, acompanhado das informações sobre a frequência de processamento do CPU e a capacidade de memória RAM do computador em que foi testado, como referência.
 
 
 # Informação complementar
