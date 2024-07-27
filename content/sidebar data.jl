@@ -12,7 +12,7 @@ Dict(
         ],
         :title => "Máquinas Elétricas II",
         :subtitle => "Reactive notebooks",
-        :term => "Fall 2023",
+        :term => "2024-2025",
         :institution => "ISEL",
         :institution_url => "http://www.isel.pt",
         :institution_logo => "logo_ISEL.png",
