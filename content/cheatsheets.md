@@ -10,7 +10,7 @@ layout: "md.jlmd"
 Elementos de consulta (documentação, exemplos de *notebooks*, bibliotecas e outras ferramentas) úteis para programação em Julia e na realização de *notebooks* Pluto.
 Indicação da notação utilizada no *website* e nos *notebooks*.
 
-## Programação Julia
+## Programação [Julia](https://julialang.org/)
 
 - Jeff Delaney, [Julia in 100 Seconds](https://www.youtube.com/watch?v=JYs_94znYy0), Fireship, YouTube, May 2022
 
@@ -38,13 +38,13 @@ Indicação da notação utilizada no *website* e nos *notebooks*.
 - Alejandra Ramirez, [Practical guide: how to contribute to open source Julia projects](https://github.com/MA-Ramirez/BlogPosts/blob/main/1_PracticalGuide.md), GitHub BlogPosts, Mar. 2023.
 
 
-## Pluto.jl
+## [Pluto.jl](https://plutojl.org/)
 
 - [Basic Commands in Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki/%F0%9F%94%8E-Basic-Commands-in-Pluto)
 
 - Add interactivity to your notebook with PlutoUI.jl:
 
-    - [PlutoUI.jl documentation](https://docs.juliahub.com/PlutoUI/abXFp/0.7.52/)
+    - [PlutoUI.jl documentation](https://docs.juliahub.com/PlutoUI/abXFp/0.7.59/))
     
     - [🎈 PlutoUI sample notebook](https://featured.plutojl.org/basic/plutoui.jl)
  
@@ -81,8 +81,6 @@ Indicação da notação utilizada no *website* e nos *notebooks*.
 
 ### Gráficos, desenhos, diagramas, ...
 
-- [Plots.jl](https://github.com/sswatson/cheatsheets/blob/master/plotsjl-cheatsheet.pdf) cheatsheet
-
 - Christopher Rackauckas, [Summary of Julia Plotting Packages](http://www.stochasticlifestyle.com/summary-of-julia-plotting-packages/), Stochastic Lifestyle blog, Jun. 2023.
 
 - [🎈 Notebooks for the examples in the book](https://packtpublishing.github.io/Interactive-Visualization-and-Plotting-with-Julia/): Diego Javier Zea, Interactive Visualization and Plotting with Julia, Packt Publishing, 2022.  
@@ -112,8 +110,3 @@ Indicação da notação utilizada no *website* e nos *notebooks*.
 - 📄: *notebook* de guia de ensaio experimental / preparação de relatório técnico 
 
 - 💻: tópico assinalado no *notebook* que requer a participação do estudante (atividade interativa)
-
-- 📌: tópico assinalado no *notebook* que deve ser analisado previamente
-
--  Imagem colocada no topo do *notebook* para obter o [URL](https://pt.wikipedia.org/wiki/URL) do ficheiro `*.jl` no repositório de *notebooks* Pluto de ME II: 
-![](https://img.shields.io/badge/GitHub_URL-notebook-C09107)
