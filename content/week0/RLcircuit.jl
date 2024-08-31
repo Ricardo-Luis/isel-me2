@@ -258,9 +258,6 @@ md"""
 # Resolução
 """
 
-# ╔═╡ e2d9b299-f923-4ffd-94cb-ad372aaf8d75
-
-
 # ╔═╡ 3a352a43-d9ac-4d3d-91cc-e37c8f2af810
 md"""
 ## Impedância complexa
@@ -362,9 +359,6 @@ aside((md"""
 	
 	Este procedimento permite efetuar cálculos e obter resultados à semelhança da leitura de instrumentos de medida, em circuitos de corrente alternada, *e.g.*, voltímetros e amperímetros, onde as grandezas visualizadas são em valor eficaz.	
 """), v_offset=-450)
-
-# ╔═╡ 4b78a70d-9998-4a5e-ab28-1b403b002413
-
 
 # ╔═╡ cffaa60e-1db6-435e-8826-8b620b939195
 md"""
@@ -555,6 +549,16 @@ aside((md"""
 
 """), v_offset=-650)
 
+# ╔═╡ 3aaef504-b8a5-4214-973c-5b12c4cf4e4d
+html"""<style>
+main {
+    max-width: 60%;
+    margin-left: 5%;
+    margin-right: 35% !important;
+}
+</style>
+"""
+
 # ╔═╡ a31ace2c-6133-4794-97b8-1e43fec0a9c2
 aside((md"""
 !!! info
@@ -583,16 +587,6 @@ end
 
 # ╔═╡ b59dd96f-f332-4b22-829b-9712ba3cc673
 TableOfContents(title="Índice")
-
-# ╔═╡ 3aaef504-b8a5-4214-973c-5b12c4cf4e4d
-html"""<style>
-main {
-    max-width: 60%;
-    margin-left: 5%;
-    margin-right: 35% !important;
-}
-</style>
-"""
 
 # ╔═╡ 5c3ff88a-70e8-4ace-8782-3c90ff689247
 md"""
@@ -1763,7 +1757,7 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╠═5907d617-574a-4bc6-a710-f00682321c00
+# ╟─5907d617-574a-4bc6-a710-f00682321c00
 # ╟─f65b5561-c05d-4145-b828-a1f52f19a938
 # ╟─9acde771-2169-4ae3-9ebe-fa391588c5f3
 # ╟─b4777f70-8926-4595-b35f-7d9a5ba821cc
@@ -1804,7 +1798,6 @@ version = "1.4.1+1"
 # ╠═8603c14f-88e9-44d1-aeeb-8bf9b9ca3a88
 # ╟─1b0e1c7c-dd9b-493d-877d-6b29c95b20c7
 # ╟─6deb6d95-1075-4e43-abdd-4fe44260c0ed
-# ╟─e2d9b299-f923-4ffd-94cb-ad372aaf8d75
 # ╟─3a352a43-d9ac-4d3d-91cc-e37c8f2af810
 # ╟─cfc4fc55-5b33-415d-8ebe-92f8e714c3b8
 # ╠═87ecd0d4-cd20-4fa1-a03e-2b334e34f87b
@@ -1818,7 +1811,6 @@ version = "1.4.1+1"
 # ╟─c8d3ebcd-e392-4f15-967e-c45e1f0b8e9a
 # ╟─42ce0269-2cc9-4607-bbc8-5b9963ecad3d
 # ╟─a5e5db95-bd1f-4a7d-ad8b-47a9d7e9e5dc
-# ╟─4b78a70d-9998-4a5e-ab28-1b403b002413
 # ╟─cffaa60e-1db6-435e-8826-8b620b939195
 # ╟─dc6d5c88-939b-4e58-9d79-17cb063a9227
 # ╠═b41ae51e-2e4f-4151-bd32-b539f57156b7
@@ -1843,7 +1835,7 @@ version = "1.4.1+1"
 # ╠═fe413d93-1d07-468e-bf41-373f79a0e4a7
 # ╟─ca97ea81-1ec3-41e7-bb4c-ad41b0528492
 # ╟─3aaef504-b8a5-4214-973c-5b12c4cf4e4d
-# ╠═a31ace2c-6133-4794-97b8-1e43fec0a9c2
+# ╟─a31ace2c-6133-4794-97b8-1e43fec0a9c2
 # ╟─bc62a6e7-4d31-4ded-b4a6-15c785f60054
 # ╟─020a50a7-20d1-42aa-8e63-558d68380982
 # ╠═24742ef8-b976-4dd4-a176-fa0891d3165e
