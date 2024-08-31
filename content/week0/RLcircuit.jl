@@ -558,7 +558,7 @@ aside((md"""
 # ╔═╡ a31ace2c-6133-4794-97b8-1e43fec0a9c2
 aside((md"""
 !!! info
-	No índice deste *notebook*, o tópico assinalado com "💻" requer a participação do estudante.
+	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
 """), v_offset=230)
 
 # ╔═╡ bc62a6e7-4d31-4ded-b4a6-15c785f60054
@@ -1763,7 +1763,7 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─5907d617-574a-4bc6-a710-f00682321c00
+# ╠═5907d617-574a-4bc6-a710-f00682321c00
 # ╟─f65b5561-c05d-4145-b828-a1f52f19a938
 # ╟─9acde771-2169-4ae3-9ebe-fa391588c5f3
 # ╟─b4777f70-8926-4595-b35f-7d9a5ba821cc
@@ -1842,13 +1842,13 @@ version = "1.4.1+1"
 # ╠═29057a6f-fb4b-4fae-8c79-0688a843d6b4
 # ╠═fe413d93-1d07-468e-bf41-373f79a0e4a7
 # ╟─ca97ea81-1ec3-41e7-bb4c-ad41b0528492
-# ╟─a31ace2c-6133-4794-97b8-1e43fec0a9c2
+# ╟─3aaef504-b8a5-4214-973c-5b12c4cf4e4d
+# ╠═a31ace2c-6133-4794-97b8-1e43fec0a9c2
 # ╟─bc62a6e7-4d31-4ded-b4a6-15c785f60054
 # ╟─020a50a7-20d1-42aa-8e63-558d68380982
 # ╠═24742ef8-b976-4dd4-a176-fa0891d3165e
 # ╟─bdb715da-523a-478d-a027-903820be78bf
 # ╠═b59dd96f-f332-4b22-829b-9712ba3cc673
-# ╟─3aaef504-b8a5-4214-973c-5b12c4cf4e4d
 # ╟─5c3ff88a-70e8-4ace-8782-3c90ff689247
 # ╟─7cf84eb2-82a2-44a5-88b6-e9be229f1797
 # ╟─00000000-0000-0000-0000-000000000001
