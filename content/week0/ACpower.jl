@@ -24,9 +24,9 @@ end
 
 # ╔═╡ b411a974-d7fa-49d6-a1b7-ab32eb8bbe78
 using PlutoUI, PlutoTeachingTools, Plots, NumericalIntegration
-# Short packages description:
-  # PlutoUI.jl, package to add interactivity objects to notebook
-  # PlutoTeachingTools.jl, package to enhance the notebook
+# Brief description of the used Julia packages:
+  # PlutoUI.jl, to add interactivity objects
+  # PlutoTeachingTools.jl, to enhance the notebook
   # Plots.jl, visualization interface and toolset to build graphics
   # NumericalIntegration.jl, tool for numerically integrating presampled data 
 
@@ -48,7 +48,7 @@ md"""
 Este *notebook* apresenta dois objetivos a serem concretizados em simultâneo:
 
 - serve de revisão a conceitos sobre **potência** em circuitos de corrente alternada (AC);
-- e para introduzir a construção de gráficos na linguagem de programação `Julia` usando a interface de trabalho `Pluto.jl`.
+- e para introduzir a construção de gráficos na linguagem de computação científica `Julia` usando a interface de trabalho `Pluto.jl`.
 
 Sendo um documento computacional de revisão de conceitos de base em engenharia eletrotécnica, mas fundamentais na aprendizagem e aplicação de máquinas elétricas, o estudante poderá dividir a sua atenção nos dois objetivos propostos.
 """
@@ -70,7 +70,20 @@ Esta fonte de tensão alimenta uma carga linear variável, cujo o valor de corre
 """
 
 # ╔═╡ 165d6a97-67fc-4bbe-936b-47b33f9e0e33
+aside((md"""
+!!! tip "Observações" 
+	O texto descritivo é realizado no formato [**Markdown**](https://www.markdownguide.org/) cuja sintaxe é muito fácil de aprender e usar: [📺 Learn Markdown in 1 minute](https://www.youtube.com/shorts/-aSSrmAXHDg).
+	
+	Para iniciar um texto descritivo no formato Makdown numa célula vazia utilizar as teclas de atalho: `Ctrl` + `m`
+	\
+	\
+	A notação matemática é realizada no formato ``\LaTeX`` para a apresentação de variáveis e equações: [📺 Math equations and expressions - LaTeX in 100 seconds](https://www.youtube.com/watch?v=V4htbZeDUMU). Trata-se de um sistema de composição tipográfica de qualidade, que inclui recursos destinados à produção de documentos técnico-científicos.
 
+	Para equações mais complexas existem ferramentas disponíveis _online_ que facilitam a obtenção do código $\LaTeX$. Exemplo: [Equation Editor for online mathematics](https://editor.codecogs.com/)
+
+	Para escrever no formato $\LaTeX$ utilizar o símbolo `$` (sinal de dólar) no ínício e fim da equação/expressão ou em alternativa o duplo sinal de acento grave, ``,  também designado por _backticks_.
+
+"""), v_offset=-730)
 
 # ╔═╡ 37a9799f-a746-4754-b3f2-692665bb9abd
 md"""
@@ -86,7 +99,7 @@ Definem-se as grandezas que vão permitir caracterizar a onda temporal da tensã
 """
 
 # ╔═╡ b263485a-636d-4a57-9c4e-dd10bf217826
-U, f, θᵤ = 100.0, 50, 0.0  # AC voltage, V; frequency, Hz; initial voltage phase 								 angle, rad
+U, f, θᵤ = 100.0, 50, 0.0  # AC voltage, V; frequency, Hz; initial voltage phase angle, rad
 
 # ╔═╡ e628a95a-30a5-4c58-8645-f01ac434b0d3
 md"""
@@ -130,18 +143,24 @@ u = √2*U*sin.(ω*t .+ θᵤ)
 
 # ╔═╡ f0dad876-ded8-4da1-8b4e-243dde05b386
 aside((md"""
-!!! tip "Observações:"
-	- A linguagem Julia aceita caracteres gregos e/ou símbolos como variáveis. A lista de possibilidades vem definida em [Unicode Input](https://docs.julialang.org/en/v1/manual/unicode-input/); Exemplos: 
+!!! tip "Observações"
+	A linguagem Julia aceita caracteres gregos e/ou símbolos como variáveis. A lista de possibilidades vem definida em [Unicode Input](https://docs.julialang.org/en/v1/manual/unicode-input/); Exemplos: 
       - para a raíz quadrada, escrever: `\sqrt` + premir tecla `TAB`
       - para a letra grega ω, escrever: `\omega` + tecla `TAB`
       - θᵤ é obtido fazendo: `\theta` + `TAB` + `\_u` + `TAB`
 
-	  Isto permite que as equações para cálculo computacional fiquem muito semelhantes à sua escrita matemática!
+	Isto permite que as equações para cálculo computacional fiquem muito semelhantes à sua escrita matemática!
+	\
+	\
+	Na equação: \
 
-
-	- Na equação: `u = √2*U*sin.(ω*t .+ θᵤ)`, antes dos operadores matemáticos e após a função `sin` aparece um ponto final `.`: isso é o símbolo de [*broadcasting*](https://docs.julialang.org/en/v1/manual/arrays/#Broadcasting) e evita ter de  definir uma instrução de ciclo `for`, de modo a obter a tensão instantânea `u` para todos os valores de `t`, simplificando a escrita de código.
-
-"""), v_offset=-700)
+	`u = √2*U*sin.(ω*t .+ θᵤ)`, antes dos operadores matemáticos e após a função `sin` aparece um ponto final `.`: 	
+	isso é o símbolo de [*broadcasting*](https://docs.julialang.org/en/v1/manual/arrays/#Broadcasting) e evita ter de  definir uma instrução de ciclo `for`, de modo a obter a tensão instantânea `u` para todos os valores de `t`, simplificando a escrita de código.
+	\
+	\
+	Os comentários dentro de uma linha de código são iniciados com o sinal de cardinal, `#`, sendo o texto à sua direita ignorado pelo compilador Julia. \
+	Para um comentário de várias linhas o texto é delimitado por `#=` no início do comentário e `=#` no final do comentário. 
+"""), v_offset=-640)
 
 # ╔═╡ 87bcbe0c-19e7-4c07-a1d7-bb1a83da434b
 md"""
@@ -149,12 +168,29 @@ md"""
 Uma vez que a carga é variável define-se a corrente, $I$ e o ângulo de desfasamento da corrente em relação à tensão, $\varphi$, com base em dois controlos deslizantes (*sliders*) que permitem uma análise interativa. 
 """
 
+# ╔═╡ 6eea4290-cf1c-45d8-b1f8-54e7a36b72e2
+
+
 # ╔═╡ dc524dd6-01fe-45fc-bf89-49f07cd88c7e
 md"""
 ### 💻 Controlos da corrente
 
  $$I [A] =$$ $(@bind I Slider(0:0.1:100; default=60, show_value=true)) $$\quad\quad ; \quad\quad$$ $$\phi[\degree]$$ $(@bind ϕ Slider(-90:0.1:90; default=-30, show_value=true))  
 """
+
+# ╔═╡ ac602069-394d-4d58-825e-853dae565122
+aside((md"""
+!!! tip "Observações"
+	Cada célula de cálculo de um _notebook_ Pluto aceita apenas uma instrução Julia. 
+
+	No, entanto por vezes, surge a necessidade de organizar parte dos cálculos num único bloco. Nessas situações, para agrupar várias expressões de cálculo numa única célula, utilizam-se as instruções `begin`...`end` ou `let`...`end`: 
+	
+	- na opção `begin`...`end`, as variáveis utilizadas ou definidas são globais (para todo o _notebook_);
+	- na opção  `let`...`end`, as variáveis utilizadas ou definidas são locais (só existem nessa célula do _notebook_).
+
+	Em, qualquer dos casos, o resultado exibido é sempre relativo à última instrução (penúltima linha do bloco).
+
+"""), v_offset=50)
 
 # ╔═╡ 03e2bb91-acd2-4a71-b31a-2935bfecba08
 begin
@@ -187,11 +223,11 @@ end
 
 # ╔═╡ 72acfb93-b5bb-4767-8214-2571165304bd
 aside((md"""
-!!! tip "Observações:"
+!!! tip "Observações"
 	- Na margem esquerda de cada célula do *notebook* pode optar por **mostrar** ou **ocultar** o código que a origina, premindo o símbolo 👁;
 	- A partir da margem esquerda do *notebook* pode arrastar qualquer célula para qualquer outra posição vertical do *notebook*.
 
-	👆 Assim, arraste a célula dos controlos deslizantes do valor eficaz e desfasamento da corrente, para junto de um dos gráficos abaixo e visualize-os de uma forma interativa!
+	👆 Assim, arraste a célula relativa aos controlos deslizantes do valor eficaz e desfasamento da corrente, para junto de um dos gráficos abaixo e visualize-os de uma forma interativa!
 """), v_offset=100)
 
 # ╔═╡ 01e4e485-c4ba-473c-9de3-d28179e147e2
@@ -403,7 +439,14 @@ p₁ = P*(1 .- cos.(2ω*t));
 p₂ = Q*sin.(2ω*t);
 
 # ╔═╡ 1b66f615-427e-4d95-9058-0e31b239b006
+aside((md"""
+!!! tip "Observações"
+	Ao colocar `;` no final das expressões de cálculo, os respetivos resultados dessas células não são exibidos, mas continuam a ser calculados.
 
+	Desta forma, evita-se a apresentação de resultados intercalares ou em bruto.
+
+	Os resultados também podem ser inseridos no texto descritivo, através da instrução `$()`, colocando nos parênteses o nome da variável que cujo o(s) valor(es) se deseja(m) apresentar.
+"""), v_offset=-320)
 
 # ╔═╡ 19688a6a-fbca-4eaf-8acd-25a604902c04
 md"""
@@ -460,7 +503,7 @@ main {
 
 # ╔═╡ 7ee6b760-3345-4e69-b24b-1729f5fb56e9
 aside((md"""
-!!! info
+!!! info "Informação"
 	No índice deste *notebook*, o tópico assinalado com "💻" requer a participação do estudante.
 """), v_offset=230)
 
@@ -476,8 +519,6 @@ Documentação das bibliotecas Julia utilizadas: [PlutoUI](https://juliahub.com/
 
 # ╔═╡ aa8b45e1-b6d5-4ee4-8043-1c5b3decef13
 begin
-	# other stuff:
-	isel_logo="https://www.isel.pt/sites/default/files/NoPath%20-%20Copy%402x_0.png"
 	version=VERSION
 	md"""
 *Notebook* realizado em linguagem de computação científica Julia versão $(version).
@@ -1744,7 +1785,9 @@ version = "1.4.1+1"
 # ╠═2416a6df-b494-4620-a4cb-53efc61ae202
 # ╟─f0dad876-ded8-4da1-8b4e-243dde05b386
 # ╟─87bcbe0c-19e7-4c07-a1d7-bb1a83da434b
+# ╟─6eea4290-cf1c-45d8-b1f8-54e7a36b72e2
 # ╟─dc524dd6-01fe-45fc-bf89-49f07cd88c7e
+# ╟─ac602069-394d-4d58-825e-853dae565122
 # ╠═03e2bb91-acd2-4a71-b31a-2935bfecba08
 # ╟─db25a19e-2329-42ab-8602-bcc0749385fd
 # ╟─62075218-1518-4706-8433-87910e4e543a
@@ -1775,7 +1818,7 @@ version = "1.4.1+1"
 # ╟─ee7e6566-9e18-4b64-acba-f21d7b2799bf
 # ╠═4c5a7341-c210-40c0-b8e4-810f2a15245b
 # ╠═8ee8c903-7b59-4ca9-8a20-be8edcab7e09
-# ╠═1b66f615-427e-4d95-9058-0e31b239b006
+# ╟─1b66f615-427e-4d95-9058-0e31b239b006
 # ╟─19688a6a-fbca-4eaf-8acd-25a604902c04
 # ╟─b91708f8-e434-4007-b33b-6ee4a35e082b
 # ╟─0d3f746a-4fc4-4e3f-883a-9e62e965be80

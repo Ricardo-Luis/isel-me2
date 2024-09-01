@@ -29,9 +29,9 @@ end
 
 # ╔═╡ 24742ef8-b976-4dd4-a176-fa0891d3165e
 using PlutoUI, PlutoTeachingTools, Plots, NumericIO
-# Short packages description:
-  # PlutoUI.jl, package to add interactivity objects to notebook
-  # PlutoTeachingTools.jl, package to enhance the notebook
+# Brief description of the used Julia packages:
+  # PlutoUI.jl, to add interactivity objects
+  # PlutoTeachingTools.jl, to enhance the notebook
   # Plots.jl, visualization interface and toolset to build graphics
   # NumericIO.jl, support for formatting numeric data
 
@@ -240,7 +240,7 @@ Fonte tensão AC
 """
 
 # ╔═╡ ff4982fd-062f-43da-86d6-56ec8d3e650e
-U, f, θᵤ = 100.0, 50, 0 		# AC voltage, V; frequency, Hz; initial voltage phase 								 angle, rad
+U, f, θᵤ = 100.0, 50, 0 		# AC voltage, V; frequency, Hz; initial voltage phase angle, rad
 
 # ╔═╡ 550357f9-92f8-484b-9966-65ad5ea592a7
 md"""
@@ -354,7 +354,7 @@ end
 
 # ╔═╡ a5e5db95-bd1f-4a7d-ad8b-47a9d7e9e5dc
 aside((md"""
-!!! nota
+!!! nota "Observação"
 	Seguindo a notação complexa, um fasor de uma onda sinusoidal é representado pela amplitude e argumento. No entanto, em eletrotecnia é comum trocar a amplitude pelo valor eficaz, porque os resultados que se pretendem obter são em valor eficaz e não em valor máximo (amplitude). 
 	
 	Este procedimento permite efetuar cálculos e obter resultados à semelhança da leitura de instrumentos de medida, em circuitos de corrente alternada, *e.g.*, voltímetros e amperímetros, onde as grandezas visualizadas são em valor eficaz.	
@@ -465,7 +465,7 @@ html"""
 
 # ╔═╡ b3c23dd5-ecb3-49b3-98e4-1f6d880f2025
 md"""
-Escolhendo o valor adequado do condensador, poderá verificar no diagrama vetorial e no gráfico da evolução temporal das grandezas, a compensação do fator de potência, permitindo que a tensão e corrente da fonte de alimentação fiquem em fase:
+Escolhendo o valor adequado do condensador poderá verificar no diagrama vetorial e no gráfico da evolução temporal das grandezas, a compensação do fator de potência, permitindo que a tensão e corrente da fonte de alimentação fiquem em fase:
 """
 
 # ╔═╡ a4069d2f-5bca-45b7-95ea-0fbe59dc6a55
@@ -498,6 +498,11 @@ begin
 	
 end
 
+# ╔═╡ 9e5b3036-c741-4aa7-8ccc-7b2ba33a44bc
+md"""
+A representação temporal da tensão e correntes representadas no circuito RL com a compensação do fator de potência, obtém-se através do cálculo das grandezas, $u(t)$, $i_i(t)$, $i_{rl}(t)$ e $i_c(t)$ e respetiva representação gráfica:
+"""
+
 # ╔═╡ b46be50d-b1ae-4b5e-b1de-eebbe2380c67
 begin
 	Iᵢ=abs(I⃗ᵢ)
@@ -506,9 +511,8 @@ begin
 	
 	Ic=abs(I⃗c)
 	φc=atan(imag(I⃗c)/real(I⃗c))
-	ic= √2*Iᵢ*sin.(ω.*t .+ π/2)
-	
-end
+	ic= √2*Iᵢ*sin.(ω.*t .+ π/2)	
+end;
 
 # ╔═╡ 24f7bb6e-54f3-4f84-95c9-4f11e8292b6a
 begin
@@ -521,9 +525,22 @@ begin
 	plot!(twinx(), t, iᵢ, ylim=[-20, 20], lc=:black, lw=2, xlim=[0,0.04], label="iᵢ(t)", legend=:topleft)
 end
 
+# ╔═╡ d7dd132a-522e-4e4b-9f87-975459e2d70c
+md"""
+Note-se que a escolha adequada do valor da capacidade do filtro passivo permite que a corrente de entrada do circuito, $i_i(t)$, fique em fase com a tensão de alimentação, $u(t)$, ou seja, $\cos \varphi=1$.
+"""
+
+# ╔═╡ bddd4830-a606-4e3f-a6a4-836d1c7ffe26
+
+
 # ╔═╡ 372caab8-a5b0-46d9-856a-68384c5eecb3
 md"""
 ### Solução analítica
+"""
+
+# ╔═╡ 1098adf7-b66e-4861-b9be-112115da8e84
+md"""
+Analiticamente, a solução do valor da capacidade do filtro passivo é fácil de obter, usando o valor da potência reativa imposta pelo circuito RL:
 """
 
 # ╔═╡ 29057a6f-fb4b-4fae-8c79-0688a843d6b4
@@ -535,9 +552,14 @@ end
 # ╔═╡ fe413d93-1d07-468e-bf41-373f79a0e4a7
 formatted(C₁, :ENG, ndigits=4) 
 
+# ╔═╡ fcc379d4-d1f9-40f5-8d09-505c67b4de93
+md"""
+O que comprova o resultado obtido interativamente pela visualição gráfica (diagrama vetorial e/ou resposta temporal).
+"""
+
 # ╔═╡ ca97ea81-1ec3-41e7-bb4c-ad41b0528492
 aside((md"""
-!!! nota
+!!! tip "Observação"
 	O exercício apresentado tem como um dos objetivos o pretexto de exemplificar a elaboração computacional de diagramas vetoriais.
 
 	A solução para a correcção do fator de potência ilustrada não tem em conta diversos aspetos técnicos que teriam de ser considerados numa situação real, tais como:
@@ -561,7 +583,7 @@ main {
 
 # ╔═╡ a31ace2c-6133-4794-97b8-1e43fec0a9c2
 aside((md"""
-!!! info
+!!! info "Informação"
 	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
 """), v_offset=230)
 
@@ -577,8 +599,6 @@ Documentação das bibliotecas Julia utilizadas: [PlutoUI](https://juliahub.com/
 
 # ╔═╡ bdb715da-523a-478d-a027-903820be78bf
 begin
-	# other stuff:
-	isel_logo="https://www.isel.pt/sites/default/files/NoPath%20-%20Copy%402x_0.png"
 	version=VERSION
 	md"""
 *Notebook* realizado em linguagem de computação científica Julia versão $(version).
@@ -1828,11 +1848,16 @@ version = "1.4.1+1"
 # ╟─a4069d2f-5bca-45b7-95ea-0fbe59dc6a55
 # ╠═a4afa491-26ec-4655-8293-7774abb926f5
 # ╟─5cbde964-3dac-4472-83d1-0231880beb54
+# ╟─9e5b3036-c741-4aa7-8ccc-7b2ba33a44bc
 # ╠═b46be50d-b1ae-4b5e-b1de-eebbe2380c67
 # ╟─24f7bb6e-54f3-4f84-95c9-4f11e8292b6a
+# ╟─d7dd132a-522e-4e4b-9f87-975459e2d70c
+# ╟─bddd4830-a606-4e3f-a6a4-836d1c7ffe26
 # ╟─372caab8-a5b0-46d9-856a-68384c5eecb3
+# ╟─1098adf7-b66e-4861-b9be-112115da8e84
 # ╠═29057a6f-fb4b-4fae-8c79-0688a843d6b4
 # ╠═fe413d93-1d07-468e-bf41-373f79a0e4a7
+# ╟─fcc379d4-d1f9-40f5-8d09-505c67b4de93
 # ╟─ca97ea81-1ec3-41e7-bb4c-ad41b0528492
 # ╟─3aaef504-b8a5-4214-973c-5b12c4cf4e4d
 # ╟─a31ace2c-6133-4794-97b8-1e43fec0a9c2
