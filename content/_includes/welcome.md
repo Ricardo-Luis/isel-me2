@@ -2,9 +2,9 @@
 layout: "md.jlmd"
 ---
 
-# Documentos computacionais sobre **Máquinas Elétricas II**
+# _Notebooks_ Reativos de Apoio a **Máquinas Elétricas II**
 
-Este *website* disponibiliza a leitura e o acesso a uma coleção de *notebooks* na forma de notas de aula e cálculos de engenharia, de apoio à unidade curricular de Máquinas Elétricas II, lecionada no curso de Licenciatura em Engenharia Eletrotécnica do Instituto Superior de Engenharia de Lisboa (ISEL).
+Este *website* disponibiliza a leitura e o acesso a uma coleção de *notebooks* na forma de notas de aula e cálculos de engenharia, de apoio à unidade curricular de Máquinas Elétricas II, lecionada no curso de Licenciatura em Engenharia Eletrotécnica do Instituto Superior de Engenharia de Lisboa.
 
 Os *notebooks* são documentos computacionais que utilizam o navegador *web*, integrando o desenvolvimento e os resultados computacionais, com texto explicativo, expressões matemáticas, tabelas, imagens, entre outros, de forma interligada e interativa com o utilizador.
 
@@ -26,7 +26,7 @@ Rua Conselheiro Emídio Navarro, 1
 
 Para citar o conteúdo deste *website* ou os *notebooks*, utilize o seguinte texto:
 ```
-Ricardo Luís (2024). Documentos computacionais sobre Máquinas Elétricas II: coleção de notebooks de suporte a Máquinas Elétricas II, lecionada no curso LEE do ISEL. Disponível: https://ricardo-luis.github.io/isel-me2
+Ricardo Luís (2022-2024). _Notebooks_ Reativos de Apoio a Máquinas Elétricas II. Instituto Superior de Engenharia de Lisboa (ISEL), Licenciatura em Engenharia Eletrotécnica (LEE), Máquinas Elétricas II (ME II). Disponível: https://ricardo-luis.github.io/isel-me2
 ```
 
 ---  
