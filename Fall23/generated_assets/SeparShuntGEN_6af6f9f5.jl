@@ -199,7 +199,7 @@ md"""
 
 # ╔═╡ 46cffa11-842e-4781-a291-f6fe4bd76ec6
 md"""
-> Definem-se também mais dois _sliders_ para variar o valor da corrente de excitação, $I_{ex}$, e para variar o valor da resistência de carga do gerador de excitação separada.
+> Definem-se também mais dois _sliders_ para variar o valor da corrente de excitação, $I_{ex}$, e para variar o valor da resistência de carga do gerador.
 """
 
 # ╔═╡ 83386f45-c442-44dd-82f4-2c6909b0e1ef
@@ -290,7 +290,7 @@ end;
 md"""
 Assim, em dois passos determina-se o valor de $$R_{ex}=R_d$$:
 - consultar a característica magnética para obter a corrente de campo correspondente a $$U_0=294$$V;
-- cálculo da resistência do circuito de excitação
+- cálculo da resistência do circuito de excitação.
 Obtém-se, $$R_d=$$ $(Rd)Ω
 """
 
@@ -422,15 +422,15 @@ end
 # ╔═╡ b8fd0998-fad1-4eba-bbd5-389dbfd3c4bf
 let
 	choices = ["A FEM vai diminuir 3,5%", "A FEM vai aumentar 5,0%", "A FEM vai aumentar 3,5%", "A FEM vai aumentar 6,5%", "A FEM vai diminuir 5,0%", "A FEM vai diminuir 6,5%"]
-	question = "**Num gerador DC se a velocidade aumentar 15% e o fluxo magnético diminuir 10%, qual a resposta correta relativamente à força eletromotriz (FEM) resultante?**"
+	question = "**Num gerador DC em funcionamento se a velocidade aumentar 15% e o fluxo magnético diminuir 10%, qual a resposta correta relativamente à força eletromotriz (FEM) resultante?**"
 	answer = 3
 	radioq(choices, answer; label=question, hint="Utilize a expressão da FEM...")
 end
 
 # ╔═╡ c4ebde06-5060-497e-9849-7e0ef5bc618d
 let
-	question = "**Complete:** Para uma dada corrente de carga, a queda de tensão total num gerador DC de excitação derivação é ____ do que o mesmo gerador ligado com excitação com excitação separada."
-	fillblankq(question, ("maior", "menor", "igual"), 3)
+	question = "**Complete:** Para uma dada corrente de carga, a queda de tensão total (q.d.t.) num gerador DC de excitação derivação é ____ q.d.t. do mesmo gerador ligado com excitação com excitação separada."
+	fillblankq(question, ("maior que a", "menor qua a", "igual à"), 3)
 end
 
 # ╔═╡ 1247b336-2a74-4373-b6b6-b052fd20c038
@@ -447,20 +447,19 @@ let
 end
 
 # ╔═╡ 7800fc5c-ea05-40f9-9034-be2ed28f067e
+# to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 main {
     max-width: 60%;
     margin-left: 5%;
     margin-right: 35% !important;
 }
+pluto-output {
+    font-family: Lato;
+	font-size:  100%
+}
 </style>
 """
-
-# ╔═╡ 4ab2ae32-7315-4867-9b9a-021a7bfb9e49
-aside((md"""
-!!! info "Informação"
-	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
-"""), v_offset=290)
 
 # ╔═╡ e44e9399-4830-41a1-b3b4-95c5bb0ef24d
 md"""
@@ -483,13 +482,20 @@ end
 # ╔═╡ 9ad6bdff-e6b8-49b8-aef2-becc8e3898cc
 TableOfContents(title="Índice")
 
-# ╔═╡ 721e3e66-f198-43d3-acc4-a14164e1e29c
-md"""
----
-"""
+# ╔═╡ 4ab2ae32-7315-4867-9b9a-021a7bfb9e49
+aside((md"""
+!!! info "Informação"
+	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
+"""), v_offset=-170)
 
 # ╔═╡ b176721c-6a68-4041-b1a7-cbb7122d4af5
-ThreeColumn(md"Text content: [![](https://i.creativecommons.org/l/by-sa/4.0/80x15.png)](http://creativecommons.org/licenses/by-sa/4.0/)", md"`Julia code`: [`MIT License`](https://www.tldrlegal.com/license/mit-license)", md" $$©$$ [`2024 Ricardo Luís`](https://ricardo-luis.github.io/lee-me2/)")
+md"""
+|  |  |
+|:--:|:--|
+|  | This notebook, [Separ.Shunt.GEN.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Separ.Shunt.GEN/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+| **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
+|  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1750,13 +1756,12 @@ version = "1.4.1+1"
 # ╟─c4ebde06-5060-497e-9849-7e0ef5bc618d
 # ╟─1247b336-2a74-4373-b6b6-b052fd20c038
 # ╟─7800fc5c-ea05-40f9-9034-be2ed28f067e
-# ╟─4ab2ae32-7315-4867-9b9a-021a7bfb9e49
 # ╟─e44e9399-4830-41a1-b3b4-95c5bb0ef24d
 # ╟─2257a478-ed9b-4a7b-9dcc-5a29d7435990
 # ╠═a99eb837-a18d-4a4c-a4d3-756cc2e6b1de
 # ╟─6e11f240-f4a2-417b-aec5-e7c1cd5ee87f
 # ╠═9ad6bdff-e6b8-49b8-aef2-becc8e3898cc
-# ╟─721e3e66-f198-43d3-acc4-a14164e1e29c
+# ╟─4ab2ae32-7315-4867-9b9a-021a7bfb9e49
 # ╟─b176721c-6a68-4041-b1a7-cbb7122d4af5
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
