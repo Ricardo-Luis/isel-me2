@@ -29,11 +29,13 @@ end
 
 # ╔═╡ 24742ef8-b976-4dd4-a176-fa0891d3165e
 using PlutoUI, PlutoTeachingTools, Plots, NumericIO
-# Brief description of the used Julia packages:
-  # PlutoUI.jl, to add interactivity objects
-  # PlutoTeachingTools.jl, to enhance the notebook
-  # Plots.jl, visualization interface and toolset to build graphics
-  # NumericIO.jl, support for formatting numeric data
+#=
+Brief description of the used Julia packages:
+  - PlutoUI.jl, to add interactivity objects
+  - PlutoTeachingTools.jl, to enhance the notebook
+  - Plots.jl, visualization interface and toolset to build graphics
+  - NumericIO.jl, support for formatting numeric data
+=#
 
 # ╔═╡ 5907d617-574a-4bc6-a710-f00682321c00
 TwoColumnWideLeft(md"`RLcircuit.jl`", md"`Last update: 09·09·2024`")
@@ -569,23 +571,22 @@ aside((md"""
 
 	Assim, na prática, o dimensionamento de filtros passivos para compensação do fator de potência necessita de estudos avançados na área de [Qualidade de Energia Elétrica](https://www.isel.pt/mee/qualidade-de-energia-eletrica).
 
-"""), v_offset=-650)
+"""), v_offset=-720)
 
 # ╔═╡ 3aaef504-b8a5-4214-973c-5b12c4cf4e4d
+# to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 main {
     max-width: 60%;
     margin-left: 5%;
     margin-right: 35% !important;
 }
+pluto-output {
+    font-family: Lato;
+	font-size:  100%
+}
 </style>
 """
-
-# ╔═╡ a31ace2c-6133-4794-97b8-1e43fec0a9c2
-aside((md"""
-!!! info "Informação"
-	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
-"""), v_offset=230)
 
 # ╔═╡ bc62a6e7-4d31-4ded-b4a6-15c785f60054
 md"""
@@ -608,13 +609,20 @@ end
 # ╔═╡ b59dd96f-f332-4b22-829b-9712ba3cc673
 TableOfContents(title="Índice")
 
-# ╔═╡ 5c3ff88a-70e8-4ace-8782-3c90ff689247
-md"""
----
-"""
+# ╔═╡ a31ace2c-6133-4794-97b8-1e43fec0a9c2
+aside((md"""
+!!! info "Informação"
+	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
+"""), v_offset=-170)
 
-# ╔═╡ 7cf84eb2-82a2-44a5-88b6-e9be229f1797
-ThreeColumn(md"Text content: [![](https://i.creativecommons.org/l/by-sa/4.0/80x15.png)](http://creativecommons.org/licenses/by-sa/4.0/)", md"`Julia code`: [`MIT License`](https://www.tldrlegal.com/license/mit-license)", md" $$©$$ [`2024 Ricardo Luís`](https://ricardo-luis.github.io/isel-me2/)")
+# ╔═╡ 2523215e-7d3c-4b25-b220-7e787e16c242
+md"""
+|  |  |
+|:--:|:--|
+|  | This notebook, [RLcircuit.jl](https://ricardo-luis.github.io/isel-me2/Fall23/week0/RLcircuit/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+| **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
+|  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1860,13 +1868,12 @@ version = "1.4.1+1"
 # ╟─fcc379d4-d1f9-40f5-8d09-505c67b4de93
 # ╟─ca97ea81-1ec3-41e7-bb4c-ad41b0528492
 # ╟─3aaef504-b8a5-4214-973c-5b12c4cf4e4d
-# ╟─a31ace2c-6133-4794-97b8-1e43fec0a9c2
 # ╟─bc62a6e7-4d31-4ded-b4a6-15c785f60054
 # ╟─020a50a7-20d1-42aa-8e63-558d68380982
 # ╠═24742ef8-b976-4dd4-a176-fa0891d3165e
 # ╟─bdb715da-523a-478d-a027-903820be78bf
 # ╠═b59dd96f-f332-4b22-829b-9712ba3cc673
-# ╟─5c3ff88a-70e8-4ace-8782-3c90ff689247
-# ╟─7cf84eb2-82a2-44a5-88b6-e9be229f1797
+# ╟─a31ace2c-6133-4794-97b8-1e43fec0a9c2
+# ╟─2523215e-7d3c-4b25-b220-7e787e16c242
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

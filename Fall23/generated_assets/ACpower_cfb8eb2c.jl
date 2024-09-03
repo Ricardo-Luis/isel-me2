@@ -24,11 +24,13 @@ end
 
 # ╔═╡ b411a974-d7fa-49d6-a1b7-ab32eb8bbe78
 using PlutoUI, PlutoTeachingTools, Plots, NumericalIntegration
-# Brief description of the used Julia packages:
-  # PlutoUI.jl, to add interactivity objects
-  # PlutoTeachingTools.jl, to enhance the notebook
-  # Plots.jl, visualization interface and toolset to build graphics
-  # NumericalIntegration.jl, tool for numerically integrating presampled data 
+#=
+Brief description of the used Julia packages:
+  - PlutoUI.jl, to add interactivity objects
+  - PlutoTeachingTools.jl, to enhance the notebook
+  - Plots.jl, visualization interface and toolset to build graphics
+  - NumericalIntegration.jl, tool for numerically integrating presampled data
+=#
 
 # ╔═╡ 4726fac7-ee43-4e91-b95e-dbb1a09e1b7d
 TwoColumnWideLeft(md"`ACpower.jl`", md"`Last update: 09·09·2024`")
@@ -72,18 +74,21 @@ Esta fonte de tensão alimenta uma carga linear variável, cujo o valor de corre
 # ╔═╡ 165d6a97-67fc-4bbe-936b-47b33f9e0e33
 aside((md"""
 !!! tip "Observações" 
-	O texto descritivo é realizado no formato [**Markdown**](https://www.markdownguide.org/) cuja sintaxe é muito fácil de aprender e usar: [📺 Learn Markdown in 1 minute](https://www.youtube.com/shorts/-aSSrmAXHDg).
+	O texto descritivo é realizado no formato [**Markdown**](https://www.markdownguide.org/) cuja sintaxe é muito fácil de aprender e usar:\
+	[📺 Learn Markdown in 1 minute](https://www.youtube.com/shorts/-aSSrmAXHDg).
 	
 	Para iniciar um texto descritivo no formato Makdown numa célula vazia utilizar as teclas de atalho: `Ctrl` + `m`
 	\
 	\
-	A notação matemática é realizada no formato ``\LaTeX`` para a apresentação de variáveis e equações: [📺 Math equations and expressions - LaTeX in 100 seconds](https://www.youtube.com/watch?v=V4htbZeDUMU). Trata-se de um sistema de composição tipográfica de qualidade, que inclui recursos destinados à produção de documentos técnico-científicos.
+	A notação matemática é realizada no formato ``\LaTeX`` para a apresentação de variáveis e equações:\
+	[📺 Math equations and expressions - LaTeX in 100 seconds](https://www.youtube.com/watch?v=V4htbZeDUMU)\
+	Trata-se de um sistema de composição tipográfica de qualidade, que inclui recursos destinados à produção de documentos técnico-científicos.
 
 	Para equações mais complexas existem ferramentas disponíveis _online_ que facilitam a obtenção do código $\LaTeX$. Exemplo: [Equation Editor for online mathematics](https://editor.codecogs.com/)
 
 	Para escrever no formato $\LaTeX$ utilizar o símbolo `$` (sinal de dólar) no ínício e fim da equação/expressão ou em alternativa o duplo sinal de acento grave, ``,  também designado por _backticks_.
 
-"""), v_offset=-730)
+"""), v_offset=-750)
 
 # ╔═╡ 37a9799f-a746-4754-b3f2-692665bb9abd
 md"""
@@ -160,7 +165,7 @@ aside((md"""
 	\
 	Os comentários dentro de uma linha de código são iniciados com o sinal de cardinal, `#`, sendo o texto à sua direita ignorado pelo compilador Julia. \
 	Para um comentário de várias linhas o texto é delimitado por `#=` no início do comentário e `=#` no final do comentário. 
-"""), v_offset=-640)
+"""), v_offset=-680)
 
 # ╔═╡ 87bcbe0c-19e7-4c07-a1d7-bb1a83da434b
 md"""
@@ -224,11 +229,11 @@ end
 # ╔═╡ 72acfb93-b5bb-4767-8214-2571165304bd
 aside((md"""
 !!! tip "Observações"
-	- Na margem esquerda de cada célula do *notebook* pode optar por **mostrar** ou **ocultar** o código que a origina, premindo o símbolo 👁;
+	- Na margem esquerda de cada célula do *notebook* pode optar por **mostrar** ou **ocultar** o código que origina o resultado visualizado, premindo o símbolo 👁;
 	- A partir da margem esquerda do *notebook* pode arrastar qualquer célula para qualquer outra posição vertical do *notebook*.
 
 	👆 Assim, arraste a célula relativa aos controlos deslizantes do valor eficaz e desfasamento da corrente, para junto de um dos gráficos abaixo e visualize-os de uma forma interativa!
-"""), v_offset=100)
+"""), v_offset=210)
 
 # ╔═╡ 01e4e485-c4ba-473c-9de3-d28179e147e2
 md"""
@@ -266,7 +271,7 @@ begin
 	# Select the checkbox above the plot, to see the instantaneous power, p(t), together with voltage and current plot, with a secondary axis:
 	if z == 0
 		plot(t, u, xlabel="t (s)", label="u(t)", minorticks=5)
-		plot!(t,i, ylabel="u, i  (V, A)", label="i(t)", legend=:bottomleft)
+		plot!(t,i, ylabel="u, i  (V, A)", label="i(t)", legend=:bottomleft, size=(800,400))
 	else
 		plot(t, u, xlabel="t (s)", label="u(t)", minorticks=5)
 		plot!(t,i, ylabel="u, i  (V, A)", label="i(t)", legend=:bottomleft)
@@ -396,7 +401,7 @@ begin
 	# p(t):
 	plot(t, p/1000, title="p(t) = P - pₐₗₜ(t)", 
 				legend=:topright, xlabel="t  (s)", ylims=[-11,21], lw=2, 
-				lc=:green, ylabel="kVA, kW", label="p(t)", minorticks=5)
+				lc=:green, ylabel="kVA, kW", label="p(t)", minorticks=5, size=(800,400))
 	
 	# pₐₗₜ(t):
 	plot!(t, pₐₗₜ/1000, lc=:purple, label="pₐₗₜ(t)")
@@ -441,12 +446,12 @@ p₂ = Q*sin.(2ω*t);
 # ╔═╡ 1b66f615-427e-4d95-9058-0e31b239b006
 aside((md"""
 !!! tip "Observações"
-	Ao colocar `;` no final das expressões de cálculo, os respetivos resultados dessas células não são exibidos, mas continuam a ser calculados.
+	Ao colocar `;` no final das células de cálculo, os respetivos resultados dessas células não são exibidos, mas continuam a ser calculados.
 
 	Desta forma, evita-se a apresentação de resultados intercalares ou em bruto.
 
-	Os resultados também podem ser inseridos no texto descritivo, através da instrução `$()`, colocando nos parênteses o nome da variável que cujo o(s) valor(es) se deseja(m) apresentar.
-"""), v_offset=-320)
+	Os resultados também podem ser inseridos no texto descritivo, através da instrução `$()`, colocando nos parênteses o nome da variável que cujo o(s) valor(es) se deseja(m) apresentar. Assim, os resultados apresentados no texto descritivo mantêm-se atualizados com a utilização interativa do _notebook_.
+"""), v_offset=-330)
 
 # ╔═╡ 19688a6a-fbca-4eaf-8acd-25a604902c04
 md"""
@@ -458,7 +463,7 @@ begin
 	# p(t), p₁(t), p₂(t):
 	plot(t, p/1000, title="p(t)=p₁(t)+p₂(t) ;  P=$(P)kW ;  Q=$(Q)kVAr ; S=$(S)kVA", 
 				legend=:topright, xlabel="t  (s)", lw=2, lc=:green, ylims=[-11,21],
-				ylabel="kW, kVAr, kVA",	label="p(t)", minorticks=5)
+				ylabel="kW, kVAr, kVA",	label="p(t)", minorticks=5, size=(800,400))
 	plot!(t, p₁, lc=:red, label="p₁(t)") 
 	plot!(t, p₂, lc=:blue, label="p₂(t)")
 	
@@ -492,20 +497,19 @@ Do gráfico anterior é possível verificar:
 """
 
 # ╔═╡ 8ed9575a-eab7-4160-a9d8-719ad09b3f4e
+# to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 main {
     max-width: 60%;
     margin-left: 5%;
     margin-right: 35% !important;
 }
+pluto-output {
+    font-family: Lato;
+	font-size:  100%
+}
 </style>
 """
-
-# ╔═╡ 7ee6b760-3345-4e69-b24b-1729f5fb56e9
-aside((md"""
-!!! info "Informação"
-	No índice deste *notebook*, o tópico assinalado com "💻" requer a participação do estudante.
-"""), v_offset=230)
 
 # ╔═╡ 84b38e0e-a51f-4ee0-b238-c224e4dd8c94
 md"""
@@ -528,13 +532,20 @@ end
 # ╔═╡ 9b1afa94-4b72-4958-b17d-e28b5845c517
 TableOfContents(title="Índice")
 
-# ╔═╡ 5f6e5820-d9ad-4af3-96c9-776bd373e4fe
-md"""
----
-"""
+# ╔═╡ 7ee6b760-3345-4e69-b24b-1729f5fb56e9
+aside((md"""
+!!! info "Informação"
+	No índice deste *notebook*, o tópico assinalado com "💻" requer a participação do estudante.
+"""), v_offset=-170)
 
-# ╔═╡ 3dc85a76-04b8-4a30-a5ff-ef6af38fdda3
-ThreeColumn(md"Text content: [![](https://i.creativecommons.org/l/by-sa/4.0/80x15.png)](http://creativecommons.org/licenses/by-sa/4.0/)", md"`Julia code`: [`MIT License`](https://www.tldrlegal.com/license/mit-license)", md" $$©$$ [`2024 Ricardo Luís`](https://ricardo-luis.github.io/isel-me2/)")
+# ╔═╡ 4b501cf6-5fbf-48be-8004-b67dd81d6276
+md"""
+|  |  |
+|:--:|:--|
+|  | This notebook, [ACpower.jl](https://ricardo-luis.github.io/isel-me2/Fall23/week0/ACpower/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+| **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
+|  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1823,13 +1834,12 @@ version = "1.4.1+1"
 # ╟─b91708f8-e434-4007-b33b-6ee4a35e082b
 # ╟─0d3f746a-4fc4-4e3f-883a-9e62e965be80
 # ╟─8ed9575a-eab7-4160-a9d8-719ad09b3f4e
-# ╟─7ee6b760-3345-4e69-b24b-1729f5fb56e9
 # ╟─84b38e0e-a51f-4ee0-b238-c224e4dd8c94
 # ╟─b926a0d3-2447-48bc-9fff-7a838d4c047e
 # ╠═b411a974-d7fa-49d6-a1b7-ab32eb8bbe78
 # ╟─aa8b45e1-b6d5-4ee4-8043-1c5b3decef13
 # ╠═9b1afa94-4b72-4958-b17d-e28b5845c517
-# ╟─5f6e5820-d9ad-4af3-96c9-776bd373e4fe
-# ╟─3dc85a76-04b8-4a30-a5ff-ef6af38fdda3
+# ╟─7ee6b760-3345-4e69-b24b-1729f5fb56e9
+# ╟─4b501cf6-5fbf-48be-8004-b67dd81d6276
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
