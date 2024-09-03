@@ -455,7 +455,7 @@ main {
     margin-right: 35% !important;
 }
 pluto-output {
-    font-family: Lato;
+    font-family: system-ui;
 	font-size:  100%
 }
 </style>
@@ -1700,7 +1700,7 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─1f9f4012-1be5-42a4-8d56-949d783e6518
+# ╠═1f9f4012-1be5-42a4-8d56-949d783e6518
 # ╟─9a4e9d24-3fd0-405f-adc3-4afc509629ef
 # ╟─75ecba91-0134-4ebe-8c7d-683a75b86137
 # ╟─f33dd982-062c-4369-ac89-4b4a6e2d231c

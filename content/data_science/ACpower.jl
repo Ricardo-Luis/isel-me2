@@ -2,12 +2,12 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = 1
-#> section = 3
-#> order = 3
-#> title = "✏️ Paralelo de geradores"
+#> chapter = 0
+#> section = 1
+#> order = 1
+#> title = "Gráficos interativos"
 #> layout = "layout.jlhtml"
-#> tags = ["lecture", "module2"]
+#> tags = ["preliminaries"]
 #> date = "2024-09-09"
 #> 
 #>     [[frontmatter.author]]
@@ -27,180 +27,481 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ f06ea9e2-b9ed-4f8f-9278-9441cd270ca5
-using PlutoUI, PlutoTeachingTools, Plots, Dierckx
-#= 
+# ╔═╡ b411a974-d7fa-49d6-a1b7-ab32eb8bbe78
+using PlutoUI, PlutoTeachingTools, Plots, NumericalIntegration
+#=
 Brief description of the used Julia packages:
   - PlutoUI.jl, to add interactivity objects
   - PlutoTeachingTools.jl, to enhance the notebook
   - Plots.jl, visualization interface and toolset to build graphics
-  - Dierckx.jl, tool for data interpolation
+  - NumericalIntegration.jl, tool for numerically integrating presampled data
 =#
 
-# ╔═╡ a4cc4ad7-04fd-41cf-b6a9-8cdede20b8af
-TwoColumnWideLeft(md"`Parallel.GEN.jl`", md"`Last update: 09·09·2024`")
+# ╔═╡ 4726fac7-ee43-4e91-b95e-dbb1a09e1b7d
+TwoColumnWideLeft(md"`ACpower.jl`", md"`Last update: 09·09·2024`")
 
-# ╔═╡ f01a2e6c-801d-4c1e-bc60-ce30c475bdc0
+# ╔═╡ 65b1d051-b0ec-4b7b-a7e7-c3a5c3ac1a0a
 md"""
 ---
-$\textbf{MÁQUINAS ELÉTRICAS DE CORRENTE CONTÍNUA}$
-
-$\text{EXERCÍCIO 8}$ 
-
-$\textbf{Associação em paralelo de geradores DC}$
+$\textbf{Potência em sistemas de corrente alternada}$
+$\colorbox{pink}{Análise com gráficos interativos}$
 ---
 """
 
-# ╔═╡ 570473a3-be60-4ff1-b6d7-269c7c3cd321
+# ╔═╡ 9cd8d54b-23ae-4586-90c5-f560ff418f73
 md"""
-# Exercício 8. Dados:
+# Âmbito
+
+Este *notebook* apresenta dois objetivos a serem concretizados em simultâneo:
+
+- serve de revisão a conceitos sobre **potência** em circuitos de corrente alternada (AC);
+- e para introduzir a construção de gráficos na linguagem de computação científica `Julia` usando a interface de trabalho `Pluto.jl`.
+
+Sendo um documento computacional de revisão de conceitos de base em engenharia eletrotécnica, mas fundamentais na aprendizagem e aplicação de máquinas elétricas, o estudante poderá dividir a sua atenção nos dois objetivos propostos.
 """
 
-# ╔═╡ 860e56f2-921c-4943-a31b-3c2a896ca092
+# ╔═╡ dc578ed3-d498-4c02-9b7c-2f121e4358c6
+
+
+# ╔═╡ aab928f1-2ecb-46ee-8ce9-ca146c5aad1b
 md"""
-**Conhecem-se as características externas de dois dínamos de excitação derivação, ligados em paralelo, de 220V, 110kW:**
-"""
-
-# ╔═╡ f50f251e-afe1-4ae3-8607-4d325a7c6116
-begin
-	I = [0.0, 200, 400, 500, 700, 900]
-	U₁ = [229.5, 226.5, 222.5, 220.0, 213.0, 205.5]
-	U₂ = [224.0, 223.0, 221.0, 220.0, 217.5, 214.0]
-	I, U₁, U₂
-end
-
-# ╔═╡ 4a8a67ff-2145-4e5f-9b54-708ad92bc12c
-
-
-# ╔═╡ 7e536108-d92f-4e5f-bd37-e48924ff9943
-md"""
-# a) 💻 Repartição de carga 
-**Como repartiriam as duas máquinas uma corrente de 1500A? Qual a tensão?**
-"""
-
-# ╔═╡ 7b6d5dee-5fb8-4dc1-8557-370fc8698624
-H1=("Rcarga", @bind Rcarga PlutoUI.Slider(0.09:.0001:12, default=.143,show_value=true))
-
-# ╔═╡ d59f7a7e-10bb-43cb-9710-1a822afeeba9
-md"""
-Do gráfico, na característica $$U=f(I₁+I₂)$$, para uma carga de $$1500$$A, verifica-se: $$U\simeq215$$V, $$I₁\simeq650$$A e $$I₂\simeq850$$A.
-"""
-
-# ╔═╡ 6f29a5d9-d0b4-4057-83c6-0abbd349463e
-
-
-# ╔═╡ 16f830b5-2160-43c4-8ebb-6b5cab2d5726
-md"""
-# b) 💻 Cargas reduzidas 
-**O que se verifica para cargas reduzidas e próximas de zero? $$0 < I <250A$$**
-"""
-
-# ╔═╡ 10ce0429-8170-498d-b6a8-78c4d4005822
-md"""
-Analisando o funcionamento do paralelo de geradores DC para cargas reduzidas, verifica-se graficamente, que a máquina DC 2 absorve corrente (passa a motor DC). Por conseguinte, o gerador DC 1 fornece corrente para a carga e para a máquina 2.
-"""
-
-# ╔═╡ 61763b38-5700-4559-9171-d40612354f0b
-
-
-# ╔═╡ b15489fb-f0e8-4019-ab10-65a8f91ec8c5
-md"""
-# c) 💻 Complete:  
+# Problema 
 
 \
-**“Em sobrecarga a máquina com __________ regulação, fornece __________ corrente.”**
+Suponha uma fonte de tensão AC ideal monofásica com $U=100\rm{V}$ e frequência, $f=50\rm{Hz}$.  
+
+Esta fonte de tensão alimenta uma carga linear variável, cujo o valor de corrente poderá atingir $100\rm A$ e o seu desfasamento relativamente à tensão variar entre: $-\frac{\pi}{2}\leqslant\varphi\leqslant+\frac{\pi}{2} \:\:(\rm{rad})$.
+
+**Desafio:**
+ > **Criar um ambiente de análise das potências temporais envolvidas e das potências ativa, reativa e aparente deste circuito AC.**
 """
 
-# ╔═╡ 9de717e1-542a-4b2a-9bc1-4e4ea16fb3ee
+# ╔═╡ 165d6a97-67fc-4bbe-936b-47b33f9e0e33
+aside((md"""
+!!! tip "Observações" 
+	O texto descritivo é realizado no formato [**Markdown**](https://www.markdownguide.org/) cuja sintaxe é muito fácil de aprender e usar:\
+	[📺 Learn Markdown in 1 minute](https://www.youtube.com/shorts/-aSSrmAXHDg).
+	
+	Para iniciar um texto descritivo no formato Makdown numa célula vazia utilizar as teclas de atalho: `Ctrl` + `m`
+	\
+	\
+	A notação matemática é realizada no formato ``\LaTeX`` para a apresentação de variáveis e equações:\
+	[📺 Math equations and expressions - LaTeX in 100 seconds](https://www.youtube.com/watch?v=V4htbZeDUMU)\
+	Trata-se de um sistema de composição tipográfica de qualidade, que inclui recursos destinados à produção de documentos técnico-científicos.
+
+	Para equações mais complexas existem ferramentas disponíveis _online_ que facilitam a obtenção do código $\LaTeX$. Exemplo: [Equation Editor for online mathematics](https://editor.codecogs.com/)
+
+	Para escrever no formato $\LaTeX$ utilizar o símbolo `$` (sinal de dólar) no ínício e fim da equação/expressão ou em alternativa o duplo sinal de acento grave, ``,  também designado por _backticks_.
+
+"""), v_offset=-750)
+
+# ╔═╡ 37a9799f-a746-4754-b3f2-692665bb9abd
+md"""
+# Forma computacional do problema
+
+## Tensão AC
+
+"""
+
+# ╔═╡ 9e0ea587-0459-47ab-aa35-dcb458d158df
+md"""
+Definem-se as grandezas que vão permitir caracterizar a onda temporal da tensão AC:
+"""
+
+# ╔═╡ b263485a-636d-4a57-9c4e-dd10bf217826
+U, f, θᵤ = 100.0, 50, 0.0  # AC voltage, V; frequency, Hz; initial voltage phase angle, rad
+
+# ╔═╡ e628a95a-30a5-4c58-8645-f01ac434b0d3
+md"""
+Cálculo da frequência angular elétrica, $\omega$ :
+"""
+
+# ╔═╡ cdfa6084-a6e6-4205-9a25-8fbe6ef8fb53
+ω = 2π*f
+
+# ╔═╡ 90f50ad3-c86d-4e65-a338-c0fb082b1ef8
+md"""
+Definição do intervalo de tempo de análise, por exemplo, 2 períodos de onda alternada:
+"""
+
+# ╔═╡ 215762b7-272b-4749-83c9-532fed7671ef
+t=0:1e-5:0.04  					   # time range
+#t=range(0, 0.04, length=10000)    # another Julia code option    
+
+# ╔═╡ 96b48340-ec08-4d87-b1f1-46b18a12b038
+md"""
+A determinação da tensão temporal do circuito AC vem dado por:
+
+$\tag{1}
+u(t)=\sqrt2\:U\sin(\omega\:t+\theta_u) \quad\quad \rm{com}\it\quad t \in \left [\:0;\: k\:T\: \right ]$
+"""
+
+# ╔═╡ 8794c335-e5a7-4b91-b6e4-30e31eff27e9
+Foldable("Onde:",md"
+ -  $U$, valor eficaz da tensão, V
+ -  $k$, número inteiro de períodos de onda
+ -  $\theta_u$, o ângulo inicial da tensão, rad
+ -  $T$, período da onda AC, $\:T=f^{-1}$ , em segundos")
+
+# ╔═╡ 9a3db49a-5fa0-48ac-9de7-5cad998674c6
+md"""
+Computacionalmente, obtêm-se os valores de $u(t)$:
+"""
+
+# ╔═╡ 2416a6df-b494-4620-a4cb-53efc61ae202
+u = √2*U*sin.(ω*t .+ θᵤ) 
+
+# ╔═╡ f0dad876-ded8-4da1-8b4e-243dde05b386
+aside((md"""
+!!! tip "Observações"
+	A linguagem Julia aceita caracteres gregos e/ou símbolos como variáveis. A lista de possibilidades vem definida em [Unicode Input](https://docs.julialang.org/en/v1/manual/unicode-input/); Exemplos: 
+      - para a raíz quadrada, escrever: `\sqrt` + premir tecla `TAB`
+      - para a letra grega ω, escrever: `\omega` + tecla `TAB`
+      - θᵤ é obtido fazendo: `\theta` + `TAB` + `\_u` + `TAB`
+
+	Isto permite que as equações para cálculo computacional fiquem muito semelhantes à sua escrita matemática!
+	\
+	\
+	Na equação: \
+
+	`u = √2*U*sin.(ω*t .+ θᵤ)`, antes dos operadores matemáticos e após a função `sin` aparece um ponto final `.`: 	
+	isso é o símbolo de [*broadcasting*](https://docs.julialang.org/en/v1/manual/arrays/#Broadcasting) e evita ter de  definir uma instrução de ciclo `for`, de modo a obter a tensão instantânea `u` para todos os valores de `t`, simplificando a escrita de código.
+	\
+	\
+	Os comentários dentro de uma linha de código são iniciados com o sinal de cardinal, `#`, sendo o texto à sua direita ignorado pelo compilador Julia. \
+	Para um comentário de várias linhas o texto é delimitado por `#=` no início do comentário e `=#` no final do comentário. 
+"""), v_offset=-680)
+
+# ╔═╡ 87bcbe0c-19e7-4c07-a1d7-bb1a83da434b
+md"""
+## Corrente AC
+Uma vez que a carga é variável define-se a corrente, $I$ e o ângulo de desfasamento da corrente em relação à tensão, $\varphi$, com base em dois controlos deslizantes (*sliders*) que permitem uma análise interativa. 
+"""
+
+# ╔═╡ 6eea4290-cf1c-45d8-b1f8-54e7a36b72e2
+
+
+# ╔═╡ dc524dd6-01fe-45fc-bf89-49f07cd88c7e
+md"""
+### 💻 Controlos da corrente
+
+ $$I [A] =$$ $(@bind I Slider(0:0.1:100; default=60, show_value=true)) $$\quad\quad ; \quad\quad$$ $$\phi[\degree]$$ $(@bind ϕ Slider(-90:0.1:90; default=-30, show_value=true))  
+"""
+
+# ╔═╡ ac602069-394d-4d58-825e-853dae565122
+aside((md"""
+!!! tip "Observações"
+	Cada célula de cálculo de um _notebook_ Pluto aceita apenas uma instrução Julia. 
+
+	No, entanto por vezes, surge a necessidade de organizar parte dos cálculos num único bloco. Nessas situações, para agrupar várias expressões de cálculo numa única célula, utilizam-se as instruções `begin`...`end` ou `let`...`end`: 
+	
+	- na opção `begin`...`end`, as variáveis utilizadas ou definidas são globais (para todo o _notebook_);
+	- na opção  `let`...`end`, as variáveis utilizadas ou definidas são locais (só existem nessa célula do _notebook_).
+
+	Em, qualquer dos casos, o resultado exibido é sempre relativo à última instrução (penúltima linha do bloco).
+
+"""), v_offset=50)
+
+# ╔═╡ 03e2bb91-acd2-4a71-b31a-2935bfecba08
 begin
-	O1=@bind pick1 MultiSelect(["maior", "menor", "melhor", "pior"])
-	O2=@bind pick2 MultiSelect(["menos", "mais", "mais ", "menos "])
-	O1, O2
+	φ = ϕ * π/180 	# degrees to radians conversion 
+	φ = round(φ, digits=4)
+	#φ = deg2rad()  # option: Julia function to convert degrees to radians 
+	I, φ 			# the values assigned to (I, φ) change as the sliders are moved!
 end
 
-# ╔═╡ af4e9d09-cac3-4ca0-8735-70d3e358a1ad
+# ╔═╡ db25a19e-2329-42ab-8602-bcc0749385fd
 md"""
-Em sobrecarga a máquina com **$(pick1)** regulação, fornece **$(pick2)** corrente.
+A determinação da corrente temporal do circuito AC vem dado por:
+
+$\tag{2}
+i(t)=\sqrt2\:I\sin(\omega\:t+\theta_i) \quad\quad \rm{com}\it\quad t \in \left [\:0;\: k\:T\: \right ]$
+
+Em $(2)$, $I$ e $\theta_i$ são o valor eficaz e o ângulo inicial, da corrente elétrica, respectivamente.  
 """
 
-# ╔═╡ 24c80cb7-1e2e-4959-ac83-6a756749f2ec
-
-
-# ╔═╡ 2ca2baf2-8970-4566-8738-5e4ff39e9fa5
+# ╔═╡ 62075218-1518-4706-8433-87910e4e543a
 md"""
-# Cálculos 
-!!! nota
-	Nesta secção são exibidos os cálculos realizados para obter a construção gráfica apresentada neste *notebook*. Esta secção é de análise facultativa.
+Computacionalmente, calculam-se os valores de $i(t)$:
 """
 
-# ╔═╡ 7e45e4aa-b6cd-4d9a-a78d-c0a32be51fc7
-md"""
-Determinação das correntes de cada gerador, `I₁` e `I₂`, por interpolação da característica externa do respectivo gerador DC, para diferentes valores de tensão do paralelo de geradores DC, `U`.\
-Inclui também a extrapolação das características externas de cada gerador para determinação gráfica de correntes circulatórias entre as máquinas e tensão de vazio com os geradores DC em paralelo:
-"""
-
-# ╔═╡ 1e4d5035-1f17-4d8f-aaf3-0c62ec511abc
+# ╔═╡ 3446025f-e81a-450f-a5c2-517eee3e6e54
 begin
-	U = -205.5:-1:-229.5
-	I1int = Spline1D(-U₁, I, k=1, bc="extrapolate")
-	I2int = Spline1D(-U₂, I, k=1, bc="extrapolate")
-	I₁ = I1int(U)
-	I₂ = I2int(U)
-	I₁, I₂
-end;
-
-# ╔═╡ 76059231-9935-4437-bd3e-7d6b3ebcda63
-md"""
-Determinação das contribuições de carga de cada gerador DC, `Ic1` e `Ic2`, para uma dada resistência de carga, `Rcarga`, aplicada ao paralelo de geradores DC:
-"""
-
-# ╔═╡ 089dd348-6ff5-4f42-8487-bfe9e4b94d76
-begin
-	Iₜ = I₁ + I₂
-	Ic = 0:.01:2300
-	Uc = Rcarga .* Ic
-	Up_int = Spline1D(-Iₜ,U)
-	Up = (-1) .* Up_int(-Ic)
-	A = (Up-Uc)
-	a = findall(i->(-.1 < i < .1), A)
-	Itotal = .01 * a[1,1]
-	Ic1 = I1int(-Rcarga * Itotal)
-	Ic2 = I2int(-Rcarga * Itotal)
-end;
-
-# ╔═╡ 5d931a49-0a5e-4ad0-b726-9996ae7cbe7e
-begin
-	# change the "ylims" parameter to zoom the graph!
-	plot(I,U₁, ylims=(00,250), markershape=:circle, markersize=3, 
-			linecolor=:blue, linewidth=0, title="U =f(I)", xlabel = "I(A)", ylabel="U(V)", framestyle = :origin, minorticks=5, label="U₁=f(I₁)", size=(750,500))
-	
-	plot!(I,U₂, markershape=:circle, markersize=3, linecolor=:red, 
-			linewidth=0, label="U₂=f(I₂)", legend=:bottomright)
-	
-	plot!(I₁,-U, linecolor=:blue, label=:none)
-	
-	plot!(I₂,-U, linecolor=:red, label=:none)
-	
-	plot!(I₁+I₂, -U, xlims=(-500,2500), linewidth=2, markershape=:circle,
-			markersize=3, label="U=f(Iₜₒₜₐₗ)", xminorgrid=true)
-	
-	#plot!([210], seriestype = :hline, linestyle=:dash)
-	
-	plot!(I₁+I₂, Rcarga.*(I₁+I₂), linewidth=3, label="reta carga")
-	
-	plot!([Itotal], seriestype = :vline, linestyle=:dash, 
-			linecolor=:brown, label=:none)
-	
-	plot!([Rcarga*Itotal], seriestype = :hline, linestyle=:dash, label=:none)
-	
-	plot!([Ic1], seriestype = :vline, linestyle=:dashdot, 
-			linecolor=:blue, label=:none)
-	
-	plot!([Ic2], seriestype = :vline, linestyle=:dashdot, 
-			linecolor=:red, label=:none)
+	θᵢ = θᵤ + φ      
+	i= √2*I*sin.(ω*t .+ θᵢ)	
 end
 
-# ╔═╡ 41137dae-b56e-4f68-8bac-98ad72262080
+# ╔═╡ 72acfb93-b5bb-4767-8214-2571165304bd
+aside((md"""
+!!! tip "Observações"
+	- Na margem esquerda de cada célula do *notebook* pode optar por **mostrar** ou **ocultar** o código que origina o resultado visualizado, premindo o símbolo 👁;
+	- A partir da margem esquerda do *notebook* pode arrastar qualquer célula para qualquer outra posição vertical do *notebook*.
+
+	👆 Assim, arraste a célula relativa aos controlos deslizantes do valor eficaz e desfasamento da corrente, para junto de um dos gráficos abaixo e visualize-os de uma forma interativa!
+"""), v_offset=210)
+
+# ╔═╡ 01e4e485-c4ba-473c-9de3-d28179e147e2
+md"""
+## Gráfico: $u(t)$, $i(t)$, $p(t)$
+"""
+
+# ╔═╡ 8d7ad9b1-2233-4a3f-ad60-8c759aea65e7
+md"""
+Mostrar potência intantânea, $p(t)$? $(@bind z CheckBox())
+"""
+
+# ╔═╡ 4892078c-73aa-4eb6-851a-714a08ee050c
+
+
+# ╔═╡ ee73db77-137d-456e-970e-957dbb99a60d
+md"""
+# Potências num circuito AC (carga linear)
+"""
+
+# ╔═╡ fa0fb15d-45e4-48bf-82bf-8352c677c35b
+md"""
+A potência instantânea, $p(t)$, vem dado pelo produto da tensão e corrente instantâneas:
+
+$\tag{3}
+p(t)=u(t)\:i(t)$
+
+Computacionalmente, fica:
+"""
+
+# ╔═╡ 19bb2956-2c05-47c6-bb25-29343e82e73a
+p = u.*i 			
+
+# ╔═╡ ad4c33ec-473c-4b72-86ca-d2674d45813b
+begin
+	# Select the checkbox above the plot, to see the instantaneous power, p(t), together with voltage and current plot, with a secondary axis:
+	if z == 0
+		plot(t, u, xlabel="t (s)", label="u(t)", minorticks=5)
+		plot!(t,i, ylabel="u, i  (V, A)", label="i(t)", legend=:bottomleft, size=(800,400))
+	else
+		plot(t, u, xlabel="t (s)", label="u(t)", minorticks=5)
+		plot!(t,i, ylabel="u, i  (V, A)", label="i(t)", legend=:bottomleft)
+		plot!(twinx(), t, p/1000, ylabel="p (kVA)", label="p(t)", lc=:green, 
+									lw=2, ylims=[-15,20], legend=:bottomright)
+	end
+end
+
+# ╔═╡ d3426bad-31ba-4123-bea7-54032004d03d
+md"""
+A potência instantânea pode ser decomposta em 2 componentes.\
+Substituindo $(1)$ e $(2)$ em $(3)$, tém-se:
+
+$\begin{align}
+p(t) &= 2\:U\:I\sin(\omega\:t+\theta_u)\:\sin(\omega\:t+\theta_i) \\
+\\
+\because\quad \varphi &= \theta_i - \theta_u  \quad\&\quad\theta_u=0\quad\therefore\\
+\\
+p(t) &= 2\:U\:I\sin(\omega\:t)\:\sin(\omega\:t+\varphi) \\
+\\
+\because\quad \sin(x)\: \sin(y) &= \frac{1}{2}\left [ \cos(x-y)-\cos(x+y) \right ] \quad\therefore\\
+\\
+\tag{4}
+p(t) &= U \: I \: \cos\varphi - U \: I \: \cos(2\:\omega\:t + \varphi)\\
+\end{align}$
+"""
+
+# ╔═╡ 7494ef14-aa3e-4d34-ad06-f39ccb7c6a0f
+md"""
+Atendendo à expressão da potência aparente, $S=U\:I$, a potência instantânea, $p(t)$, pode ser reescrita na forma, $(5)$:
+
+$\tag{5}
+p(t) = S \: \cos\varphi - S \: \cos(2\:\omega\:t + \varphi)$
+"""
+
+# ╔═╡ c1ba8a60-1211-46a0-abe8-43d9563300c2
+md"""
+De $(4)$, verifica-se a a potência instantânea, $p(t)$, depende um termo constante e de um termo alternado com o dobro de frequência angular das grandezas elétricas, $u(t)$ e $i(t)$.
+
+O termo constante tem a designação de **potência ativa**, $P$, enquanto a segunda parcela tem a designação de potência alternada, $p_{alt}(t)$, representadas em $(6)$ e $(7)$, respectivamente.
+
+$\begin{align}
+\tag{6}
+P &= U \: I \: \cos \varphi\\
+\tag{7}
+p_{alt}(t) &= U \: I \: \cos(2\:\omega\:t + \varphi)\\
+\end{align}$
+"""
+
+# ╔═╡ 940b3c87-7edd-43ae-b53c-fb0bcd40c9ed
+begin
+	P = U*I*cos(φ)				# active power, W
+	P = P/1000 					# active power, kW
+	P = round(P, digits=1)      # round P value to one decimal place, kW
+end
+
+# ╔═╡ 3cce2987-e158-4c53-b07b-5943adc1808a
+pₐₗₜ = U*I*cos.(2ω*t .+ φ)	 
+
+# ╔═╡ c3686c4c-e88d-4820-b9a1-44232d6039c9
+
+
+# ╔═╡ 3ccfdb1c-7167-4a3b-95db-34a896613d53
+md"""
+## Gráfico: $p(t)$, $p_{alt}(t)$; $P$, $S$
+"""
+
+# ╔═╡ 329339cd-9013-47b9-818b-fb9a0cfc4ffd
+md"""
+Do gráfico anterior é possível verificar:
+ - a potência ativa, $P$, corresponde ao valor médio da potência instantânea, $p(t)$; 
+ - a potência aparente, $S$, corresponde à amplitude da potência alternada, $p_{alt}(t)$.
+"""
+
+# ╔═╡ ae4d2175-1274-40a4-b290-5fb4bd647899
+md"""
+Das expressões $(4)$ ou $(5)$ e da representação temporal de $p(t)$, verifica-se que a **potência ativa**, $P$, corresponde ao valor médio, num determinado período, da potência elétrica instantânea, ou seja, pode ser representada por:
+
+$\tag{8}
+P=\frac{1}{T}\int_0^T {p(t)} \:\rm{d}t$
+
+Computacionalmente pode-se verificar por integração numérica dos valores de $p(t)$:
+"""
+
+# ╔═╡ 307d39f1-fde6-4cf7-b165-97cb789788ba
+begin
+	Pa=integrate(t, p)/0.04 		# Active power by numerical integration, W
+	Pa=round(Pa/1000, digits=1) 	# W->kW and round to one decimal place, kW
+end
+
+# ╔═╡ db989dcb-1f4b-4773-b258-3fc7036c5878
+
+
+# ╔═╡ 37aedeb7-9a81-4ae0-bad9-1e58ae356b5f
+md"""
+A parcela relativa à potência alternada, $p_{alt}$, pode ainda ser analisada do seguinte modo:
+
+Aplicando em $(7)$, a seguinte a identidade trigonométrica:
+
+$$\because \quad\cos(x+y)=\cos x \cos y - \sin x \sin y\quad\therefore$$
+
+Obtém-se, $(9)$:
+
+$\tag{9}
+p_{alt} = \underbrace{U\:I\: \cos\varphi}_{P}\:\cos(2\:\omega\:t) - \underbrace{U\:I \sin\varphi}_{Q}\:\sin(2\:\omega\:t)$
+
+Em $(9)$, $Q$ representa potência reativa, que se traduz pela amplitude do fluxo de potência que varia alternadamente entre a fonte de alimentação e a carga linear, $(10)$:
+
+$\tag{10}
+Q = U\:I\:\sin\varphi$
+
+Substituindo $(9)$, $(6)$ e $(10)$ em $(4)$, obtém-se a potência instantânea, $p(t)$, dada por $(11)$:
+
+$\tag{11}
+p(t) = \underbrace{P\:[1-\cos(2\:\omega\:t)]}_{p_1(t)} + \underbrace{Q\:\sin(2\:\omega\:t)}_{p_2(t)}$
+"""
+
+# ╔═╡ f562f00a-8779-44ec-8209-b2b23618c3a5
+begin
+	Q = U*I*sin(φ)
+	S = U*I
+	Q, S = round.((Q/1000, S/1000), digits=1)
+end;
+
+# ╔═╡ 11579602-0e0a-4800-a615-c0b13441ebf8
+begin
+	# p(t):
+	plot(t, p/1000, title="p(t) = P - pₐₗₜ(t)", 
+				legend=:topright, xlabel="t  (s)", ylims=[-11,21], lw=2, 
+				lc=:green, ylabel="kVA, kW", label="p(t)", minorticks=5, size=(800,400))
+	
+	# pₐₗₜ(t):
+	plot!(t, pₐₗₜ/1000, lc=:purple, label="pₐₗₜ(t)")
+	plot!([S], seriestype=:hline, ls=:dot, lc=:purple, label=:none)
+	plot!([-S], seriestype=:hline, ls=:dot, lc=:purple, label=:none)
+	plot!([(0.024,0), (0.024, -S)], arrow = arrow(:closed, 0.1, :both), 
+								   color = :purple, label=:none)
+	annotate!([0.025], [-S/2], ["S"], :purple)
+
+	
+	# P:
+	plot!([P], seriestype=:hline, ls=:dot, lw=2, lc=:orange, label="P")
+	plot!([0], seriestype=:hline, lc=:black, label=:none)
+	plot!([(0.006,0), (0.006, P)], arrow = arrow(:closed, 0.1, :both), 
+								   color = :orange, label=:none)
+	annotate!([0.007], [P/2], ["P"], :orange)
+	
+	# S:
+	plot!([P+S], seriestype=:hline, ls=:dot, lc=:green, label=:none)
+	plot!([(0.018,P), (0.018, P+S)], arrow = arrow(:closed, 0.1, :both), 
+								   color = :green; label=:none)
+	annotate!([0.019], [3(P+S)/4], ["S"], :green)
+end
+
+# ╔═╡ 8596cac1-5f79-49a8-abbb-1283d15831f0
+md"""
+Assim, computacionalmente obtêm-se os valores das potências ativa, reativa e aparente:\
+ $$P=$$ $P $$\rm kW\:;\:\:Q=$$ $Q $$\rm kVAr\:;\:\:S=$$ $S $$\rm kVA$$
+"""
+
+# ╔═╡ ee7e6566-9e18-4b64-acba-f21d7b2799bf
+md"""
+De $(11)$, calculam-se computacionamente as parcelas das potências oscilantes, $p_1(t)$ e $p_2(t)$, que se relacionam com as potências ativa e reativa, respectivamente: 
+"""
+
+# ╔═╡ 4c5a7341-c210-40c0-b8e4-810f2a15245b
+p₁ = P*(1 .- cos.(2ω*t));
+
+# ╔═╡ 8ee8c903-7b59-4ca9-8a20-be8edcab7e09
+p₂ = Q*sin.(2ω*t);
+
+# ╔═╡ 1b66f615-427e-4d95-9058-0e31b239b006
+aside((md"""
+!!! tip "Observações"
+	Ao colocar `;` no final das células de cálculo, os respetivos resultados dessas células não são exibidos, mas continuam a ser calculados.
+
+	Desta forma, evita-se a apresentação de resultados intercalares ou em bruto.
+
+	Os resultados também podem ser inseridos no texto descritivo, através da instrução `$()`, colocando nos parênteses o nome da variável que cujo o(s) valor(es) se deseja(m) apresentar. Assim, os resultados apresentados no texto descritivo mantêm-se atualizados com a utilização interativa do _notebook_.
+"""), v_offset=-330)
+
+# ╔═╡ 19688a6a-fbca-4eaf-8acd-25a604902c04
+md"""
+## Gráfico: $p(t)$, $p_1(t)$, $p_2(t)$; $P$, $Q$, $S$
+"""
+
+# ╔═╡ b91708f8-e434-4007-b33b-6ee4a35e082b
+begin
+	# p(t), p₁(t), p₂(t):
+	plot(t, p/1000, title="p(t)=p₁(t)+p₂(t) ;  P=$(P)kW ;  Q=$(Q)kVAr ; S=$(S)kVA", 
+				legend=:topright, xlabel="t  (s)", lw=2, lc=:green, ylims=[-11,21],
+				ylabel="kW, kVAr, kVA",	label="p(t)", minorticks=5, size=(800,400))
+	plot!(t, p₁, lc=:red, label="p₁(t)") 
+	plot!(t, p₂, lc=:blue, label="p₂(t)")
+	
+	# Q:
+	plot!([Q], seriestype=:hline, ls=:dot, lc=:blue, label=:none)
+	plot!([-Q], seriestype=:hline, ls=:dot, lc=:blue, label=:none)
+	plot!([(0.015,0), (0.015, -abs(Q))], arrow = arrow(:closed, 0.1, :both), 
+										 color = :blue; label=:none)
+	annotate!([0.014], [-abs(Q)/2], ["Q"], :blue)
+	
+	# P:
+	plot!([P], seriestype=:hline, ls=:dot, lw=2, lc=:orange, label="P")
+	plot!([0], seriestype=:hline, ls=:dot, lc=:red, label=:none)
+	plot!([2P], seriestype=:hline, ls=:dot, lc=:red, label=:none)
+	plot!([(0.01,0), (0.01, 2*P)], arrow = arrow(:closed, 0.1, :both), 
+								   color = :red, label=:none)
+	annotate!([0.0088], [4P/3], ["2P"], :red)
+	
+	# S:
+	plot!([P+S], seriestype=:hline, ls=:dot, lc=:green, label=:none)
+	plot!([(0.02,P), (0.02, P+S)], arrow = arrow(:closed, 0.1, :both), 
+								   color = :green; label=:none)
+	annotate!([0.019], [3(P+S)/4], ["S"], :green)
+end
+
+# ╔═╡ 0d3f746a-4fc4-4e3f-883a-9e62e965be80
+md"""
+Do gráfico anterior é possível verificar:
+ - a potência ativa, $P$, corresponde a metade do valor de pico a pico da potência oscilante $p_1(t)$;
+ - a potência reativa, $Q$, corresponde à amplitude da potência da potência oscilante $p_2(t)$.
+"""
+
+# ╔═╡ 8ed9575a-eab7-4160-a9d8-719ad09b3f4e
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 main {
@@ -215,17 +516,17 @@ pluto-output {
 </style>
 """
 
-# ╔═╡ 2effa5ea-4c7c-42cf-8872-91274a18b17b
+# ╔═╡ 84b38e0e-a51f-4ee0-b238-c224e4dd8c94
 md"""
 # *Notebook*
 """
 
-# ╔═╡ 3c605565-784f-4ee7-8ff6-0ff77eff34f8
+# ╔═╡ b926a0d3-2447-48bc-9fff-7a838d4c047e
 md"""
-Documentação das bibliotecas Julia utilizadas:  [Dierckx](https://github.com/kbarbary/Dierckx.jl), [Plots](http://docs.juliaplots.org/latest/), [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html).
+Documentação das bibliotecas Julia utilizadas: [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html), [Plots](http://docs.juliaplots.org/latest/), [NumericalIntegration](https://github.com/dextorious/NumericalIntegration.jl).
 """
 
-# ╔═╡ 18e9c139-d4b1-4af8-8ecb-86a7b30ff7a7
+# ╔═╡ aa8b45e1-b6d5-4ee4-8043-1c5b3decef13
 begin
 	version=VERSION
 	md"""
@@ -233,20 +534,20 @@ begin
 """
 end
 
-# ╔═╡ d7d8a472-7e3c-49b5-9a9e-6d32692fbc7e
+# ╔═╡ 9b1afa94-4b72-4958-b17d-e28b5845c517
 TableOfContents(title="Índice")
 
-# ╔═╡ ef198a00-fbff-4504-9f29-6263e56a4f71
-md"""
+# ╔═╡ 7ee6b760-3345-4e69-b24b-1729f5fb56e9
+aside((md"""
 !!! info "Informação"
-	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
-"""
+	No índice deste *notebook*, o tópico assinalado com "💻" requer a participação do estudante.
+"""), v_offset=-170)
 
-# ╔═╡ 6d2984a5-29ca-4708-87d1-f14c59274e16
+# ╔═╡ 4b501cf6-5fbf-48be-8004-b67dd81d6276
 md"""
 |  |  |
 |:--:|:--|
-|  | This notebook, [Parallel.GEN.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Parallel.GEN/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+|  | This notebook, [ACpower.jl](https://ricardo-luis.github.io/isel-me2/Fall23/week0/ACpower/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
 | **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
 |  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
 """
@@ -254,13 +555,13 @@ md"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
+NumericalIntegration = "e7bfaba1-d571-5449-8927-abc22e82249b"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-Dierckx = "~0.5.3"
+NumericalIntegration = "~0.3.3"
 Plots = "~1.40.3"
 PlutoTeachingTools = "~0.2.15"
 PlutoUI = "~0.7.59"
@@ -272,7 +573,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.5"
 manifest_format = "2.0"
-project_hash = "c3bd0cf14c4f4d701094d29d675a102452b14a1f"
+project_hash = "07a60032978ea001287e1942edad854010ed541a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -286,6 +587,12 @@ version = "1.1.1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+
+[[deps.AxisAlgorithms]]
+deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
+git-tree-sha1 = "66771c8d21c8ff5e3a93379480a2307ac36863f7"
+uuid = "13072b0f-2c55-5437-9ae7-d433b7a33950"
+version = "1.0.1"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -306,6 +613,16 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "4b859a208b2397a7a623a03449e4636bdb17bcf2"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.1+1"
+
+[[deps.ChainRulesCore]]
+deps = ["Compat", "LinearAlgebra"]
+git-tree-sha1 = "71acdbf594aab5bbb2cec89b208c41b4c411e49f"
+uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+version = "1.24.0"
+weakdeps = ["SparseArrays"]
+
+    [deps.ChainRulesCore.extensions]
+    ChainRulesCoreSparseArraysExt = "SparseArrays"
 
 [[deps.CodeTracking]]
 deps = ["InteractiveUtils", "UUIDs"]
@@ -395,18 +712,6 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
-
-[[deps.Dierckx]]
-deps = ["Dierckx_jll"]
-git-tree-sha1 = "d1ea9f433781bb6ff504f7d3cb70c4782c504a3a"
-uuid = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
-version = "0.5.3"
-
-[[deps.Dierckx_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "6596b96fe1caff3db36415eeb6e9d3b50bfe40ee"
-uuid = "cd4c43a9-7502-52ba-aa6d-59fb2a88580b"
-version = "0.1.0+0"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -559,6 +864,12 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+
+[[deps.Interpolations]]
+deps = ["AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
+git-tree-sha1 = "b7bc05649af456efc75d178846f47006c2c4c3c7"
+uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+version = "0.13.6"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
@@ -802,6 +1113,23 @@ version = "1.0.2"
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
+[[deps.NumericalIntegration]]
+deps = ["Interpolations", "LinearAlgebra", "Logging"]
+git-tree-sha1 = "2a4ef5fc235053f9747d59cfdee19bcb8ba1e833"
+uuid = "e7bfaba1-d571-5449-8927-abc22e82249b"
+version = "0.3.3"
+
+[[deps.OffsetArrays]]
+git-tree-sha1 = "6a731f2b5c03157418a20c12195eb4b74c8f8621"
+uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+version = "1.13.0"
+
+    [deps.OffsetArrays.extensions]
+    OffsetArraysAdaptExt = "Adapt"
+
+    [deps.OffsetArrays.weakdeps]
+    Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
@@ -954,6 +1282,16 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
+[[deps.Ratios]]
+deps = ["Requires"]
+git-tree-sha1 = "1342a47bf3260ee108163042310d26f2be5ec90b"
+uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
+version = "0.4.5"
+weakdeps = ["FixedPointNumbers"]
+
+    [deps.Ratios.extensions]
+    RatiosFixedPointNumbersExt = "FixedPointNumbers"
+
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
 git-tree-sha1 = "5c3d09cc4f31f5fc6af001c250bf1278733100ff"
@@ -1002,6 +1340,10 @@ version = "1.2.1"
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 
+[[deps.SharedArrays]]
+deps = ["Distributed", "Mmap", "Random", "Serialization"]
+uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
+
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
 git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
@@ -1026,6 +1368,22 @@ version = "1.2.1"
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.10.0"
+
+[[deps.StaticArrays]]
+deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
+git-tree-sha1 = "eeafab08ae20c62c44c8399ccb9354a04b80db50"
+uuid = "90137ffa-7385-5640-81b9-e52037218182"
+version = "1.9.7"
+weakdeps = ["ChainRulesCore", "Statistics"]
+
+    [deps.StaticArrays.extensions]
+    StaticArraysChainRulesCoreExt = "ChainRulesCore"
+    StaticArraysStatisticsExt = "Statistics"
+
+[[deps.StaticArraysCore]]
+git-tree-sha1 = "192954ef1208c7019899fbf8049e717f92959682"
+uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
+version = "1.4.3"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -1143,6 +1501,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "93f43ab61b16ddfb2fd3bb13b3ce241cafb0e6c9"
 uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
 version = "1.31.0+0"
+
+[[deps.WoodburyMatrices]]
+deps = ["LinearAlgebra", "SparseArrays"]
+git-tree-sha1 = "de67fa59e33ad156a590055375a30b23c40299d3"
+uuid = "efce3f68-66dc-5838-9240-27a6d6f5f9b6"
+version = "0.5.5"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
@@ -1418,36 +1782,69 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─a4cc4ad7-04fd-41cf-b6a9-8cdede20b8af
-# ╟─f01a2e6c-801d-4c1e-bc60-ce30c475bdc0
-# ╟─570473a3-be60-4ff1-b6d7-269c7c3cd321
-# ╟─860e56f2-921c-4943-a31b-3c2a896ca092
-# ╠═f50f251e-afe1-4ae3-8607-4d325a7c6116
-# ╟─4a8a67ff-2145-4e5f-9b54-708ad92bc12c
-# ╟─7e536108-d92f-4e5f-bd37-e48924ff9943
-# ╟─7b6d5dee-5fb8-4dc1-8557-370fc8698624
-# ╟─5d931a49-0a5e-4ad0-b726-9996ae7cbe7e
-# ╟─d59f7a7e-10bb-43cb-9710-1a822afeeba9
-# ╟─6f29a5d9-d0b4-4057-83c6-0abbd349463e
-# ╟─16f830b5-2160-43c4-8ebb-6b5cab2d5726
-# ╟─10ce0429-8170-498d-b6a8-78c4d4005822
-# ╟─61763b38-5700-4559-9171-d40612354f0b
-# ╟─b15489fb-f0e8-4019-ab10-65a8f91ec8c5
-# ╟─af4e9d09-cac3-4ca0-8735-70d3e358a1ad
-# ╟─9de717e1-542a-4b2a-9bc1-4e4ea16fb3ee
-# ╟─24c80cb7-1e2e-4959-ac83-6a756749f2ec
-# ╟─2ca2baf2-8970-4566-8738-5e4ff39e9fa5
-# ╟─7e45e4aa-b6cd-4d9a-a78d-c0a32be51fc7
-# ╠═1e4d5035-1f17-4d8f-aaf3-0c62ec511abc
-# ╟─76059231-9935-4437-bd3e-7d6b3ebcda63
-# ╠═089dd348-6ff5-4f42-8487-bfe9e4b94d76
-# ╟─41137dae-b56e-4f68-8bac-98ad72262080
-# ╟─2effa5ea-4c7c-42cf-8872-91274a18b17b
-# ╟─3c605565-784f-4ee7-8ff6-0ff77eff34f8
-# ╠═f06ea9e2-b9ed-4f8f-9278-9441cd270ca5
-# ╟─18e9c139-d4b1-4af8-8ecb-86a7b30ff7a7
-# ╠═d7d8a472-7e3c-49b5-9a9e-6d32692fbc7e
-# ╟─ef198a00-fbff-4504-9f29-6263e56a4f71
-# ╟─6d2984a5-29ca-4708-87d1-f14c59274e16
+# ╟─4726fac7-ee43-4e91-b95e-dbb1a09e1b7d
+# ╟─65b1d051-b0ec-4b7b-a7e7-c3a5c3ac1a0a
+# ╟─9cd8d54b-23ae-4586-90c5-f560ff418f73
+# ╟─dc578ed3-d498-4c02-9b7c-2f121e4358c6
+# ╟─aab928f1-2ecb-46ee-8ce9-ca146c5aad1b
+# ╟─165d6a97-67fc-4bbe-936b-47b33f9e0e33
+# ╟─37a9799f-a746-4754-b3f2-692665bb9abd
+# ╟─9e0ea587-0459-47ab-aa35-dcb458d158df
+# ╠═b263485a-636d-4a57-9c4e-dd10bf217826
+# ╟─e628a95a-30a5-4c58-8645-f01ac434b0d3
+# ╠═cdfa6084-a6e6-4205-9a25-8fbe6ef8fb53
+# ╟─90f50ad3-c86d-4e65-a338-c0fb082b1ef8
+# ╠═215762b7-272b-4749-83c9-532fed7671ef
+# ╟─96b48340-ec08-4d87-b1f1-46b18a12b038
+# ╟─8794c335-e5a7-4b91-b6e4-30e31eff27e9
+# ╟─9a3db49a-5fa0-48ac-9de7-5cad998674c6
+# ╠═2416a6df-b494-4620-a4cb-53efc61ae202
+# ╟─f0dad876-ded8-4da1-8b4e-243dde05b386
+# ╟─87bcbe0c-19e7-4c07-a1d7-bb1a83da434b
+# ╟─6eea4290-cf1c-45d8-b1f8-54e7a36b72e2
+# ╟─dc524dd6-01fe-45fc-bf89-49f07cd88c7e
+# ╟─ac602069-394d-4d58-825e-853dae565122
+# ╠═03e2bb91-acd2-4a71-b31a-2935bfecba08
+# ╟─db25a19e-2329-42ab-8602-bcc0749385fd
+# ╟─62075218-1518-4706-8433-87910e4e543a
+# ╠═3446025f-e81a-450f-a5c2-517eee3e6e54
+# ╟─72acfb93-b5bb-4767-8214-2571165304bd
+# ╟─01e4e485-c4ba-473c-9de3-d28179e147e2
+# ╟─8d7ad9b1-2233-4a3f-ad60-8c759aea65e7
+# ╟─ad4c33ec-473c-4b72-86ca-d2674d45813b
+# ╟─4892078c-73aa-4eb6-851a-714a08ee050c
+# ╟─ee73db77-137d-456e-970e-957dbb99a60d
+# ╟─fa0fb15d-45e4-48bf-82bf-8352c677c35b
+# ╠═19bb2956-2c05-47c6-bb25-29343e82e73a
+# ╟─d3426bad-31ba-4123-bea7-54032004d03d
+# ╟─7494ef14-aa3e-4d34-ad06-f39ccb7c6a0f
+# ╟─c1ba8a60-1211-46a0-abe8-43d9563300c2
+# ╠═940b3c87-7edd-43ae-b53c-fb0bcd40c9ed
+# ╠═3cce2987-e158-4c53-b07b-5943adc1808a
+# ╟─c3686c4c-e88d-4820-b9a1-44232d6039c9
+# ╟─3ccfdb1c-7167-4a3b-95db-34a896613d53
+# ╟─11579602-0e0a-4800-a615-c0b13441ebf8
+# ╟─329339cd-9013-47b9-818b-fb9a0cfc4ffd
+# ╟─ae4d2175-1274-40a4-b290-5fb4bd647899
+# ╠═307d39f1-fde6-4cf7-b165-97cb789788ba
+# ╟─db989dcb-1f4b-4773-b258-3fc7036c5878
+# ╟─37aedeb7-9a81-4ae0-bad9-1e58ae356b5f
+# ╟─8596cac1-5f79-49a8-abbb-1283d15831f0
+# ╠═f562f00a-8779-44ec-8209-b2b23618c3a5
+# ╟─ee7e6566-9e18-4b64-acba-f21d7b2799bf
+# ╠═4c5a7341-c210-40c0-b8e4-810f2a15245b
+# ╠═8ee8c903-7b59-4ca9-8a20-be8edcab7e09
+# ╟─1b66f615-427e-4d95-9058-0e31b239b006
+# ╟─19688a6a-fbca-4eaf-8acd-25a604902c04
+# ╟─b91708f8-e434-4007-b33b-6ee4a35e082b
+# ╟─0d3f746a-4fc4-4e3f-883a-9e62e965be80
+# ╟─8ed9575a-eab7-4160-a9d8-719ad09b3f4e
+# ╟─84b38e0e-a51f-4ee0-b238-c224e4dd8c94
+# ╟─b926a0d3-2447-48bc-9fff-7a838d4c047e
+# ╠═b411a974-d7fa-49d6-a1b7-ab32eb8bbe78
+# ╟─aa8b45e1-b6d5-4ee4-8043-1c5b3decef13
+# ╠═9b1afa94-4b72-4958-b17d-e28b5845c517
+# ╟─7ee6b760-3345-4e69-b24b-1729f5fb56e9
+# ╟─4b501cf6-5fbf-48be-8004-b67dd81d6276
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

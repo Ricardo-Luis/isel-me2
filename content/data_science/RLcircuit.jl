@@ -2,12 +2,12 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = 1
-#> section = 3
-#> order = 3
-#> title = "✏️ Paralelo de geradores"
+#> chapter = 0
+#> section = 2
+#> order = 2
+#> title = "Diagramas vetoriais"
 #> layout = "layout.jlhtml"
-#> tags = ["lecture", "module2"]
+#> tags = ["preliminaries"]
 #> date = "2024-09-09"
 #> 
 #>     [[frontmatter.author]]
@@ -27,180 +27,553 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ f06ea9e2-b9ed-4f8f-9278-9441cd270ca5
-using PlutoUI, PlutoTeachingTools, Plots, Dierckx
-#= 
+# ╔═╡ 24742ef8-b976-4dd4-a176-fa0891d3165e
+using PlutoUI, PlutoTeachingTools, Plots, NumericIO
+#=
 Brief description of the used Julia packages:
   - PlutoUI.jl, to add interactivity objects
   - PlutoTeachingTools.jl, to enhance the notebook
   - Plots.jl, visualization interface and toolset to build graphics
-  - Dierckx.jl, tool for data interpolation
+  - NumericIO.jl, support for formatting numeric data
 =#
 
-# ╔═╡ a4cc4ad7-04fd-41cf-b6a9-8cdede20b8af
-TwoColumnWideLeft(md"`Parallel.GEN.jl`", md"`Last update: 09·09·2024`")
+# ╔═╡ 5907d617-574a-4bc6-a710-f00682321c00
+TwoColumnWideLeft(md"`RLcircuit.jl`", md"`Last update: 09·09·2024`")
 
-# ╔═╡ f01a2e6c-801d-4c1e-bc60-ce30c475bdc0
+# ╔═╡ f65b5561-c05d-4145-b828-a1f52f19a938
 md"""
 ---
-$\textbf{MÁQUINAS ELÉTRICAS DE CORRENTE CONTÍNUA}$
-
-$\text{EXERCÍCIO 8}$ 
-
-$\textbf{Associação em paralelo de geradores DC}$
+$\textbf{Grandezas complexas e fasores num circuito AC}$
+$\colorbox{pink}{Análise com diagramas vetoriais}$
 ---
 """
 
-# ╔═╡ 570473a3-be60-4ff1-b6d7-269c7c3cd321
+# ╔═╡ 9acde771-2169-4ae3-9ebe-fa391588c5f3
 md"""
-# Exercício 8. Dados:
+# Âmbito
+
+Este *notebook* apresenta dois objetivos a serem concretizados em simultâneo:
+
+- serve de revisão a conceitos sobre a utilização de **notação complexa** em circuitos de corrente alternada (AC);
+- e para introduzir a construção de **diagramas vetoriais** na linguagem de programação `Julia` usando a interface de trabalho `Pluto.jl`.
+
+Sendo um documento computacional de revisão de conceitos de base em engenharia eletrotécnica, mas fundamentais na aprendizagem e aplicação de máquinas elétricas, o estudante poderá dividir a sua atenção nos dois objetivos propostos.
 """
 
-# ╔═╡ 860e56f2-921c-4943-a31b-3c2a896ca092
+# ╔═╡ b4777f70-8926-4595-b35f-7d9a5ba821cc
+
+
+# ╔═╡ 63a79a06-a3b6-48a2-bd1c-d8d8663da070
 md"""
-**Conhecem-se as características externas de dois dínamos de excitação derivação, ligados em paralelo, de 220V, 110kW:**
+# Números complexos em computação científica `Julia` 
 """
 
-# ╔═╡ f50f251e-afe1-4ae3-8607-4d325a7c6116
+# ╔═╡ 4f173b81-6bbe-4ab6-bd7a-760e43ac1a7c
+md"""
+## Notação retangular
+"""
+
+# ╔═╡ 06cee7a0-6a2a-490a-ba28-5bdabfa859f6
+md"""
+Em programação `Julia` os números complexos são apresentados na forma retangular, como por exemplo: `2+3im`, sendo `im` a representação da unidade imaginária, ou seja:  
+"""
+
+# ╔═╡ 40201c93-3310-4b4c-9cde-97c02e8a7761
+√(-1 + 0im) 	# to write the square root symbol "√", do: \sqrt + [TAB]
+
+# ╔═╡ cbad77e0-2f99-49cd-bd10-d30d5874c612
+2+3im - 3+2im
+
+# ╔═╡ 59ee7138-3533-41aa-b28e-c26d99e5b7c5
+md"""
+Em engenharia eletrotécnica é usual utilizar `j` para designar a unidade imaginária. Assim pode-se redifinir:
+"""
+
+# ╔═╡ 58ada44d-294f-4542-8772-ff2db59f6f57
+j = Base.im 	 # imaginary unit defined in Julia Base for scientific and numerical computation
+
+# alternative:
+# j(x) = (x)*im   # you can define a function j(x), with x being the imaginary quantity, but it must be enclosed in parentheses.
+
+# ╔═╡ 69fae01b-8820-408e-b9b0-063a1b2c6d5e
+
+
+# ╔═╡ 71fcdaa0-610d-4a29-a588-9ca491543ad7
+md"""
+## Fasores (notação polar): $$∠$$  
+"""
+
+# ╔═╡ 56bfaaf0-c510-4bf7-b99f-01fb28f7fef5
+md"""
+A utilização de fasores, ou seja, a representação de números complexos na forma polar, através do símbolo `∠` para a designação do ângulo do vetor, é também comummente utilizada em eletrotecnia, não sendo esta uma forma nativa na linguagem `Julia` para designar números complexos.
+
+No entanto, em `Julia` é possível atribuir a símbolos, valores ou funções. Assim, ao símbolo `∠` atribuí-se a forma polar de um número complexo na forma `módulo∠(argumento)` com o `argumento` em graus, utilizando a seguinte instrução:
+"""
+
+# ╔═╡ cac8c4e4-b3f1-47e7-ae11-d440b8a1a196
+∠(θ) = cis(deg2rad(θ))   # to write the angle symbol "∠", do: \angle + [TAB]
+
+# ╔═╡ d28bb41e-9dbf-4b71-8d3c-b742fdf65057
+md"""
+A função `cis` corresponde à [Fórmula de Euler](https://pt.wikipedia.org/wiki/F%C3%B3rmula_de_Euler): $\quad e^{j\theta}=\cos\theta+j\sin\theta\quad$ aplicada à análise de números complexos.
+"""
+
+# ╔═╡ a3e6f2ce-4485-43f7-bbf6-5653f6c46676
+md"""
+Assim, torna-se possível a representação de fasores.
+Exemplos:
+"""
+
+# ╔═╡ a6564805-78ff-4578-879b-23d5a524f9e9
 begin
-	I = [0.0, 200, 400, 500, 700, 900]
-	U₁ = [229.5, 226.5, 222.5, 220.0, 213.0, 205.5]
-	U₂ = [224.0, 223.0, 221.0, 220.0, 217.5, 214.0]
-	I, U₁, U₂
+	I⃗ = 24∠(60)					# to write the vector symbol " I⃗ " do: I\vec + [TAB]
+	I⃗ = round(I⃗, digits=1)
 end
 
-# ╔═╡ 4a8a67ff-2145-4e5f-9b54-708ad92bc12c
+# ╔═╡ 118c5c66-ad94-4fb3-bc03-601ac82f1e4c
+begin
+	I⃗ₐ = 10∠(210);
+	Iₐ = abs(I⃗ₐ)					# absolute value (magnitude) of the vector		
+
+	# Arctangent of y/x wich results an angle between -π/2 and π/2:
+		ϕₐ = atan(imag(I⃗ₐ)/real(I⃗ₐ))   
+
+	# Option: use Julia function `angle` that gives the angle in radians of a complex number between -π and π
+		# ϕₐ = angle(I⃗ₐ)
+
+	# Option: use Julia funtion `atan` with 2 arguments, as `atan(y, x)`, is equivalent to the standard function atan2 to get the phase angle of a complex number between -π and π	
+		# ϕₐ = atan(imag(I⃗ₐ), real(I⃗ₐ))
+		
+	ϕₐ = rad2deg(ϕₐ)
+	I⃗ₐ, Iₐ, ϕₐ
+end
+
+# ╔═╡ 5cd95f64-ca23-496c-8ceb-88aa1787478b
 
 
-# ╔═╡ 7e536108-d92f-4e5f-bd37-e48924ff9943
+# ╔═╡ 03f9ca10-d04e-44ca-bc5c-931b0aca09a8
 md"""
-# a) 💻 Repartição de carga 
-**Como repartiriam as duas máquinas uma corrente de 1500A? Qual a tensão?**
+## Funções trigonométricas
 """
 
-# ╔═╡ 7b6d5dee-5fb8-4dc1-8557-370fc8698624
-H1=("Rcarga", @bind Rcarga PlutoUI.Slider(0.09:.0001:12, default=.143,show_value=true))
-
-# ╔═╡ d59f7a7e-10bb-43cb-9710-1a822afeeba9
+# ╔═╡ c5fc5ea7-fadc-4d3b-877c-e4ba2a29865c
 md"""
-Do gráfico, na característica $$U=f(I₁+I₂)$$, para uma carga de $$1500$$A, verifica-se: $$U\simeq215$$V, $$I₁\simeq650$$A e $$I₂\simeq850$$A.
+As funções trigonométricas em `Julia` são executadas seguindo o Sistema Internacional de Unidades, por conseguinte, os ângulos vêm na unidade radiano:
 """
 
-# ╔═╡ 6f29a5d9-d0b4-4057-83c6-0abbd349463e
+# ╔═╡ 4880d829-a48a-484d-8a48-f197959fee2f
+cosϕ₁ = 0.8
 
+# ╔═╡ 3996720b-2e11-4bea-9eae-516b5afb63ed
+ϕ₁ = acos(cosϕ₁)*180/π   # example of math conversion from radians to degrees
 
-# ╔═╡ 16f830b5-2160-43c4-8ebb-6b5cab2d5726
+# ╔═╡ 2c1b8ff2-8cf5-45b1-ab38-d1f0b1692424
 md"""
-# b) 💻 Cargas reduzidas 
-**O que se verifica para cargas reduzidas e próximas de zero? $$0 < I <250A$$**
+ou alternativamente utilizando a instrução: `rad2deg`:
 """
 
-# ╔═╡ 10ce0429-8170-498d-b6a8-78c4d4005822
+# ╔═╡ c802d6da-b36b-40af-b2f5-e10996b99587
+begin
+	cosϕ₂ = 0.8 
+	ϕ₂ = acos(cosϕ₂)
+	ϕ₂ = rad2deg(ϕ₂)
+end
+
+# ╔═╡ c3169e42-1803-4b9e-ba17-04465d178a6f
 md"""
-Analisando o funcionamento do paralelo de geradores DC para cargas reduzidas, verifica-se graficamente, que a máquina DC 2 absorve corrente (passa a motor DC). Por conseguinte, o gerador DC 1 fornece corrente para a carga e para a máquina 2.
+O mesmo raciocínio aplica-se a outras funções trigonométricas: `sin`, `asin`, `tan`, `atan`, ...
 """
 
-# ╔═╡ 61763b38-5700-4559-9171-d40612354f0b
+# ╔═╡ c2a4ae6e-abf5-440e-ad77-7eb983b27f1c
 
 
-# ╔═╡ b15489fb-f0e8-4019-ab10-65a8f91ec8c5
+# ╔═╡ 1e6e2a18-255e-4178-8450-05163c9c7c46
 md"""
-# c) 💻 Complete:  
+## 💻 Plano de Argand
+"""
+
+# ╔═╡ 7a0052e2-3d34-434d-8a8a-a91960e96c15
+md"""
+A biblioteca `Julia`, [`Plots.jl`](http://docs.juliaplots.org/latest/), adoptada nesta colectânea de *notebooks* para realização de gráficos, reconhece nativamente números complexos, representando-os num plano de Argand, também conhecido como plano complexo.
+
+Assim, a utilização do plano de Argand para representação gráfica de grandezas vetoriais é realizado indicando cada vetor por um segmento de reta na forma `[origem, destino]`, em que a `origem` e `destino` são números complexos (em qualquer das suas formas: retangular, polar ou exponencial). A instrução `arrow` permite colocar o afixo do número complexo do lado desejado:
+"""
+
+# ╔═╡ 85778922-2a35-43d5-8764-d10cd9603a88
+begin
+	# Choose a scale factor, Kₐ, for the current:
+	Kₐ = 1 
+	plot([0, (Kₐ*Iₐ)∠(ϕₐ)], arrow=:closed, label="Iₐ∠ϕₐ", lw=2)
+
+	# Below, remove the commentary symbol "#" to correct the graph size and x, y axis scales:
+	plot!([0, 40∠(0)], arrow=:closed, lw=2, label="U∠0°", legend=:topright, 
+		  size=(500,500), ylims=(-20,30), xlims=(0,50) 
+	)
+end
+
+# ╔═╡ 2e31f596-02c4-40c2-875d-7cfd508f5478
+
+
+# ╔═╡ 7e1672c4-8be7-4e08-9ef6-77d38e85dd67
+md"""
+# Problema 
 
 \
-**“Em sobrecarga a máquina com __________ regulação, fornece __________ corrente.”**
+Suponha uma fonte de tensão AC ideal monofásica com $U=100\rm{V}$ e frequência, $f=50\rm{Hz}$.  
+
+Esta fonte de tensão alimenta uma carga linear do tipo RL série, com $R=10\Omega$ e $L=20\rm mH$.
+Pretende-se dimensionar um condensador para compensar o fator de potência da carga.
+
+**Desafio:**
+ > **Criar um ambiente de análise interativo das tensões e correntes envolvidas no circuito AC descrito, representando as grandezas na formas temporal e vetorial.**
 """
 
-# ╔═╡ 9de717e1-542a-4b2a-9bc1-4e4ea16fb3ee
+# ╔═╡ 6c5e1063-19a2-4e72-85cb-b3fbd00d4a29
+
+
+# ╔═╡ 0b765c6e-9012-4cb2-8cf2-ed05184d3220
+md"""
+## Dados
+"""
+
+# ╔═╡ 0eca339c-01fd-47ec-b14f-722ee300d068
+md"""
+Fonte tensão AC
+"""
+
+# ╔═╡ ff4982fd-062f-43da-86d6-56ec8d3e650e
+U, f, θᵤ = 100.0, 50, 0 		# AC voltage, V; frequency, Hz; initial voltage phase angle, rad
+
+# ╔═╡ 550357f9-92f8-484b-9966-65ad5ea592a7
+md"""
+Carga RL
+"""
+
+# ╔═╡ 8603c14f-88e9-44d1-aeeb-8bf9b9ca3a88
+R, L = 10, 20e-3 				# electrical resistance, Ω; inductance, H
+
+# ╔═╡ 1b0e1c7c-dd9b-493d-877d-6b29c95b20c7
+
+
+# ╔═╡ 6deb6d95-1075-4e43-abdd-4fe44260c0ed
+md"""
+# Resolução
+"""
+
+# ╔═╡ 3a352a43-d9ac-4d3d-91cc-e37c8f2af810
+md"""
+## Impedância complexa
+"""
+
+# ╔═╡ cfc4fc55-5b33-415d-8ebe-92f8e714c3b8
+md"""
+A impedância complexa da carga RL, $\overline{Z}=R+jX_l$ onde $X_l$ é a reatância indutiva dada por: $X_l=2\pi f L$
+"""
+
+# ╔═╡ 87ecd0d4-cd20-4fa1-a03e-2b334e34f87b
+Xₗ = 2π*f*L
+
+# ╔═╡ 4ce5c9f4-78d9-4cf6-9ff7-dae285c5685a
 begin
-	O1=@bind pick1 MultiSelect(["maior", "menor", "melhor", "pior"])
-	O2=@bind pick2 MultiSelect(["menos", "mais", "mais ", "menos "])
-	O1, O2
+	Z⃗ = R + j*Xₗ
+	
+	Z = abs(Z⃗)
+	Z = round(Z, digits=2)
+
+	θ = atan(imag(Z⃗) / real(Z⃗))
+	θ = rad2deg(θ)
+	θ = round(θ, digits=2)
+	
+	Text("Z⃗ = $(Z)∠$(θ)°") 
 end
 
-# ╔═╡ af4e9d09-cac3-4ca0-8735-70d3e358a1ad
+# ╔═╡ 8484b73e-8ddc-4148-867d-a004a98b99c8
+
+
+# ╔═╡ e39cac49-7fd8-46cf-b7c8-adb1206166de
 md"""
-Em sobrecarga a máquina com **$(pick1)** regulação, fornece **$(pick2)** corrente.
+## Fasores de tensão e corrente
 """
 
-# ╔═╡ 24c80cb7-1e2e-4959-ac83-6a756749f2ec
-
-
-# ╔═╡ 2ca2baf2-8970-4566-8738-5e4ff39e9fa5
-md"""
-# Cálculos 
-!!! nota
-	Nesta secção são exibidos os cálculos realizados para obter a construção gráfica apresentada neste *notebook*. Esta secção é de análise facultativa.
-"""
-
-# ╔═╡ 7e45e4aa-b6cd-4d9a-a78d-c0a32be51fc7
-md"""
-Determinação das correntes de cada gerador, `I₁` e `I₂`, por interpolação da característica externa do respectivo gerador DC, para diferentes valores de tensão do paralelo de geradores DC, `U`.\
-Inclui também a extrapolação das características externas de cada gerador para determinação gráfica de correntes circulatórias entre as máquinas e tensão de vazio com os geradores DC em paralelo:
-"""
-
-# ╔═╡ 1e4d5035-1f17-4d8f-aaf3-0c62ec511abc
+# ╔═╡ fc41d49a-72c9-4561-9621-ffbf2cf12595
 begin
-	U = -205.5:-1:-229.5
-	I1int = Spline1D(-U₁, I, k=1, bc="extrapolate")
-	I2int = Spline1D(-U₂, I, k=1, bc="extrapolate")
-	I₁ = I1int(U)
-	I₂ = I2int(U)
-	I₁, I₂
-end;
+	U⃗ = (U)∠(θᵤ*180/π)
+	
+	I⃗ᵣₗ = U⃗ / Z⃗
+	Iᵣₗ = abs(I⃗ᵣₗ)
+	Iᵣₗ = round(Iᵣₗ, digits=2)
+	θᵢ = atan(imag(I⃗ᵣₗ)/real(I⃗ᵣₗ))
+	θᵢ_deg = rad2deg(θᵢ)
+	θᵢ_deg = round(θᵢ_deg, digits=2)
 
-# ╔═╡ 76059231-9935-4437-bd3e-7d6b3ebcda63
-md"""
-Determinação das contribuições de carga de cada gerador DC, `Ic1` e `Ic2`, para uma dada resistência de carga, `Rcarga`, aplicada ao paralelo de geradores DC:
-"""
-
-# ╔═╡ 089dd348-6ff5-4f42-8487-bfe9e4b94d76
-begin
-	Iₜ = I₁ + I₂
-	Ic = 0:.01:2300
-	Uc = Rcarga .* Ic
-	Up_int = Spline1D(-Iₜ,U)
-	Up = (-1) .* Up_int(-Ic)
-	A = (Up-Uc)
-	a = findall(i->(-.1 < i < .1), A)
-	Itotal = .01 * a[1,1]
-	Ic1 = I1int(-Rcarga * Itotal)
-	Ic2 = I2int(-Rcarga * Itotal)
-end;
-
-# ╔═╡ 5d931a49-0a5e-4ad0-b726-9996ae7cbe7e
-begin
-	# change the "ylims" parameter to zoom the graph!
-	plot(I,U₁, ylims=(00,250), markershape=:circle, markersize=3, 
-			linecolor=:blue, linewidth=0, title="U =f(I)", xlabel = "I(A)", ylabel="U(V)", framestyle = :origin, minorticks=5, label="U₁=f(I₁)", size=(750,500))
-	
-	plot!(I,U₂, markershape=:circle, markersize=3, linecolor=:red, 
-			linewidth=0, label="U₂=f(I₂)", legend=:bottomright)
-	
-	plot!(I₁,-U, linecolor=:blue, label=:none)
-	
-	plot!(I₂,-U, linecolor=:red, label=:none)
-	
-	plot!(I₁+I₂, -U, xlims=(-500,2500), linewidth=2, markershape=:circle,
-			markersize=3, label="U=f(Iₜₒₜₐₗ)", xminorgrid=true)
-	
-	#plot!([210], seriestype = :hline, linestyle=:dash)
-	
-	plot!(I₁+I₂, Rcarga.*(I₁+I₂), linewidth=3, label="reta carga")
-	
-	plot!([Itotal], seriestype = :vline, linestyle=:dash, 
-			linecolor=:brown, label=:none)
-	
-	plot!([Rcarga*Itotal], seriestype = :hline, linestyle=:dash, label=:none)
-	
-	plot!([Ic1], seriestype = :vline, linestyle=:dashdot, 
-			linecolor=:blue, label=:none)
-	
-	plot!([Ic2], seriestype = :vline, linestyle=:dashdot, 
-			linecolor=:red, label=:none)
+	Text("U⃗ = $(U)∠$(θᵤ*180/π)°; I⃗ᵣₗ = $(Iᵣₗ)∠$(θᵢ_deg)°")
 end
 
-# ╔═╡ 41137dae-b56e-4f68-8bac-98ad72262080
+# ╔═╡ 1f8de210-e55c-4f24-8b3c-58d600e5e859
+
+
+# ╔═╡ 487cb7d3-8263-46ed-840f-7cc4759741c4
+md"""
+## 💻 Representação gráfica
+"""
+
+# ╔═╡ d88b989e-617c-4278-9200-49833711df8f
+begin
+	ω = 2π*f  							# angular frequency, rad/s
+	t=0:1e-5:0.04  						# time range, s
+	
+	u = √2*U*sin.(ω*t .+ θᵤ)   			# u(t), V
+	iᵣₗ = √2*Iᵣₗ*sin.(ω*t .+ θᵢ)  		# i(t), A
+end;
+
+# ╔═╡ c8d3ebcd-e392-4f15-967e-c45e1f0b8e9a
+md"""
+Selecionar instante nos gráficos:$\quad$  $(@bind instante Slider(1:1:4001, default=1))
+"""
+
+# ╔═╡ 42ce0269-2cc9-4607-bbc8-5b9963ecad3d
+begin
+	# Voltage:
+	h1 = plot(t, u, xlim=[0, 0.04], ylim=[-150, 150], label="u(t)", xlabel="t (s)", ylabel="u (V)", legend=:bottomleft, framestyle=:origin)
+	
+	# Current on secondary axis:
+	plot!(twinx(), t, iᵣₗ, ylim=[-20, 20], lc=:red, xlim=[0,0.04], label="i(t)", ylabel="i (A)", size=(320,240), legend=:topright)
+
+	# Markers of choosed instant:
+	scatter!((t[instante], u[instante]), mc=:blue, ms=5, label=:none)
+	scatter!(twinx(), (t[instante], iᵣₗ[instante]), ylim=[-20, 20], xlim=[0, 0.04],  mc=:red, ms=5, label=:none)
+	vline!([t[instante]], lc=:black, ls=:dash, label=:none)
+
+	# Voltage vector:
+	h2 = plot([0, (U)∠(θᵤ*180/π+2*360*instante/4001)], arrow=:closed,  label=:none, ylim=[-100, 100], xlim=[-100,100], xticks=[], lw=2, lc=:blue, framestyle=:origin)
+
+	# Current vector:
+	plot!(twinx(), [0, (Iᵣₗ)∠(θᵢ*180/π+2*360*instante/4001)], arrow=:closed, label=:none, ylim=[-10, 10], xlim=[-10,10], xticks=[], lc=:red, size=(320,240),  framestyle=:origin, lw=2)
+
+	# plot arrangement:
+	TwoColumn(h1, h2)
+end
+
+# ╔═╡ a5e5db95-bd1f-4a7d-ad8b-47a9d7e9e5dc
+aside((md"""
+!!! nota "Observação"
+	Seguindo a notação complexa, um fasor de uma onda sinusoidal é representado pela amplitude e argumento. No entanto, em eletrotecnia é comum trocar a amplitude pelo valor eficaz, porque os resultados que se pretendem obter são em valor eficaz e não em valor máximo (amplitude). 
+	
+	Este procedimento permite efetuar cálculos e obter resultados à semelhança da leitura de instrumentos de medida, em circuitos de corrente alternada, *e.g.*, voltímetros e amperímetros, onde as grandezas visualizadas são em valor eficaz.	
+"""), v_offset=-450)
+
+# ╔═╡ cffaa60e-1db6-435e-8826-8b620b939195
+md"""
+## Fator de potência, cosφ
+"""
+
+# ╔═╡ dc6d5c88-939b-4e58-9d79-17cb063a9227
+md"""
+**Cálculo através do desfasamento entre a tensão e a corrente, $\varphi$:**
+"""
+
+# ╔═╡ b41ae51e-2e4f-4151-bd32-b539f57156b7
+begin
+	φ = θᵢ - θᵤ
+	round(rad2deg(φ), digits=1)
+end
+
+# ╔═╡ 203e1f4c-de09-471d-a5a0-de11590b68cc
+begin
+	cosφ = cos(φ)
+	cosφ = round(cosφ, digits=3)
+	
+	if sign(φ)==-1
+		md"cosφ = $(cosφ)(i)"
+	elseif sign(φ)==0
+		md"cosφ = 1"
+	elseif sign(φ)==1
+		md"cosφ = $(cosφ)(c)"
+	end
+end
+
+# ╔═╡ 7f247c1d-22c4-49ba-804d-6b191104483d
+
+
+# ╔═╡ 3bb413b1-fa75-44e0-9b66-ef9b274e4f12
+md"""
+**Cálculo atráves da potência complexa, $\overline{S}$:**
+
+Genericamente pode escrever-se:
+
+$\overline{S}=\overline{U} \: \overline{I^{\ast}}$
+resultando no fasor:
+
+$\overline{S}=S\angle \varphi$
+
+ou usando a notação retangular:
+
+$\overline{S}=P + j \: Q$
+"""
+
+# ╔═╡ b457c86a-65df-49d2-b4b1-2f46b6f99a5d
+begin
+	S⃗ = U⃗*conj(I⃗ᵣₗ)
+
+	P = real(S⃗)
+	Q = imag(S⃗)
+	S = abs(S⃗)
+
+	ϕ = atan(Q/P)
+	ϕ_deg = rad2deg(ϕ)
+	
+	P, Q, S, ϕ_deg = round.([P Q S ϕ_deg], digits=2)
+	
+	Text("S⃗ = $(S)∠$(ϕ_deg)°; S⃗ = $(P) + j$(Q)") 
+end
+
+# ╔═╡ cf569de4-bb67-43c2-a2eb-e3842f6f7c00
+md"""
+Note que para designarmos corretamente o fator de potência, explicitando se é de carácter indutivo ou reativo, tem de se avaliar em que quadrante de funcionamento se encontra o fasor da potência, $\overline{S}$:
+"""
+
+# ╔═╡ fde903bf-0f19-4f6c-84f8-e1454269d10b
+begin
+	cosϕ = cos(ϕ)
+	# cosϕ = P/S
+	cosϕ = round(cosϕ, digits=3)
+	
+	if isapprox(ϕ, 0; atol=1e-9)
+		md"cosφ = 1"
+	elseif 0 < ϕ <= π/2    		
+		md"cosφ = $(cosϕ)(i)"
+	elseif -π/2 <= ϕ < 0 
+		md"cosφ = $(cosϕ)(c)"
+	end
+end
+
+# ╔═╡ 9d4b0fd3-f29c-437c-b354-d8b673145b66
+
+
+# ╔═╡ c2634c14-1491-4982-815e-1899fa73e978
+md"""
+## Compensação do fator de potência
+"""
+
+# ╔═╡ 9450eb8e-6dae-41b0-91e5-d279baef30a1
+md"""
+Para melhorar o fator de potência deste circuito RL, uma solução é ligar em paralelo com a carga RL, um filtro passivo que cancele parcialmente ou totalmente a componente reativa imposta pela carga RL:
+"""
+
+# ╔═╡ b0957eb0-3712-4d62-bfa4-71796efe6a9f
+html"""
+<iframe frameborder="0" style="width:100%;height:324px;" src="https://viewer.diagrams.net/?tags=%7B%7D&highlight=FFFFFF&edit=_blank&layers=1&nav=1#R7Vptc9o4EP41fGzG79gfA6S9zuRmMuWul%2FQLo9gCdDWWTxYB%2ButvZUl%2BT0hSDEePDAFptV7J%2BzzalWQP7PFq%2B4mhdPk7jXA8sIxoO7AnA8vybBe%2BhWAnBY5hScGCkUiKzFIwJT%2BwEhpKuiYRzmqKnNKYk7QuDGmS4JDXZIgxuqmrzWlc7zVFC9wSTEMUt6V%2FkYgvpdR3jVL%2BGyaLpe7ZNFTLCmllZSJboohupCjXsW8G9phRymVptR3jWPhO%2B0Ua%2BvhMazEwhhP%2Bmgts53H6zV5Nvvy4vX%2F4mgXpzp5%2FUFaeULxWN6wGy3faAyklCcfs5gn6Ec40B%2FboCTNOwEm36BHHdzQjnNAE2h4p53QFCsXNGlCJULbEkaqgmCyEaoiFVRAs%2BSpumL1WOpym0lYqxrLaLgTFrnAMQDOhd8VwRjJOWVaUZpbokDBQkUPK6FoAMco4o98LDG2QzGOSflU9A304IokYUD7KtnO1p2CIeFsRKWd%2FwnSFOduBimp1hooJmvnWUNY3JY8sW4qWNQpp%2BirqLgrTJbpQUAC%2FAWzrvMEmSbQOc7B1aeZ2AtsEk1GO1JiDQ4FrejVwXT9ogWs6Rhtd2%2BgJXLuFJY4gkqkqZXxJFzRB8U0pBcesk6gAq9S5pQKLHKW%2FMec7FZbRmtM6hnhL%2BL26XJQfRPnKVbXJttI02VUqd5gRuO0CIQCC7e6rFWnJc1wtKI3ltV211jYXXYvYD9WEJlhKPhLh0Ly9TZlnKQHhg4V4fwQVzn6ROAzHQMKnelrpYoG69E7MxArhfBO8ERR%2FfoN%2FXsMiR2yBuTLSoFYxqvezzTnvUJKBHopnEtzsSoM8QlkqFxFzshU9j%2FKbyF3qjuAjuG2NjfzfhZscg8wUNSXXMlk367K6HnyAlvE0H8kfu3ykKHwbOV8fr4pYpJNRMLxyWxHLN9sBy%2B8rG3knCVg60JhnF2jUlJMTe3%2BWP3BAgttEu4qCmhjPxitT80YRzvMbq9NWfLNe0oeCHMFBo1hwypypy%2B%2FPmQX3KMThGvfMA3NveJwkZ9tGJwmOldUs55wXUW3A91Hk7AjhWMclxPC8lzkhSlFI8i1TUZyZHTuiXtYcll8Hz9Ub2%2BoeyejYI3l97ZH0odJLeFbmTBijLCNhHYT6dH%2FWTXtnRsUJbocPtOwnJ5DVnEBmw7dyprcmUNuQv8dQzzNRc%2Bf%2FA53t1FdEjvNO6FqGgiND94pzp18NuuAws84O9hjqG7qufb4Xc3F6SvOBlhh6%2F6ypbviQ5Yuda1AwvXSbQ6bbobSQv474uGMKKSUmsHsajj4PhpMZUS2qIxi47Etf1qAOZCNeJ4vMZmMaU7E0UhuzOSx7GqJWrm0m2BWJonyNt1kSjqeQQUWfG0izLUqKIaoVnukdKH82YretQ3CFxN4xjxhN97hs%2BBPYcOFC3hrYNSq4ltNxfHNcMngnCA3hhQ7d%2ByL31KGha6fUNxvgl8WXGFGuOv5r%2BcLvmxRfLtCr01O%2FHg%2B8ruP944If9A3%2B7QX8%2Bn5OLw6C9jnLUaHXh3T9QT%2B%2BQC%2Fd7zYeA1veiaF3W84%2F5gl6cWr%2BMKgcmr%2F9NYTG08Ff5tlgPy8r%2FOyzQaf55lr73YeX9N%2F6bBCq5Vt3Ur18ddG%2B%2BRc%3D"></iframe>
+"""
+
+# ╔═╡ b3c23dd5-ecb3-49b3-98e4-1f6d880f2025
+md"""
+Escolhendo o valor adequado do condensador poderá verificar no diagrama vetorial e no gráfico da evolução temporal das grandezas, a compensação do fator de potência, permitindo que a tensão e corrente da fonte de alimentação fiquem em fase:
+"""
+
+# ╔═╡ a4069d2f-5bca-45b7-95ea-0fbe59dc6a55
+md"""
+ $$C=\quad$$ $(@bind C Slider(0:0.1:350, default=0.1, show_value=true)) $$\:\:\mu F$$
+"""
+
+# ╔═╡ a4afa491-26ec-4655-8293-7774abb926f5
+begin
+	Xc = 1/(ω*C*1e-6)
+	I⃗c = U⃗/(-j*Xc)
+	I⃗ᵢ = I⃗ᵣₗ + I⃗c
+end;
+
+# ╔═╡ 5cbde964-3dac-4472-83d1-0231880beb54
+begin
+	Kᵢ=5
+	plot([0, U⃗],arrow=:open, lw=4, label="U∠θᵤ", legend=:topright)
+	plot!([0, (R*Iᵣₗ)∠(θᵢ*180/π)],arrow=:open, lw=5, lc=:grey; label="R*Iᵣₗ∠θᵢ°")
+	plot!([(R*Iᵣₗ)∠(θᵢ*180/π), (R*Iᵣₗ)∠(θᵢ*180/π)+(Xₗ*Iᵣₗ)∠(θᵢ*180/π+90)],arrow=:open, lw=4, lc=:orange, label="Xₗ*Iᵣₗ∠(θᵢ°+90°)", size=(500,500), ylims=(-60,60), xlims=(-10,110))
+	
+	plot!([0, Kᵢ*I⃗ᵣₗ],arrow=:closed, lw=2, lc=:red, label="Iᵣₗ∠θᵢ°")
+	plot!([Kᵢ*I⃗ᵣₗ, Kᵢ*I⃗ᵣₗ + Kᵢ*I⃗c], arrow=:none, lw=1, lc=:black, ls=:dash, label=:none)
+	plot!([0, Kᵢ*I⃗c],arrow=:closed, lw=2, lc=:green, label="Ic∠90°")
+	plot!([Kᵢ*I⃗c, Kᵢ*I⃗c + Kᵢ*I⃗ᵣₗ], arrow=:none, lw=1, lc=:black, ls=:dash, label=:none)
+	plot!([0, Kᵢ*I⃗ᵢ],arrow=:closed, lw=2, lc=:black, label="Iᵢ∠φᵢ°")
+
+	
+
+	
+end
+
+# ╔═╡ 9e5b3036-c741-4aa7-8ccc-7b2ba33a44bc
+md"""
+A representação temporal da tensão e correntes representadas no circuito RL com a compensação do fator de potência, obtém-se através do cálculo das grandezas, $u(t)$, $i_i(t)$, $i_{rl}(t)$ e $i_c(t)$ e respetiva representação gráfica:
+"""
+
+# ╔═╡ b46be50d-b1ae-4b5e-b1de-eebbe2380c67
+begin
+	Iᵢ=abs(I⃗ᵢ)
+	φᵢ=atan(imag(I⃗ᵢ)/real(I⃗ᵢ))
+	iᵢ= √2*Iᵢ*sin.(ω.*t .+ φᵢ)
+	
+	Ic=abs(I⃗c)
+	φc=atan(imag(I⃗c)/real(I⃗c))
+	ic= √2*Iᵢ*sin.(ω.*t .+ π/2)	
+end;
+
+# ╔═╡ 24f7bb6e-54f3-4f84-95c9-4f11e8292b6a
+begin
+	plot(t, u, xlim=[0, 0.04], ylim=[-150, 150], label="u(t)", xlabel="t (s)", ylabel="u (V)", lw=2, legend=:bottomleft, framestyle=:origin)
+
+	plot!(twinx(), t, iᵣₗ, ylim=[-20, 20], lc=:red, xlim=[0,0.04], label="iᵣₗ(t)", ylabel="i (A)", legend=:topright)
+	
+	plot!(twinx(), t, ic, ylim=[-20, 20], lc=:green, xlim=[0,0.04], label="ic(t)", legend=:bottomright)
+	
+	plot!(twinx(), t, iᵢ, ylim=[-20, 20], lc=:black, lw=2, xlim=[0,0.04], label="iᵢ(t)", legend=:topleft)
+end
+
+# ╔═╡ d7dd132a-522e-4e4b-9f87-975459e2d70c
+md"""
+Note-se que a escolha adequada do valor da capacidade do filtro passivo permite que a corrente de entrada do circuito, $i_i(t)$, fique em fase com a tensão de alimentação, $u(t)$, ou seja, $\cos \varphi=1$.
+"""
+
+# ╔═╡ bddd4830-a606-4e3f-a6a4-836d1c7ffe26
+
+
+# ╔═╡ 372caab8-a5b0-46d9-856a-68384c5eecb3
+md"""
+### Solução analítica
+"""
+
+# ╔═╡ 1098adf7-b66e-4861-b9be-112115da8e84
+md"""
+Analiticamente, a solução do valor da capacidade do filtro passivo é fácil de obter, usando o valor da potência reativa imposta pelo circuito RL:
+"""
+
+# ╔═╡ 29057a6f-fb4b-4fae-8c79-0688a843d6b4
+begin
+	Xc₁ = U^2/Q
+	C₁ = 1 /(ω * Xc₁)
+end
+
+# ╔═╡ fe413d93-1d07-468e-bf41-373f79a0e4a7
+formatted(C₁, :ENG, ndigits=4) 
+
+# ╔═╡ fcc379d4-d1f9-40f5-8d09-505c67b4de93
+md"""
+O que comprova o resultado obtido interativamente pela visualição gráfica (diagrama vetorial e/ou resposta temporal).
+"""
+
+# ╔═╡ ca97ea81-1ec3-41e7-bb4c-ad41b0528492
+aside((md"""
+!!! tip "Observação"
+	O exercício apresentado tem como um dos objetivos o pretexto de exemplificar a elaboração computacional de diagramas vetoriais.
+
+	A solução para a correcção do fator de potência ilustrada não tem em conta diversos aspetos técnicos que teriam de ser considerados numa situação real, tais como:
+	- as cargas serem frequentemente não-lineares, o que pode colocar no circuito fenómenos de ressonância harmónica;
+	- a fonte de alimentação não apresentar uma tensão sinusoidal perfeita;
+	- ter em conta a impedância a montante, ou seja, a potência de curto-circuito da instalação.
+
+	Assim, na prática, o dimensionamento de filtros passivos para compensação do fator de potência necessita de estudos avançados na área de [Qualidade de Energia Elétrica](https://www.isel.pt/mee/qualidade-de-energia-eletrica).
+
+"""), v_offset=-720)
+
+# ╔═╡ 3aaef504-b8a5-4214-973c-5b12c4cf4e4d
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 main {
@@ -215,17 +588,17 @@ pluto-output {
 </style>
 """
 
-# ╔═╡ 2effa5ea-4c7c-42cf-8872-91274a18b17b
+# ╔═╡ bc62a6e7-4d31-4ded-b4a6-15c785f60054
 md"""
 # *Notebook*
 """
 
-# ╔═╡ 3c605565-784f-4ee7-8ff6-0ff77eff34f8
+# ╔═╡ 020a50a7-20d1-42aa-8e63-558d68380982
 md"""
-Documentação das bibliotecas Julia utilizadas:  [Dierckx](https://github.com/kbarbary/Dierckx.jl), [Plots](http://docs.juliaplots.org/latest/), [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html).
+Documentação das bibliotecas Julia utilizadas: [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html), [Plots](http://docs.juliaplots.org/latest/), [NumericIO](https://github.com/ma-laforge/NumericIO.jl).
 """
 
-# ╔═╡ 18e9c139-d4b1-4af8-8ecb-86a7b30ff7a7
+# ╔═╡ bdb715da-523a-478d-a027-903820be78bf
 begin
 	version=VERSION
 	md"""
@@ -233,20 +606,20 @@ begin
 """
 end
 
-# ╔═╡ d7d8a472-7e3c-49b5-9a9e-6d32692fbc7e
+# ╔═╡ b59dd96f-f332-4b22-829b-9712ba3cc673
 TableOfContents(title="Índice")
 
-# ╔═╡ ef198a00-fbff-4504-9f29-6263e56a4f71
-md"""
+# ╔═╡ a31ace2c-6133-4794-97b8-1e43fec0a9c2
+aside((md"""
 !!! info "Informação"
 	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
-"""
+"""), v_offset=-170)
 
-# ╔═╡ 6d2984a5-29ca-4708-87d1-f14c59274e16
+# ╔═╡ 2523215e-7d3c-4b25-b220-7e787e16c242
 md"""
 |  |  |
 |:--:|:--|
-|  | This notebook, [Parallel.GEN.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Parallel.GEN/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+|  | This notebook, [RLcircuit.jl](https://ricardo-luis.github.io/isel-me2/Fall23/week0/RLcircuit/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
 | **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
 |  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
 """
@@ -254,13 +627,13 @@ md"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
+NumericIO = "6c575b1c-77cb-5640-a5dc-a54116c90507"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-Dierckx = "~0.5.3"
+NumericIO = "~0.3.2"
 Plots = "~1.40.3"
 PlutoTeachingTools = "~0.2.15"
 PlutoUI = "~0.7.59"
@@ -272,7 +645,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.5"
 manifest_format = "2.0"
-project_hash = "c3bd0cf14c4f4d701094d29d675a102452b14a1f"
+project_hash = "da1911df816cf9dda39a6b310f4f4a1a433aa10c"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -395,18 +768,6 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
-
-[[deps.Dierckx]]
-deps = ["Dierckx_jll"]
-git-tree-sha1 = "d1ea9f433781bb6ff504f7d3cb70c4782c504a3a"
-uuid = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
-version = "0.5.3"
-
-[[deps.Dierckx_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "6596b96fe1caff3db36415eeb6e9d3b50bfe40ee"
-uuid = "cd4c43a9-7502-52ba-aa6d-59fb2a88580b"
-version = "0.1.0+0"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -801,6 +1162,12 @@ version = "1.0.2"
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
+
+[[deps.NumericIO]]
+deps = ["Printf"]
+git-tree-sha1 = "5e2bd9bee8b55b754ca61386df207abbfc266ef6"
+uuid = "6c575b1c-77cb-5640-a5dc-a54116c90507"
+version = "0.3.2"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1418,36 +1785,95 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─a4cc4ad7-04fd-41cf-b6a9-8cdede20b8af
-# ╟─f01a2e6c-801d-4c1e-bc60-ce30c475bdc0
-# ╟─570473a3-be60-4ff1-b6d7-269c7c3cd321
-# ╟─860e56f2-921c-4943-a31b-3c2a896ca092
-# ╠═f50f251e-afe1-4ae3-8607-4d325a7c6116
-# ╟─4a8a67ff-2145-4e5f-9b54-708ad92bc12c
-# ╟─7e536108-d92f-4e5f-bd37-e48924ff9943
-# ╟─7b6d5dee-5fb8-4dc1-8557-370fc8698624
-# ╟─5d931a49-0a5e-4ad0-b726-9996ae7cbe7e
-# ╟─d59f7a7e-10bb-43cb-9710-1a822afeeba9
-# ╟─6f29a5d9-d0b4-4057-83c6-0abbd349463e
-# ╟─16f830b5-2160-43c4-8ebb-6b5cab2d5726
-# ╟─10ce0429-8170-498d-b6a8-78c4d4005822
-# ╟─61763b38-5700-4559-9171-d40612354f0b
-# ╟─b15489fb-f0e8-4019-ab10-65a8f91ec8c5
-# ╟─af4e9d09-cac3-4ca0-8735-70d3e358a1ad
-# ╟─9de717e1-542a-4b2a-9bc1-4e4ea16fb3ee
-# ╟─24c80cb7-1e2e-4959-ac83-6a756749f2ec
-# ╟─2ca2baf2-8970-4566-8738-5e4ff39e9fa5
-# ╟─7e45e4aa-b6cd-4d9a-a78d-c0a32be51fc7
-# ╠═1e4d5035-1f17-4d8f-aaf3-0c62ec511abc
-# ╟─76059231-9935-4437-bd3e-7d6b3ebcda63
-# ╠═089dd348-6ff5-4f42-8487-bfe9e4b94d76
-# ╟─41137dae-b56e-4f68-8bac-98ad72262080
-# ╟─2effa5ea-4c7c-42cf-8872-91274a18b17b
-# ╟─3c605565-784f-4ee7-8ff6-0ff77eff34f8
-# ╠═f06ea9e2-b9ed-4f8f-9278-9441cd270ca5
-# ╟─18e9c139-d4b1-4af8-8ecb-86a7b30ff7a7
-# ╠═d7d8a472-7e3c-49b5-9a9e-6d32692fbc7e
-# ╟─ef198a00-fbff-4504-9f29-6263e56a4f71
-# ╟─6d2984a5-29ca-4708-87d1-f14c59274e16
+# ╟─5907d617-574a-4bc6-a710-f00682321c00
+# ╟─f65b5561-c05d-4145-b828-a1f52f19a938
+# ╟─9acde771-2169-4ae3-9ebe-fa391588c5f3
+# ╟─b4777f70-8926-4595-b35f-7d9a5ba821cc
+# ╟─63a79a06-a3b6-48a2-bd1c-d8d8663da070
+# ╟─4f173b81-6bbe-4ab6-bd7a-760e43ac1a7c
+# ╟─06cee7a0-6a2a-490a-ba28-5bdabfa859f6
+# ╠═40201c93-3310-4b4c-9cde-97c02e8a7761
+# ╠═cbad77e0-2f99-49cd-bd10-d30d5874c612
+# ╟─59ee7138-3533-41aa-b28e-c26d99e5b7c5
+# ╠═58ada44d-294f-4542-8772-ff2db59f6f57
+# ╟─69fae01b-8820-408e-b9b0-063a1b2c6d5e
+# ╟─71fcdaa0-610d-4a29-a588-9ca491543ad7
+# ╟─56bfaaf0-c510-4bf7-b99f-01fb28f7fef5
+# ╠═cac8c4e4-b3f1-47e7-ae11-d440b8a1a196
+# ╟─d28bb41e-9dbf-4b71-8d3c-b742fdf65057
+# ╟─a3e6f2ce-4485-43f7-bbf6-5653f6c46676
+# ╠═a6564805-78ff-4578-879b-23d5a524f9e9
+# ╠═118c5c66-ad94-4fb3-bc03-601ac82f1e4c
+# ╟─5cd95f64-ca23-496c-8ceb-88aa1787478b
+# ╟─03f9ca10-d04e-44ca-bc5c-931b0aca09a8
+# ╟─c5fc5ea7-fadc-4d3b-877c-e4ba2a29865c
+# ╠═4880d829-a48a-484d-8a48-f197959fee2f
+# ╠═3996720b-2e11-4bea-9eae-516b5afb63ed
+# ╟─2c1b8ff2-8cf5-45b1-ab38-d1f0b1692424
+# ╠═c802d6da-b36b-40af-b2f5-e10996b99587
+# ╟─c3169e42-1803-4b9e-ba17-04465d178a6f
+# ╟─c2a4ae6e-abf5-440e-ad77-7eb983b27f1c
+# ╟─1e6e2a18-255e-4178-8450-05163c9c7c46
+# ╟─7a0052e2-3d34-434d-8a8a-a91960e96c15
+# ╠═85778922-2a35-43d5-8764-d10cd9603a88
+# ╟─2e31f596-02c4-40c2-875d-7cfd508f5478
+# ╟─7e1672c4-8be7-4e08-9ef6-77d38e85dd67
+# ╟─6c5e1063-19a2-4e72-85cb-b3fbd00d4a29
+# ╟─0b765c6e-9012-4cb2-8cf2-ed05184d3220
+# ╟─0eca339c-01fd-47ec-b14f-722ee300d068
+# ╠═ff4982fd-062f-43da-86d6-56ec8d3e650e
+# ╟─550357f9-92f8-484b-9966-65ad5ea592a7
+# ╠═8603c14f-88e9-44d1-aeeb-8bf9b9ca3a88
+# ╟─1b0e1c7c-dd9b-493d-877d-6b29c95b20c7
+# ╟─6deb6d95-1075-4e43-abdd-4fe44260c0ed
+# ╟─3a352a43-d9ac-4d3d-91cc-e37c8f2af810
+# ╟─cfc4fc55-5b33-415d-8ebe-92f8e714c3b8
+# ╠═87ecd0d4-cd20-4fa1-a03e-2b334e34f87b
+# ╠═4ce5c9f4-78d9-4cf6-9ff7-dae285c5685a
+# ╟─8484b73e-8ddc-4148-867d-a004a98b99c8
+# ╟─e39cac49-7fd8-46cf-b7c8-adb1206166de
+# ╠═fc41d49a-72c9-4561-9621-ffbf2cf12595
+# ╟─1f8de210-e55c-4f24-8b3c-58d600e5e859
+# ╟─487cb7d3-8263-46ed-840f-7cc4759741c4
+# ╠═d88b989e-617c-4278-9200-49833711df8f
+# ╟─c8d3ebcd-e392-4f15-967e-c45e1f0b8e9a
+# ╟─42ce0269-2cc9-4607-bbc8-5b9963ecad3d
+# ╟─a5e5db95-bd1f-4a7d-ad8b-47a9d7e9e5dc
+# ╟─cffaa60e-1db6-435e-8826-8b620b939195
+# ╟─dc6d5c88-939b-4e58-9d79-17cb063a9227
+# ╠═b41ae51e-2e4f-4151-bd32-b539f57156b7
+# ╠═203e1f4c-de09-471d-a5a0-de11590b68cc
+# ╟─7f247c1d-22c4-49ba-804d-6b191104483d
+# ╟─3bb413b1-fa75-44e0-9b66-ef9b274e4f12
+# ╠═b457c86a-65df-49d2-b4b1-2f46b6f99a5d
+# ╟─cf569de4-bb67-43c2-a2eb-e3842f6f7c00
+# ╠═fde903bf-0f19-4f6c-84f8-e1454269d10b
+# ╟─9d4b0fd3-f29c-437c-b354-d8b673145b66
+# ╟─c2634c14-1491-4982-815e-1899fa73e978
+# ╟─9450eb8e-6dae-41b0-91e5-d279baef30a1
+# ╟─b0957eb0-3712-4d62-bfa4-71796efe6a9f
+# ╟─b3c23dd5-ecb3-49b3-98e4-1f6d880f2025
+# ╟─a4069d2f-5bca-45b7-95ea-0fbe59dc6a55
+# ╠═a4afa491-26ec-4655-8293-7774abb926f5
+# ╟─5cbde964-3dac-4472-83d1-0231880beb54
+# ╟─9e5b3036-c741-4aa7-8ccc-7b2ba33a44bc
+# ╠═b46be50d-b1ae-4b5e-b1de-eebbe2380c67
+# ╟─24f7bb6e-54f3-4f84-95c9-4f11e8292b6a
+# ╟─d7dd132a-522e-4e4b-9f87-975459e2d70c
+# ╟─bddd4830-a606-4e3f-a6a4-836d1c7ffe26
+# ╟─372caab8-a5b0-46d9-856a-68384c5eecb3
+# ╟─1098adf7-b66e-4861-b9be-112115da8e84
+# ╠═29057a6f-fb4b-4fae-8c79-0688a843d6b4
+# ╠═fe413d93-1d07-468e-bf41-373f79a0e4a7
+# ╟─fcc379d4-d1f9-40f5-8d09-505c67b4de93
+# ╟─ca97ea81-1ec3-41e7-bb4c-ad41b0528492
+# ╟─3aaef504-b8a5-4214-973c-5b12c4cf4e4d
+# ╟─bc62a6e7-4d31-4ded-b4a6-15c785f60054
+# ╟─020a50a7-20d1-42aa-8e63-558d68380982
+# ╠═24742ef8-b976-4dd4-a176-fa0891d3165e
+# ╟─bdb715da-523a-478d-a027-903820be78bf
+# ╠═b59dd96f-f332-4b22-829b-9712ba3cc673
+# ╟─a31ace2c-6133-4794-97b8-1e43fec0a9c2
+# ╟─2523215e-7d3c-4b25-b220-7e787e16c242
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
