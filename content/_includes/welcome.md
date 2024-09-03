@@ -26,7 +26,7 @@ Rua Conselheiro Emídio Navarro, 1
 
 Para citar o conteúdo deste *website* ou os *notebooks*, utilize o seguinte texto:
 ```
-Ricardo Luís (2022-2024). _Notebooks_ Reativos de Apoio a Máquinas Elétricas II. Instituto Superior de Engenharia de Lisboa (ISEL), Licenciatura em Engenharia Eletrotécnica (LEE), Máquinas Elétricas II (ME II). Disponível: https://ricardo-luis.github.io/isel-me2
+Ricardo Luís (2022-2024). Notebooks Reativos de Apoio a Máquinas Elétricas II. Instituto Superior de Engenharia de Lisboa (ISEL), Licenciatura em Engenharia Eletrotécnica (LEE), Máquinas Elétricas II (ME II). Disponível: https://ricardo-luis.github.io/isel-me2
 ```
 
 ---  
