@@ -3,11 +3,16 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 2
-#> order = 2
-#> title = "✏️ Gerador compound"
+#> section = 3
+#> order = 3
+#> title = "✏️ Paralelo de geradores"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
+#> date = "2024-09-09"
+#> 
+#>     [[frontmatter.author]]
+#>     name = "Ricardo Luís"
+#>     url = "https://ricardo-luis.github.io/"
 
 using Markdown
 using InteractiveUtils
@@ -22,8 +27,8 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 9279dd6e-0f39-44ee-884b-bca12177bb71
-using PlutoUI, PlutoTeachingTools, Plots, Dierckx 		
+# ╔═╡ f06ea9e2-b9ed-4f8f-9278-9441cd270ca5
+using PlutoUI, PlutoTeachingTools, Plots, Dierckx
 #= 
 Brief description of the used Julia packages:
   - PlutoUI.jl, to add interactivity objects
@@ -32,296 +37,170 @@ Brief description of the used Julia packages:
   - Dierckx.jl, tool for data interpolation
 =#
 
-# ╔═╡ a1307fbd-12bb-43b0-9ea9-e92cef5039a7
-TwoColumnWideLeft(md"`Compound.GEN.jl`", md"`Last update: 09·09·2024`")
+# ╔═╡ a4cc4ad7-04fd-41cf-b6a9-8cdede20b8af
+TwoColumnWideLeft(md"`Parallel.GEN.jl`", md"`Last update: 09·09·2024`")
 
-# ╔═╡ 9ebdbc99-de18-4fdf-9203-17cc731144d9
+# ╔═╡ f01a2e6c-801d-4c1e-bc60-ce30c475bdc0
 md"""
 ---
 $\textbf{MÁQUINAS ELÉTRICAS DE CORRENTE CONTÍNUA}$
 
-$\text{EXERCÍCIO 6}$ 
+$\text{EXERCÍCIO 8}$ 
 
-$\textbf{Gerador de excitação composta (ou gerador \textit{compound})}$
+$\textbf{Associação em paralelo de geradores DC}$
 ---
 """
 
-# ╔═╡ 6e05600b-5e0d-44e7-83ce-5abb23f22f10
+# ╔═╡ 570473a3-be60-4ff1-b6d7-269c7c3cd321
 md"""
-# Exercício 6. Dados:
+# Exercício 8. Dados:
 """
 
-# ╔═╡ e1b90c33-155d-4eda-b8f8-5ca4f9c120db
+# ╔═╡ 860e56f2-921c-4943-a31b-3c2a896ca092
 md"""
-**Um gerador de excitação composta ligado em longa derivação e fluxo de excitação
-série aditivo apresenta as seguintes características:**
+**Conhecem-se as características externas de dois dínamos de excitação derivação, ligados em paralelo, de 220V, 110kW:**
 """
 
-# ╔═╡ bbbff778-71d1-4500-8d00-500cdf2d9fab
-(Pn, Un, nₙ, Ri, Rs, Rd, Nd, Ns) = (8.75e3, 250, 1500, 1.3, 0.1, 223.0, 2000, 50)
-
-# ╔═╡ 0078df0c-34b0-4c46-bc8f-517b56eccf7c
+# ╔═╡ f50f251e-afe1-4ae3-8607-4d325a7c6116
 begin
-	Iexc = [0.0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.3, 1.5, 1.7]
-	E₀_1500 = [15.0, 100.0, 170.0, 220.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0]
-	Iexc, E₀_1500	
+	I = [0.0, 200, 400, 500, 700, 900]
+	U₁ = [229.5, 226.5, 222.5, 220.0, 213.0, 205.5]
+	U₂ = [224.0, 223.0, 221.0, 220.0, 217.5, 214.0]
+	I, U₁, U₂
 end
 
-# ╔═╡ 619fd811-91a4-4a66-b2b1-ff03cc330110
+# ╔═╡ 4a8a67ff-2145-4e5f-9b54-708ad92bc12c
+
+
+# ╔═╡ 7e536108-d92f-4e5f-bd37-e48924ff9943
 md"""
-**Considere ainda um interruptor em paralelo com o enrolamento indutor série.**
+# a) 💻 Repartição de carga 
+**Como repartiriam as duas máquinas uma corrente de 1500A? Qual a tensão?**
 """
 
-# ╔═╡ bde6b85f-2481-4c30-a28b-e84f09f4c783
-html"""
-<iframe frameborder="0" style="width:100%;height:400px;" src="https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=DCgenerator_compound.drawio#R7V3rc6O2Fv9rMtN%2BCAPoAXzcvHY7s72zzaa5bb%2FsEBvbdLHxBZw4%2FeuvBAKjB5h37G6cmV0jiYPQ%2Bem8dCRfgOv1%2FmPkble%2FhnMvuDD1%2Bf4C3FyYpmEYFvmPlrxmJbbJCpaRP2eNDgVf%2FX88Vqiz0p0%2F92KuYRKGQeJv%2BcJZuNl4s4Qrc6MofOGbLcKAf%2BrWXXpSwdeZG8il%2F%2FXnyUp4C1r%2ByfOXq%2FzJBnaymrWbN2ZvEq%2FcefhSKgK3F%2BA6CsMk%2B7beX3sBHbx8XLL77ipqi45F3iZpcoMbPf%2F%2B2Q7i6Df7L%2Bfv%2B9swfLy5zNnz7AY79sast8lrPgRRuNvMPUrFuABXLys%2F8b5u3RmtfSFMJ2WrZB2w6kW4Se7ctR9Qfj%2F4a8I7U%2F%2BP90L%2BvQ%2FX7oY1YYw2bXIdJ1H4vRhdMi5XUZi4iR%2BSxjeXgDZZ%2BEFwHQZhlPYIWIj%2BkfJl5M598v6lukX6KdXd%2BBEBRkaNFrlB8czSbfYd%2FaM1371ktmJvU%2FBMpwQDN47ZdzZqXpR4%2B0p%2BGAWXyfTwwrWXRK%2BkCbsB6gwYbGZAE2XXLwecmXmbVQljOaBcBu1lQfrAffKFAUANhtuXTw%2BPn%2B%2Bjx4dv0UKfrX9dPOwuDSTx3puT2cAuwyhZhctw4wa3h9KrAzrouBzafA7DLRvFv70keWUcd3dJyCPG28w%2F0IlKn%2FCcMoeU3PlBqZ7da%2BgSWgBtsPeTP%2BjzNcvJr%2F%2FMrm3Mrm%2F2rIPpxWvp4osXEZQmXsRxVmKjqdOhqOVr5AUEtc%2B84FAxid36JfTJIyrxgKHJk0jcaOkl7K7yRBcIIYA0x9aLj8mTdZCGSBOedhzuopkn0SaMcV9Lzba0QVz9DghYwsPwka4K7aFe214eI649%2BZL1%2BDAHCv70mBbGcRmZDowX3T57dHwy4FLp4BNN8tl98oIvYewzIfQUJkm4FqXL3I1XxTRyA39Jm868TYrM8nzJyX5gbRI6zyitLe3Ler%2BkiljzAiL0ItpO8zfz3SwJo7j49g0pJ1JZ7Dq1c0ESfJVSDpiQ45iVK%2FaSlDOgQsqBsaRcDv06dpZk0ibceDwDqiWQwUkfVC97NuRlipvoRXYXhigvONyYXnF3dhVbxHxKxUgDvGcyoaZhZgTJrC%2BxFik4m5f1lJfA4ZGFHAExFTJNFir4CKEKwTuUfIF4cEDySrm7SpuGk4btqGVEW04Chydk57rvCCfbqjmxw%2FlzRlVDWD8OkzIomisXUaOs%2Ffk8te1EpZI5VKa2e9hFG4bHq9SzA5pBDfe0wSfPpY8yoUb7Md%2BbtEdQg47K7s5MFKUXIBj9d%2BmHV1OGgYZRU9DmZQBBkiab4waU5wDGmmBLDaapsKngOA4S5kNxrMf%2F24V5xWWc2ssfSAMTbveHSuoAuzP%2Bhkcvmrsbt9wIL%2Bn%2Ft%2FmzSN%2Bzx2XlEujIECcqgZTzjgmsMjtZUXMkqrxOXsgVEDcGMlygmTM2F0uWbLqoLJfR%2FDMM3hIPd%2B944PGAIXhjPKgs2ZZ4sAkeUh4L3M4J%2Bb2o3Odk4t1TL0KzEvhSWnwvSamvKDs3mHYIng2AbIMQ4gJRUFfovmmRrQpLcsiW5JZquMqCLs5Dy3mZMQToJRKbfxkkB8AXMoRAJ8Zviy5LpUf7OVyVw3QqLpbD8wCI4ZWmLha2jhAa2Vm2YCvesYhyffSmLtx86oyFuiGYJRB2jYNIpKZmrtlqNUqvkGaV4rPa3QSyu1m0LLmbgwVFAe9tQtuQJKIBFKARWTuYSMxNgNppFQT%2BNq7SIaVRd%2BNtthS78PeUU33YUHj9Qwy7ZMJDqHDyVV5%2BUTj8yDvHTJ2jlghEKkvk43lZHUPw13JE%2Fiom1qSmBlCFcITxX5KB2DZ%2F%2FSLXwX3KKehHhgUIw4JMeViQqUD9aMPSIJYpW2CcYdrSHKvlzonocpNjUtcgOKonM7IKBw0WS3vb1ifNzNb8mpZBSKXpJwsifqT3%2F3RhXv18Xtpp8GgiEGVykdrwVqoK9TdEegDjp8sCEU%2FR0bgJCypuaYynqlsLFkijHSNV7nqb3kpt7xQKrB98OW2b9bz%2BzbKOfLoqCGye4i3f46x3PxaqhWQPhOUIuUrkQjTEGpo6wbGVOuodLlDZtFIGRoMcwWkMDktIp5LWyxvrMHiEUOuF9x5qT4kDBdvPKbXxopxYxFKEOqQ1Hodig7QfY5z8R%2BDYnTCkIGRpNnAOH46sZZNaJNUeQfxQMGwQef5XpBLOS0nXZEhp%2BRA504bFYwTZsoJRxc2MIQJnSoaeacr0GMmHTYRLOfmweoIMLlugsASFUUfZIqWqNUw6HEp%2BNEgVPGX5EXmxH6fy49mNfBrA%2BpYXfavKZBRykheBv33kTNZ%2BEsXgM9AhQMrELyALFexUw7CfzdopOlbiCy9gismuaxYdivKE17HVZcJXBWlO19QVdw50NnWhgzUCkordFZZuath2ilqhnwPln0Kkfpm25nnT9hbi2vfOb1WjXuWqTRZ%2FuDn7eFQ%2FMQiwgOPpFk7UaDDfEg3XPzoaAIcGZE%2BXsaNGQ4Osj3e7pw2LsSHljdimyvKxVe6UPprpowpCtzF9mvs6b%2B3p4Lc0h0Q%2FpnM%2BmGHbYtKQY4vR3OGWtNSxveHXHA828yAOsjqON1UUr86T7OqQT7QifkhFzlUREIg0Baop2LTosMNnKpi2Szt9CsLZ94eVv6nz7XoftyCvaCiTtUopWKfr4wFTkERGs13uMlbwEUJjI6V6KbbIKf%2BF21qRlc3b7JJQhC1TM4mHW3MzlRo0%2F7CcJApN5sQS4ujqAt0okNgQvNVQbJwbxYO0ZnZW2ku6Bk1hj2C%2BptRbFQtUBU0cLhaxNw7M2uVSvwuktqyFBo%2BYIgjVOugkEAJQSEcdWyAd3Y8zK9hz8KVTRi0WtftsqoWZP%2FyWr9OUcSPIMlgryy51DZjsZJbe0ouPG10KBEYUXqoA0bvwGk54IWFlpLM1hWy9ntDYwqs641EWQO820tE5V2MjEV6bPK8HgeKlKGTsqaRMHhY5t%2FX9LgcSjRtvMCp0Uk9oYMGtb7plTc6FcxxNOFEIGoeigQ9Ks4R1w7zbo66wNdmMMl4y5AnGwKowOY2CtQUMdF6SFufAWMceVaWLjgvaBk7qbBc9F%2BtfJQTP6Imd%2Fmxgk69K31abeueXLoGBuJUOINwRnRIpyxJIDYRP0dBEeAqhWn0IS2FI%2Fv5uXTawLsFRrzVPCmD87WtdTmA%2BqvL1OpzQU5vFcOTkk4qQy70i5DIj89D9IU7aqURv8xV0CwjSRnEclKWQ0KMlSeRn6Z6pr3JCdmHF0vzAa%2B6FumqdhCwc5oLELaQDOSlSh%2BEU9l6DkyjyTJtF4O3zYyinNvvgDf1TmX1CTflIS9LJ%2FNLWTAvZ2NSx7WCEDJubK1BDlgMMHUBop%2B1QC4S%2FWcQQC7447rrcIQAcjreJXYnB3J%2Bqs%2Bm%2BKPTn2mt1Tt1JqsnKnzzgfhhhwPnD%2FdjDAeb9fltBTG%2BCtqSbsWIidDh0nFwefsMjA%2BDhl1DA7f8B"></iframe>
-"""
+# ╔═╡ 7b6d5dee-5fb8-4dc1-8557-370fc8698624
+H1=("Rcarga", @bind Rcarga PlutoUI.Slider(0.09:.0001:12, default=.143,show_value=true))
 
-# ╔═╡ c6fd0c18-8c77-4aca-aa42-2115c486f8ce
-
-
-# ╔═╡ 6b2a3293-23d0-45c2-bf1c-20f48a2383f7
+# ╔═╡ d59f7a7e-10bb-43cb-9710-1a822afeeba9
 md"""
-# a) 💻 Reta de excitação 
-**Calcule o valor da tensão em vazio sem reóstato de excitação. Explique se o estado do interruptor influencia o valor da tensão de vazio do gerador.**
+Do gráfico, na característica $$U=f(I₁+I₂)$$, para uma carga de $$1500$$A, verifica-se: $$U\simeq215$$V, $$I₁\simeq650$$A e $$I₂\simeq850$$A.
 """
 
-# ╔═╡ a6eb6428-a075-41e7-b23a-59aa9a1c04bf
+# ╔═╡ 6f29a5d9-d0b4-4057-83c6-0abbd349463e
+
+
+# ╔═╡ 16f830b5-2160-43c4-8ebb-6b5cab2d5726
 md"""
-Analisando a forças magnetomotrizes (FMM), em vazio a $FMM_s << FMM_d$, logo o fluxo de excitação série é desprezável, não influenciando a FEM e por conseguinte, a tensão de vazio, $$U_0$$.
-
-Onde:
--  $FMM_s$: força magnetomotriz do enrolamento de excitação série
--  $FMM_d$: força magnetomotriz do enrolamento de excitação derivação
+# b) 💻 Cargas reduzidas 
+**O que se verifica para cargas reduzidas e próximas de zero? $$0 < I <250A$$**
 """
 
-# ╔═╡ c2f36f3f-4429-4614-bcfd-a9a5b0b1d4bc
+# ╔═╡ 10ce0429-8170-498d-b6a8-78c4d4005822
+md"""
+Analisando o funcionamento do paralelo de geradores DC para cargas reduzidas, verifica-se graficamente, que a máquina DC 2 absorve corrente (passa a motor DC). Por conseguinte, o gerador DC 1 fornece corrente para a carga e para a máquina 2.
+"""
+
+# ╔═╡ 61763b38-5700-4559-9171-d40612354f0b
+
+
+# ╔═╡ b15489fb-f0e8-4019-ab10-65a8f91ec8c5
+md"""
+# c) 💻 Complete:  
+
+\
+**“Em sobrecarga a máquina com __________ regulação, fornece __________ corrente.”**
+"""
+
+# ╔═╡ 9de717e1-542a-4b2a-9bc1-4e4ea16fb3ee
 begin
-	H1=("Rexc", @bind Rexc PlutoUI.Slider(Rd:(E₀_1500[2,1]/Iexc[2,1]), default=Rd, show_value=true))
-	H1
+	O1=@bind pick1 MultiSelect(["maior", "menor", "melhor", "pior"])
+	O2=@bind pick2 MultiSelect(["menos", "mais", "mais ", "menos "])
+	O1, O2
 end
 
-# ╔═╡ 9e4aa6bb-01a4-413d-b4d9-eb70d252b002
+# ╔═╡ af4e9d09-cac3-4ca0-8735-70d3e358a1ad
+md"""
+Em sobrecarga a máquina com **$(pick1)** regulação, fornece **$(pick2)** corrente.
+"""
+
+# ╔═╡ 24c80cb7-1e2e-4959-ac83-6a756749f2ec
+
+
+# ╔═╡ 2ca2baf2-8970-4566-8738-5e4ff39e9fa5
+md"""
+# Cálculos 
+!!! nota
+	Nesta secção são exibidos os cálculos realizados para obter a construção gráfica apresentada neste *notebook*. Esta secção é de análise facultativa.
+"""
+
+# ╔═╡ 7e45e4aa-b6cd-4d9a-a78d-c0a32be51fc7
+md"""
+Determinação das correntes de cada gerador, `I₁` e `I₂`, por interpolação da característica externa do respectivo gerador DC, para diferentes valores de tensão do paralelo de geradores DC, `U`.\
+Inclui também a extrapolação das características externas de cada gerador para determinação gráfica de correntes circulatórias entre as máquinas e tensão de vazio com os geradores DC em paralelo:
+"""
+
+# ╔═╡ 1e4d5035-1f17-4d8f-aaf3-0c62ec511abc
 begin
-	#plotly()
-	plot(Iexc, E₀_1500, title="U₀=f(Id), n=1500rpm", 
-		xflip=false, ylims=(0,350), xlabel = "Id(A)", ylabel="U₀(V)", xlims=(0,2), label=false, minorticks=0.1, minorgrid=true)
-	
-	plot!(Iexc,Rexc.*Iexc,label="Reta de excitação", legend=:bottomright)
-	end
-
-# ╔═╡ cae4c174-047b-4b76-9b6f-30246b47f4d4
-md"""
-Para $$R_c=0Ω$$ verifica-se que a interseção da reta de excitação com a característica magnética se dá em (1.3A; 290V).
-"""
-
-# ╔═╡ 4471a156-6f51-46d3-89db-571f3d4c2fa3
-
-
-# ╔═╡ 1914432c-4fce-4764-8265-8334a61ac45a
-md"""
-# b) Cálculo de $\Delta E$ 
-**Com o interruptor desligado, calcule o valor da q.d.t. devido à reação magnética do induzido, sabendo que nas condições nominais se obtém uma regulação plana.**
-"""
-
-# ╔═╡ 31c4ae08-32d3-4f1e-8c0d-cc44b9e04df1
-md"""
-Regulação plana, significa que a tensão em carga, $$U_{c}$$, é igual à tensão de vazio,  $$U_{0}$$. Por conseguinte, a regulação, $$\varepsilon$$, vem dada por:
-
-$$\varepsilon= \frac{U_{0}-U_{c}  }{U_{n} } 100$$
-"""
-
-# ╔═╡ 7b3e2eb1-17dd-4e22-a78e-8295205fb4da
-begin
-	U₀ = Un 
-	Uc = Un
-	ϵ = 100(U₀ - Uc) / Un
+	U = -205.5:-1:-229.5
+	I1int = Spline1D(-U₁, I, k=1, bc="extrapolate")
+	I2int = Spline1D(-U₂, I, k=1, bc="extrapolate")
+	I₁ = I1int(U)
+	I₂ = I2int(U)
+	I₁, I₂
 end;
 
-# ╔═╡ 64e5f393-7951-4188-8e0b-90f48925caa9
+# ╔═╡ 76059231-9935-4437-bd3e-7d6b3ebcda63
 md"""
-Então, $$\varepsilon$$=$(ϵ)%
+Determinação das contribuições de carga de cada gerador DC, `Ic1` e `Ic2`, para uma dada resistência de carga, `Rcarga`, aplicada ao paralelo de geradores DC:
 """
 
-# ╔═╡ 31c9ef56-0c61-4fdd-8ed1-16d7efa9b2bd
-Id0 = Idc = 0.8;
-
-# ╔═╡ a7851446-ae02-4853-910b-f00d6b6c9ed0
-md"""
-Na situação de regulação plana verifica-se que $$I_{dc}=I_{d0}$$. Ou seja, para $$U_{0}=I_{c}=U_{n}$$, tem-se consultando a característica magnética, para $$E_{0}=250$$V, uma $$I_{dc}=I_{d0}$$=$(Id0)A
-"""
-
-# ╔═╡ a82c8886-0c26-4e5c-8885-1463c8f0c3da
-md"""
-No entanto, o fluxo total da máquina, no ponto de funcionamente em carga, é caracterizado também pela contribuição de fluxo magnético criado no enrolamento de excitação série (montagem de excitação composta com fluxo aditivo). Assim, é necessário verificar a FMM do enrolamento série e a sua contribuição para a FEM, $$E_{0}$$, na situação de carga nominal, no presente caso: 
-
-$$I_{exc}=I_{d}+\frac{N_{s}}{N_{d}}I_{s}$$
-"""
-
-# ╔═╡ 6490896d-9a39-47fd-9965-3ea20de780c1
+# ╔═╡ 089dd348-6ff5-4f42-8487-bfe9e4b94d76
 begin
-	In = Pn / Un
-	Ii = In + Idc
-	Idserie = Ii * Ns / Nd
-	Idserie = round(Idserie, digits=2)
-	Iexcₜ = Idc + Idserie
+	Iₜ = I₁ + I₂
+	Ic = 0:.01:2300
+	Uc = Rcarga .* Ic
+	Up_int = Spline1D(-Iₜ,U)
+	Up = (-1) .* Up_int(-Ic)
+	A = (Up-Uc)
+	a = findall(i->(-.1 < i < .1), A)
+	Itotal = .01 * a[1,1]
+	Ic1 = I1int(-Rcarga * Itotal)
+	Ic2 = I2int(-Rcarga * Itotal)
 end;
 
-# ╔═╡ c106aed0-58d1-4139-985c-b639b7717810
-md"""
-Verifica-se assim, que o fluxo total (derivação + série) é produzido por uma corrente de excitação equivalente, vista pelo enrolamento $$N_{d}$$ de: $$I_{exc}$$=$(Iexcₜ)A.
-"""
-
-# ╔═╡ 024351f7-fc21-4be8-9abc-e1af4467d909
-aside((md"""
-!!! info "Atividade interativa"
-	No enunciado original é considerado interruptor **ligado**, o que corrresponde ao gerador de excitação derivação. Nesta versão computacional propõe-se a análise com o interruptor desligado, consequentemente o gerador encontra-se ligado com excitação composta.  \
-	\
-	👉 Analise a trajetória do ponto de funcionamento (característica externa), atuando na "carga" (corrente). \
-	
-	1. Para uma dada situação de carga verifique o que sucede ao ponto de funcionamento do gerador $(I, U)$ para um aumento de velocidade, atuando no _slider_ "Velocidade";
-
-	2. Idem, atuando no _slider_ "Rcampo".
-
-"""), v_offset=100)
-
-# ╔═╡ 24faa076-0e3c-4f9a-a060-a60eb783b047
-md"""
-# c) 💻 $$\:U=f(I)$$ com ⇅ de $$n$$ e $$R_c$$
-**Com o interruptor desligado explicite qualitativamente a característica exterior do gerador.**
-
-**Qual a variação do ponto de funcionamento da característica externa para uma dada
-resistência de carga, nas seguintes situações:**
-1. **aumento da velocidade de accionamento;**
-2. **diminuição do reóstato de campo derivação.**
-"""
-
-# ╔═╡ ca7301a6-f544-48be-88fb-6474c17be7e4
+# ╔═╡ 5d931a49-0a5e-4ad0-b726-9996ae7cbe7e
 begin
-	H2=("Carga", @bind Icarga PlutoUI.Slider(0:1:In*1.4, default=In/2, show_value=false))
-	H3=("Rcampo", @bind Rcampo PlutoUI.Slider(0:1:300, default=100, show_value=true))
-	H4=("Velocidade", @bind rpm PlutoUI.Slider(500:2000, default=1500, show_value=true))
-	H2, H3, H4
+	# change the "ylims" parameter to zoom the graph!
+	plot(I,U₁, ylims=(00,250), markershape=:circle, markersize=3, 
+			linecolor=:blue, linewidth=0, title="U =f(I)", xlabel = "I(A)", ylabel="U(V)", framestyle = :origin, minorticks=5, label="U₁=f(I₁)", size=(750,500))
+	
+	plot!(I,U₂, markershape=:circle, markersize=3, linecolor=:red, 
+			linewidth=0, label="U₂=f(I₂)", legend=:bottomright)
+	
+	plot!(I₁,-U, linecolor=:blue, label=:none)
+	
+	plot!(I₂,-U, linecolor=:red, label=:none)
+	
+	plot!(I₁+I₂, -U, xlims=(-500,2500), linewidth=2, markershape=:circle,
+			markersize=3, label="U=f(Iₜₒₜₐₗ)", xminorgrid=true)
+	
+	#plot!([210], seriestype = :hline, linestyle=:dash)
+	
+	plot!(I₁+I₂, Rcarga.*(I₁+I₂), linewidth=3, label="reta carga")
+	
+	plot!([Itotal], seriestype = :vline, linestyle=:dash, 
+			linecolor=:brown, label=:none)
+	
+	plot!([Rcarga*Itotal], seriestype = :hline, linestyle=:dash, label=:none)
+	
+	plot!([Ic1], seriestype = :vline, linestyle=:dashdot, 
+			linecolor=:blue, label=:none)
+	
+	plot!([Ic2], seriestype = :vline, linestyle=:dashdot, 
+			linecolor=:red, label=:none)
 end
 
-# ╔═╡ 424e21ad-c06a-4df9-87b1-a4207bcd8e7b
-E₀ₙ = round.((rpm/nₙ).*E₀_1500, digits=1)
-
-# ╔═╡ 3c1740df-b272-4b14-8d01-624cfa6a65ed
-begin
-	FMMs = Ns * Icarga
-	Idʼ = Ns * Icarga / Nd  		# to write Idʼ, do Id\rasp + TAB
-end;
-
-# ╔═╡ 4f4c10b4-ca77-4ff5-afd3-de59e5f9e146
-begin
-	I=0:1:60	
-	Id=0:0.001:2
-	xx0=-Idʼ.+Id
-	mxx0=(Rcampo+Rd).*xx0
-	y=Icarga*(Ri+Rs).+mxx0
-	E0n_i=Spline1D(Iexc,E₀ₙ)
-	E0n_ii=E0n_i(Id)
-	A=(E0n_ii-y)
-	a=findall(i->(-1 < i < 1), A)
-	Iex_fluxo=0.001*a[1,1]
-	E0n_ex=Spline1D(Iexc,E₀ₙ)
-	E0n_fluxo=E0n_ex(Iex_fluxo)
-	Id_fluxo=Iex_fluxo-Idʼ
-	U1p=(Rcampo+Rd)*Id_fluxo
-	
-	#plots
-	P1=plot([Icarga], seriestype = :vline, linecolor=:red, ylabel="U(V)", 
-			ylims=(0,400), xlims=(0,60), label=false,linestyle=:dash)
-	
-	plot!(I, (Ri+Rs).*I, linewidth=2, linecolor=:green, legend=:none)
-	
-	plot!([Icarga*(Ri+Rs)], seriestype=:hline, linecolor=:green, 
-			ylims=(0,400), xlims=(0,60), label=false,linestyle=:dash, legend=:none)
-	
-	plot!([Icarga], [U1p],markershape=:circle, label=false, legend=:none)
-	
-	plot!([U1p], seriestype = :hline, xlims=(0,60),linestyle=:dashdot,
-			linecolor=:purple, legend=:none)
-	
-	P2=plot(Iexc,E₀ₙ, xflip=true, ylims=(0,400), ylabel="U₀(V)", 
-			xlims=(0,2), linewidth=2, legend=:none)
-	
-	plot!(Id, (Rcampo+Rd).*Id, xlims=(0,2),ylims=(0,400), 
-			linecolor=:black, linewidth=2, label=false, legend=:none)
-	
-	plot!([Idʼ], seriestype = :vline, ylims=(0,400),linestyle=:dashdot, 
-			linewidth=2, linecolor=:red, label="Idʼ=$(Idʼ)A")
-	
-	plot!([Icarga*(Ri+Rs)], seriestype=:hline, linecolor=:green, 
-			ylims=(0,400), xlims=(0,2), label=false,linestyle=:dash, legend=:none)
-	
-	plot!(Id, y, linecolor=:black, ylims=(0,400), xlims=(0,2), 
-			label=false, linestyle=:dot, linewidth=2)
-	
-	plot!([Iex_fluxo], seriestype = :vline, ylims=(0,400), 
-			linestyle=:dashdot, linecolor=:purple, legend=:none)
-	
-	plot!([Id_fluxo], seriestype = :vline, ylims=(0,400),
-			linestyle=:dashdot, linecolor=:purple, legend=:none)
-	
-	plot!([U1p], seriestype = :hline, xlims=(0,2),linestyle=:dashdot, 
-			linecolor=:purple, legend=:none)
-	
-	P3=plot(Id, Nd.*Id, yflip=true, xflip=true, linewidth=2, legend=:none, 					ylims=(0,3000), ylabel="FMMd(Acond)",xlims=(0,2), xlabel = "Id(A)", 
-			label=false)
-	
-	plot!([FMMs], seriestype=:hline, ylims=(0,3000), linecolor=:red, 
-			linestyle=:dash, label=false,legend=:none)
-	
-	plot!([Idʼ], seriestype = :vline, ylims=(0,3000),linestyle=:dashdot, 
-			linewidth=2, linecolor=:red,label=false, legend=:none)
-	#plot!([Icarga], seriestype = :vline, xlabel = "I(A)", ylims=(0,3000), label=false,linestyle=:dash)
-		
-	P4=plot(I, Ns.*I, yflip=true, linewidth=2, ylabel="FMMs(Acond)", 
-			xlims=(0,60), label=false, legend=:none)
-	
-	plot!([FMMs], seriestype = :hline, ylims=(0,3000), 
-			linecolor=:red, linestyle=:dash, label=false)
-	
-	plot!([Icarga], seriestype = :vline, xlabel = "I(A)", ylims=(0,3000), 
-			label=false,linestyle=:dash, linecolor=:red, legend=:none)
-	
-	plot(P2, P1, P3, P4, layout = (2, 2), size=(750, 600))
-end
-
-# ╔═╡ 75b52a0f-51ee-461d-b481-b21e22011281
-begin
-	E0_est = Spline1D(Iexc,E₀_1500)
-	E0_carga = E0n_i(Iexcₜ)
-	E0_carga = round(E0_carga, digits=1)
-end;
-
-# ╔═╡ ab7434c2-0e62-4b84-ad2a-1e36d05d6983
-md"""
-Consultando a característica magnética verifica-se para $$I_{exc}$$ = $(Iexcₜ)A, uma FEM em carga de: 
-
-
-   $$E_{0}$$ = $(E0_carga)V"""
-
-# ╔═╡ 7f7f864e-1829-4840-8d6f-d16f0f62d87f
-begin
-	ΔUₜ = E0_carga - Uc
-	ΔE = ΔUₜ - (Ri+Rs)Ii
-	ΔE = round(ΔE, digits=1)
-end;
-
-# ╔═╡ e21e6327-7dd9-49ad-ae26-dc60e8000fe4
-md"""
-Queda de tensão total dada por: $$\Delta U_t=E_0-U_c$$, permite por decomposição das q.d.t. presentes na máquina, determinar a q.d.t. devido à reacção magnética do induzido, com $$\Delta{E}$$:
-
-$$\Delta{E}=\Delta U_{t}-\Delta U_{r}-\Delta U_{esc}$$
-Na presente montagem (longa derivação), $$\Delta U_r=(R_i+R_s)I_i$$   e   $$\Delta U_{esc} \simeq {0}$$.  
-
-Resolvendo, obtém-se: $$\Delta {E}$$ = $(ΔE)V.
-"""
-
-# ╔═╡ 9fc34ce9-2cb4-4bdc-b725-e884132664fa
+# ╔═╡ 41137dae-b56e-4f68-8bac-98ad72262080
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 main {
@@ -330,23 +209,23 @@ main {
     margin-right: 35% !important;
 }
 pluto-output {
-    font-family: Lato;
+    font-family: system-ui;
 	font-size:  100%
 }
 </style>
 """
 
-# ╔═╡ f5e272b6-e4e1-4ffb-aefb-344fd55d1683
+# ╔═╡ 2effa5ea-4c7c-42cf-8872-91274a18b17b
 md"""
 # *Notebook*
 """
 
-# ╔═╡ b2b2cd46-434c-4f99-9839-76f6efc82b1a
+# ╔═╡ 3c605565-784f-4ee7-8ff6-0ff77eff34f8
 md"""
 Documentação das bibliotecas Julia utilizadas:  [Dierckx](https://github.com/kbarbary/Dierckx.jl), [Plots](http://docs.juliaplots.org/latest/), [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html).
 """
 
-# ╔═╡ a6b86643-9db4-40c8-9010-5d57de55c21d
+# ╔═╡ 18e9c139-d4b1-4af8-8ecb-86a7b30ff7a7
 begin
 	version=VERSION
 	md"""
@@ -354,20 +233,20 @@ begin
 """
 end
 
-# ╔═╡ 78b8a1cd-d994-486b-a455-7d5b79a3a4b9
+# ╔═╡ d7d8a472-7e3c-49b5-9a9e-6d32692fbc7e
 TableOfContents(title="Índice")
 
-# ╔═╡ 2b362b87-fb6a-4df0-8733-7935eb549f84
-aside((md"""
+# ╔═╡ ef198a00-fbff-4504-9f29-6263e56a4f71
+md"""
 !!! info "Informação"
 	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
-"""), v_offset=-170)
+"""
 
-# ╔═╡ b652ff6b-b261-4b79-a062-3890dd51b330
+# ╔═╡ 6d2984a5-29ca-4708-87d1-f14c59274e16
 md"""
 |  |  |
 |:--:|:--|
-|  | This notebook, [Compound.GEN.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Compound.GEN/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+|  | This notebook, [Parallel.GEN.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Parallel.GEN/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
 | **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
 |  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
 """
@@ -1539,47 +1418,36 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─a1307fbd-12bb-43b0-9ea9-e92cef5039a7
-# ╟─9ebdbc99-de18-4fdf-9203-17cc731144d9
-# ╟─6e05600b-5e0d-44e7-83ce-5abb23f22f10
-# ╟─e1b90c33-155d-4eda-b8f8-5ca4f9c120db
-# ╠═bbbff778-71d1-4500-8d00-500cdf2d9fab
-# ╠═0078df0c-34b0-4c46-bc8f-517b56eccf7c
-# ╟─619fd811-91a4-4a66-b2b1-ff03cc330110
-# ╟─bde6b85f-2481-4c30-a28b-e84f09f4c783
-# ╟─c6fd0c18-8c77-4aca-aa42-2115c486f8ce
-# ╟─6b2a3293-23d0-45c2-bf1c-20f48a2383f7
-# ╟─a6eb6428-a075-41e7-b23a-59aa9a1c04bf
-# ╟─c2f36f3f-4429-4614-bcfd-a9a5b0b1d4bc
-# ╟─9e4aa6bb-01a4-413d-b4d9-eb70d252b002
-# ╟─cae4c174-047b-4b76-9b6f-30246b47f4d4
-# ╟─4471a156-6f51-46d3-89db-571f3d4c2fa3
-# ╟─1914432c-4fce-4764-8265-8334a61ac45a
-# ╟─31c4ae08-32d3-4f1e-8c0d-cc44b9e04df1
-# ╟─64e5f393-7951-4188-8e0b-90f48925caa9
-# ╠═7b3e2eb1-17dd-4e22-a78e-8295205fb4da
-# ╟─a7851446-ae02-4853-910b-f00d6b6c9ed0
-# ╠═31c9ef56-0c61-4fdd-8ed1-16d7efa9b2bd
-# ╟─a82c8886-0c26-4e5c-8885-1463c8f0c3da
-# ╟─c106aed0-58d1-4139-985c-b639b7717810
-# ╠═6490896d-9a39-47fd-9965-3ea20de780c1
-# ╟─ab7434c2-0e62-4b84-ad2a-1e36d05d6983
-# ╠═75b52a0f-51ee-461d-b481-b21e22011281
-# ╟─e21e6327-7dd9-49ad-ae26-dc60e8000fe4
-# ╠═7f7f864e-1829-4840-8d6f-d16f0f62d87f
-# ╟─024351f7-fc21-4be8-9abc-e1af4467d909
-# ╟─24faa076-0e3c-4f9a-a060-a60eb783b047
-# ╠═424e21ad-c06a-4df9-87b1-a4207bcd8e7b
-# ╟─ca7301a6-f544-48be-88fb-6474c17be7e4
-# ╠═3c1740df-b272-4b14-8d01-624cfa6a65ed
-# ╟─4f4c10b4-ca77-4ff5-afd3-de59e5f9e146
-# ╟─9fc34ce9-2cb4-4bdc-b725-e884132664fa
-# ╟─f5e272b6-e4e1-4ffb-aefb-344fd55d1683
-# ╟─b2b2cd46-434c-4f99-9839-76f6efc82b1a
-# ╠═9279dd6e-0f39-44ee-884b-bca12177bb71
-# ╟─a6b86643-9db4-40c8-9010-5d57de55c21d
-# ╠═78b8a1cd-d994-486b-a455-7d5b79a3a4b9
-# ╟─2b362b87-fb6a-4df0-8733-7935eb549f84
-# ╟─b652ff6b-b261-4b79-a062-3890dd51b330
+# ╟─a4cc4ad7-04fd-41cf-b6a9-8cdede20b8af
+# ╟─f01a2e6c-801d-4c1e-bc60-ce30c475bdc0
+# ╟─570473a3-be60-4ff1-b6d7-269c7c3cd321
+# ╟─860e56f2-921c-4943-a31b-3c2a896ca092
+# ╠═f50f251e-afe1-4ae3-8607-4d325a7c6116
+# ╟─4a8a67ff-2145-4e5f-9b54-708ad92bc12c
+# ╟─7e536108-d92f-4e5f-bd37-e48924ff9943
+# ╟─7b6d5dee-5fb8-4dc1-8557-370fc8698624
+# ╟─5d931a49-0a5e-4ad0-b726-9996ae7cbe7e
+# ╟─d59f7a7e-10bb-43cb-9710-1a822afeeba9
+# ╟─6f29a5d9-d0b4-4057-83c6-0abbd349463e
+# ╟─16f830b5-2160-43c4-8ebb-6b5cab2d5726
+# ╟─10ce0429-8170-498d-b6a8-78c4d4005822
+# ╟─61763b38-5700-4559-9171-d40612354f0b
+# ╟─b15489fb-f0e8-4019-ab10-65a8f91ec8c5
+# ╟─af4e9d09-cac3-4ca0-8735-70d3e358a1ad
+# ╟─9de717e1-542a-4b2a-9bc1-4e4ea16fb3ee
+# ╟─24c80cb7-1e2e-4959-ac83-6a756749f2ec
+# ╟─2ca2baf2-8970-4566-8738-5e4ff39e9fa5
+# ╟─7e45e4aa-b6cd-4d9a-a78d-c0a32be51fc7
+# ╠═1e4d5035-1f17-4d8f-aaf3-0c62ec511abc
+# ╟─76059231-9935-4437-bd3e-7d6b3ebcda63
+# ╠═089dd348-6ff5-4f42-8487-bfe9e4b94d76
+# ╟─41137dae-b56e-4f68-8bac-98ad72262080
+# ╟─2effa5ea-4c7c-42cf-8872-91274a18b17b
+# ╟─3c605565-784f-4ee7-8ff6-0ff77eff34f8
+# ╠═f06ea9e2-b9ed-4f8f-9278-9441cd270ca5
+# ╟─18e9c139-d4b1-4af8-8ecb-86a7b30ff7a7
+# ╠═d7d8a472-7e3c-49b5-9a9e-6d32692fbc7e
+# ╟─ef198a00-fbff-4504-9f29-6263e56a4f71
+# ╟─6d2984a5-29ca-4708-87d1-f14c59274e16
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
