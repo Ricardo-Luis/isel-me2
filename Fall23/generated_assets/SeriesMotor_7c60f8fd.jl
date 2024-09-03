@@ -366,7 +366,7 @@ html"""<style>
 main {
     max-width: 60%;
     margin-left: 5%;
-    margin-right: 35% !important;
+    margin-right: 35%;
 }
 pluto-output {
     font-family: system-ui;
