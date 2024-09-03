@@ -8,6 +8,11 @@
 #> title = "Gráficos interativos"
 #> layout = "layout.jlhtml"
 #> tags = ["preliminaries"]
+#> date = "2024-09-09"
+#> 
+#>     [[frontmatter.author]]
+#>     name = "Ricardo Luís"
+#>     url = "https://ricardo-luis.github.io/"
 
 using Markdown
 using InteractiveUtils
@@ -505,7 +510,7 @@ main {
     margin-right: 35% !important;
 }
 pluto-output {
-    font-family: Lato;
+    font-family: system-ui;
 	font-size:  100%
 }
 </style>

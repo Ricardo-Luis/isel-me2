@@ -582,7 +582,7 @@ main {
     margin-right: 35% !important;
 }
 pluto-output {
-    font-family: Lato;
+    font-family: system-ui;
 	font-size:  100%
 }
 </style>
