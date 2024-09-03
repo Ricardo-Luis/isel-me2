@@ -21,7 +21,7 @@ Os *notebooks* Pluto são reproduzíveis, pois configuram automaticamente as dep
 
 
 # *Notebooks* de Máquinas Elétricas II
-A escolha do Pluto.jl como ambiente de programação reativo para Julia, para a elaboração de *notebooks* de apoio a Máquinas Elétricas II, possibilita a implementação de boas práticas de [Ciência Aberta](https://www.ciencia-aberta.pt/). O Julia com o Pluto.jl permitem disponibilizar [recursos educacionais abertos](https://en.wikipedia.org/wiki/Open_educational_resources), através da realização de materiais de ensino-aprendizagem. Também no âmbito da investigação e desenvolvimento, estas ferramentas permitem aplicar os princípios [FAIR](https://openscience.eu/):
+A escolha do Pluto.jl como ambiente de programação reativo para Julia, para a elaboração de "*Notebooks* Reativos de Apoio a Máquinas Elétricas II", possibilita a implementação de boas práticas de [Ciência Aberta](https://www.ciencia-aberta.pt/). O Julia com o Pluto.jl permitem disponibilizar [recursos educacionais abertos](https://en.wikipedia.org/wiki/Open_educational_resources), através da realização de materiais de ensino-aprendizagem. Também no âmbito da investigação e desenvolvimento, estas ferramentas permitem aplicar os princípios [FAIR](https://openscience.eu/):
 
 - _**F**indable_
 - _**A**ccessible_
