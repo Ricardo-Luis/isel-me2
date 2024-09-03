@@ -479,11 +479,15 @@ end
 # ╔═╡ 9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
-main {
-    max-width: 60%;
-    margin-left: 5%;
-    margin-right: 35% !important;
-}
+@media screen {
+	main {
+		margin: 0 auto;
+		max-width: 2000px;
+   		padding-left: max(50px, 2.5%);
+   		padding-right: max(480px, 24%); 
+        # 383px to accomodate TableOfContents(aside=true)
+		}
+	}
 pluto-output {
     font-family: system-ui;
 	font-size:  100%
@@ -1770,7 +1774,7 @@ version = "1.4.1+1"
 # ╟─f417c5f6-0a1f-4d60-b30f-2b9695d048f9
 # ╟─babc5b0b-3263-47d5-bd33-56917ece1e6b
 # ╟─49cc56bc-bd1e-4e07-9d9c-0ccfaa92e7b0
-# ╟─9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
+# ╠═9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
 # ╟─0835d195-7b73-4da2-bd99-a0adb9e893e8
 # ╟─06a35d2a-9f74-4e85-8292-6f35431c91dc
 # ╠═6b359fc5-ec8d-47ec-89ec-b1b214a37a82
