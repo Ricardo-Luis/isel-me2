@@ -363,12 +363,15 @@ md"""
 # ╔═╡ a5718dd1-fa17-4d7e-9afa-775cdcc06c53
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
-main {
-	margin: 0 auto;
-	max-width: 100% !important;
-	padding-left: max(50px, 2.5%);
-	padding-right: max(480px, 24%); 
-  # 383px to accomodate TableOfContents(aside=true)
+@media screen {
+	main {
+		margin: 0 auto;
+		max-width: 1920px;
+		align-self: flex-start;
+		padding-left: max(192px, 10%);
+		padding-right: max(327px, 17%); 
+  	  # 383px to accomodate TableOfContents(aside=true)
+		}
 	}
 pluto-output {
     font-family: system-ui;
