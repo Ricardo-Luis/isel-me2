@@ -368,8 +368,7 @@ html"""<style>
 		margin: auto;
 		max-width: 1920px;
 		padding-left: 5%;
-		padding-right: 25.9%;
-  	  # 383px to accomodate TableOfContents(aside=true)
+		padding-right: 25.9%; 
 		}
 	}
 pluto-output {
@@ -1634,7 +1633,7 @@ version = "1.4.1+1"
 # ╠═d4f4837f-0d2f-4062-b943-74cfb2803bb7
 # ╟─6de1a6c2-11c8-497d-9a28-5dd19d6255c0
 # ╟─ca47feed-7bce-4804-bc88-cce163bbc9c2
-# ╠═a5718dd1-fa17-4d7e-9afa-775cdcc06c53
+# ╟─a5718dd1-fa17-4d7e-9afa-775cdcc06c53
 # ╟─9506d40e-5910-4fec-afbf-88467deb306b
 # ╟─1f9a1b1c-6aea-4f1b-b526-8b9e53a72269
 # ╠═eb4f8227-3010-445a-bc26-1fee616643b6

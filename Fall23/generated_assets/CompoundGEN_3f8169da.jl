@@ -3,11 +3,16 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 4
-#> order = 4
-#> title = "✏️ Curvas características motores"
+#> section = 2
+#> order = 2
+#> title = "✏️ Gerador compound"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
+#> date = "2024-09-09"
+#> 
+#>     [[frontmatter.author]]
+#>     name = "Ricardo Luís"
+#>     url = "https://ricardo-luis.github.io/"
 
 using Markdown
 using InteractiveUtils
@@ -22,461 +27,306 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 6b359fc5-ec8d-47ec-89ec-b1b214a37a82
-using PlutoUI, PlutoTeachingTools, Plots, Dierckx  						
+# ╔═╡ 9279dd6e-0f39-44ee-884b-bca12177bb71
+using PlutoUI, PlutoTeachingTools, Plots, Dierckx 		
+#= 
+Brief description of the used Julia packages:
+  - PlutoUI.jl, to add interactivity objects
+  - PlutoTeachingTools.jl, to enhance the notebook
+  - Plots.jl, visualization interface and toolset to build graphics
+  - Dierckx.jl, tool for data interpolation
+=#
 
-# ╔═╡ e227c53c-28a1-4d09-bf05-ba24236f613a
-TwoColumnWideLeft(md"`DCmotors.jl`", md"`Last update: 09·09·2024`")
+# ╔═╡ a1307fbd-12bb-43b0-9ea9-e92cef5039a7
+TwoColumnWideLeft(md"`Compound.GEN.jl`", md"`Last update: 09·09·2024`")
 
-# ╔═╡ d45dcd85-db5f-4f9e-8f67-a82df904e0dc
+# ╔═╡ 9ebdbc99-de18-4fdf-9203-17cc731144d9
 md"""
 ---
 $\textbf{MÁQUINAS ELÉTRICAS DE CORRENTE CONTÍNUA}$
 
-$\text{EXERCÍCIO 10}$ 
+$\text{EXERCÍCIO 6}$ 
 
-$\textbf{Motores DC: curvas características}$
+$\textbf{Gerador de excitação composta (ou gerador \textit{compound})}$
 ---
 """
 
-# ╔═╡ ed44a647-2ed8-47f3-84d0-3efde79cf276
+# ╔═╡ 6e05600b-5e0d-44e7-83ce-5abb23f22f10
 md"""
-# Exercício 10. Dados:
+# Exercício 6. Dados:
 """
 
-# ╔═╡ ed4846d5-70d2-4deb-9a4a-41cdc8c99bdd
+# ╔═╡ e1b90c33-155d-4eda-b8f8-5ca4f9c120db
 md"""
-**Considere um motor de corrente contínua, com a seguinte chapa de características:**
+**Um gerador de excitação composta ligado em longa derivação e fluxo de excitação
+série aditivo apresenta as seguintes características:**
 """
 
-# ╔═╡ 1301d1ad-89e8-4282-ab35-1a6b8214bea0
-(Pᵤ, Uₙ, nₙ, ηₙ, Rᵢ, Rₛ, Ns, Rd, Nd) = (17e3, 250, 1200, 0.85, 0.6, 0.1, 12, 200, 3000)
+# ╔═╡ bbbff778-71d1-4500-8d00-500cdf2d9fab
+(Pn, Un, nₙ, Ri, Rs, Rd, Nd, Ns) = (8.75e3, 250, 1500, 1.3, 0.1, 223.0, 2000, 50)
 
-# ╔═╡ 1a427cf6-b2d3-4d9b-9cb5-4682d5f49869
+# ╔═╡ 0078df0c-34b0-4c46-bc8f-517b56eccf7c
 begin
-	nmag=1200 # rotational speed of the no-load characteristic, rpm
-	Iex=[0,0.0132,0.03,0.033,0.067,0.1,0.133,0.167,0.2,0.233,0.267,0.3,0.333,0.367,0.4,0.433,0.467,0.5,0.533,0.567,0.6,0.633,0.667,0.7,0.733,0.767,0.8,0.833,0.867,0.9,0.933,0.966,1,1.033,1.067,1.1,1.133,1.167,1.2,1.233,1.267,1.3,1.333,1.367,1.4,1.433,1.466,1.5]
-	E₀=[5.40, 6.67,13.33,16,31.3,45.46,60.26,75.06,89.74,104.4,118.86,132.86,146.46,159.78,172.18,183.98,195.04,205.18,214.52,223.06,231.2,238,244.14,249.74,255.08,259.2,263.74,267.6,270.8,273.6,276.14,278,279.74,281.48,282.94,284.28,285.48,286.54,287.3,287.86,288.36,288.82,289.2,289.38,289.57,289.69,289.81,289.95]
-	plot(Iex, E₀, title="E₀=f(Iₑₓ), n=1200rpm", xlabel = "Iₑₓ (A)", ylabel="E₀ (V)", ylims=(0,300), framestyle = :origin, minorticks=10, label=:none, linewidth=2)
+	Iexc = [0.0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.3, 1.5, 1.7]
+	E₀_1500 = [15.0, 100.0, 170.0, 220.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0]
+	Iexc, E₀_1500	
 end
 
-# ╔═╡ 8bde3ad9-2d03-4557-ab50-a89ac8e834a3
-aside((md"""
-!!! nota
-	No enunciado original não é considerada a existência de reacção magnética do induzido, $$(ΔE=0\rm V)$$.  
-	No entanto, na versão *notebook* para que se possa verificar a influência de $$ΔE$$, nas características de funcionamento do motor DC, para os diferentes tipos de excitação, uma curva de $$ΔE=f(I_i)$$ é considerada como uma opção de análise."""), v_offset=100)
-
-# ╔═╡ e2fc78d6-480b-4fe0-b844-0d4329c0d572
+# ╔═╡ 619fd811-91a4-4a66-b2b1-ff03cc330110
 md"""
-# 💻 Influência de $$ΔE$$ 
+**Considere ainda um interruptor em paralelo com o enrolamento indutor série.**
 """
 
-# ╔═╡ 61238dc4-3c9d-4b59-9486-501988806c27
-"Com ΔE?", @bind z CheckBox()
+# ╔═╡ bde6b85f-2481-4c30-a28b-e84f09f4c783
+html"""
+<iframe frameborder="0" style="width:100%;height:400px;" src="https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=DCgenerator_compound.drawio#R7V3rc6O2Fv9rMtN%2BCAPoAXzcvHY7s72zzaa5bb%2FsEBvbdLHxBZw4%2FeuvBAKjB5h37G6cmV0jiYPQ%2Bem8dCRfgOv1%2FmPkble%2FhnMvuDD1%2Bf4C3FyYpmEYFvmPlrxmJbbJCpaRP2eNDgVf%2FX88Vqiz0p0%2F92KuYRKGQeJv%2BcJZuNl4s4Qrc6MofOGbLcKAf%2BrWXXpSwdeZG8il%2F%2FXnyUp4C1r%2ByfOXq%2FzJBnaymrWbN2ZvEq%2FcefhSKgK3F%2BA6CsMk%2B7beX3sBHbx8XLL77ipqi45F3iZpcoMbPf%2F%2B2Q7i6Df7L%2Bfv%2B9swfLy5zNnz7AY79sast8lrPgRRuNvMPUrFuABXLys%2F8b5u3RmtfSFMJ2WrZB2w6kW4Se7ctR9Qfj%2F4a8I7U%2F%2BP90L%2BvQ%2FX7oY1YYw2bXIdJ1H4vRhdMi5XUZi4iR%2BSxjeXgDZZ%2BEFwHQZhlPYIWIj%2BkfJl5M598v6lukX6KdXd%2BBEBRkaNFrlB8czSbfYd%2FaM1371ktmJvU%2FBMpwQDN47ZdzZqXpR4%2B0p%2BGAWXyfTwwrWXRK%2BkCbsB6gwYbGZAE2XXLwecmXmbVQljOaBcBu1lQfrAffKFAUANhtuXTw%2BPn%2B%2Bjx4dv0UKfrX9dPOwuDSTx3puT2cAuwyhZhctw4wa3h9KrAzrouBzafA7DLRvFv70keWUcd3dJyCPG28w%2F0IlKn%2FCcMoeU3PlBqZ7da%2BgSWgBtsPeTP%2BjzNcvJr%2F%2FMrm3Mrm%2F2rIPpxWvp4osXEZQmXsRxVmKjqdOhqOVr5AUEtc%2B84FAxid36JfTJIyrxgKHJk0jcaOkl7K7yRBcIIYA0x9aLj8mTdZCGSBOedhzuopkn0SaMcV9Lzba0QVz9DghYwsPwka4K7aFe214eI649%2BZL1%2BDAHCv70mBbGcRmZDowX3T57dHwy4FLp4BNN8tl98oIvYewzIfQUJkm4FqXL3I1XxTRyA39Jm868TYrM8nzJyX5gbRI6zyitLe3Ler%2BkiljzAiL0ItpO8zfz3SwJo7j49g0pJ1JZ7Dq1c0ESfJVSDpiQ45iVK%2FaSlDOgQsqBsaRcDv06dpZk0ibceDwDqiWQwUkfVC97NuRlipvoRXYXhigvONyYXnF3dhVbxHxKxUgDvGcyoaZhZgTJrC%2BxFik4m5f1lJfA4ZGFHAExFTJNFir4CKEKwTuUfIF4cEDySrm7SpuGk4btqGVEW04Chydk57rvCCfbqjmxw%2FlzRlVDWD8OkzIomisXUaOs%2Ffk8te1EpZI5VKa2e9hFG4bHq9SzA5pBDfe0wSfPpY8yoUb7Md%2BbtEdQg47K7s5MFKUXIBj9d%2BmHV1OGgYZRU9DmZQBBkiab4waU5wDGmmBLDaapsKngOA4S5kNxrMf%2F24V5xWWc2ssfSAMTbveHSuoAuzP%2Bhkcvmrsbt9wIL%2Bn%2Ft%2FmzSN%2Bzx2XlEujIECcqgZTzjgmsMjtZUXMkqrxOXsgVEDcGMlygmTM2F0uWbLqoLJfR%2FDMM3hIPd%2B944PGAIXhjPKgs2ZZ4sAkeUh4L3M4J%2Bb2o3Odk4t1TL0KzEvhSWnwvSamvKDs3mHYIng2AbIMQ4gJRUFfovmmRrQpLcsiW5JZquMqCLs5Dy3mZMQToJRKbfxkkB8AXMoRAJ8Zviy5LpUf7OVyVw3QqLpbD8wCI4ZWmLha2jhAa2Vm2YCvesYhyffSmLtx86oyFuiGYJRB2jYNIpKZmrtlqNUqvkGaV4rPa3QSyu1m0LLmbgwVFAe9tQtuQJKIBFKARWTuYSMxNgNppFQT%2BNq7SIaVRd%2BNtthS78PeUU33YUHj9Qwy7ZMJDqHDyVV5%2BUTj8yDvHTJ2jlghEKkvk43lZHUPw13JE%2Fiom1qSmBlCFcITxX5KB2DZ%2F%2FSLXwX3KKehHhgUIw4JMeViQqUD9aMPSIJYpW2CcYdrSHKvlzonocpNjUtcgOKonM7IKBw0WS3vb1ifNzNb8mpZBSKXpJwsifqT3%2F3RhXv18Xtpp8GgiEGVykdrwVqoK9TdEegDjp8sCEU%2FR0bgJCypuaYynqlsLFkijHSNV7nqb3kpt7xQKrB98OW2b9bz%2BzbKOfLoqCGye4i3f46x3PxaqhWQPhOUIuUrkQjTEGpo6wbGVOuodLlDZtFIGRoMcwWkMDktIp5LWyxvrMHiEUOuF9x5qT4kDBdvPKbXxopxYxFKEOqQ1Hodig7QfY5z8R%2BDYnTCkIGRpNnAOH46sZZNaJNUeQfxQMGwQef5XpBLOS0nXZEhp%2BRA504bFYwTZsoJRxc2MIQJnSoaeacr0GMmHTYRLOfmweoIMLlugsASFUUfZIqWqNUw6HEp%2BNEgVPGX5EXmxH6fy49mNfBrA%2BpYXfavKZBRykheBv33kTNZ%2BEsXgM9AhQMrELyALFexUw7CfzdopOlbiCy9gismuaxYdivKE17HVZcJXBWlO19QVdw50NnWhgzUCkordFZZuath2ilqhnwPln0Kkfpm25nnT9hbi2vfOb1WjXuWqTRZ%2FuDn7eFQ%2FMQiwgOPpFk7UaDDfEg3XPzoaAIcGZE%2BXsaNGQ4Osj3e7pw2LsSHljdimyvKxVe6UPprpowpCtzF9mvs6b%2B3p4Lc0h0Q%2FpnM%2BmGHbYtKQY4vR3OGWtNSxveHXHA828yAOsjqON1UUr86T7OqQT7QifkhFzlUREIg0Baop2LTosMNnKpi2Szt9CsLZ94eVv6nz7XoftyCvaCiTtUopWKfr4wFTkERGs13uMlbwEUJjI6V6KbbIKf%2BF21qRlc3b7JJQhC1TM4mHW3MzlRo0%2F7CcJApN5sQS4ujqAt0okNgQvNVQbJwbxYO0ZnZW2ku6Bk1hj2C%2BptRbFQtUBU0cLhaxNw7M2uVSvwuktqyFBo%2BYIgjVOugkEAJQSEcdWyAd3Y8zK9hz8KVTRi0WtftsqoWZP%2FyWr9OUcSPIMlgryy51DZjsZJbe0ouPG10KBEYUXqoA0bvwGk54IWFlpLM1hWy9ntDYwqs641EWQO820tE5V2MjEV6bPK8HgeKlKGTsqaRMHhY5t%2FX9LgcSjRtvMCp0Uk9oYMGtb7plTc6FcxxNOFEIGoeigQ9Ks4R1w7zbo66wNdmMMl4y5AnGwKowOY2CtQUMdF6SFufAWMceVaWLjgvaBk7qbBc9F%2BtfJQTP6Imd%2Fmxgk69K31abeueXLoGBuJUOINwRnRIpyxJIDYRP0dBEeAqhWn0IS2FI%2Fv5uXTawLsFRrzVPCmD87WtdTmA%2BqvL1OpzQU5vFcOTkk4qQy70i5DIj89D9IU7aqURv8xV0CwjSRnEclKWQ0KMlSeRn6Z6pr3JCdmHF0vzAa%2B6FumqdhCwc5oLELaQDOSlSh%2BEU9l6DkyjyTJtF4O3zYyinNvvgDf1TmX1CTflIS9LJ%2FNLWTAvZ2NSx7WCEDJubK1BDlgMMHUBop%2B1QC4S%2FWcQQC7447rrcIQAcjreJXYnB3J%2Bqs%2Bm%2BKPTn2mt1Tt1JqsnKnzzgfhhhwPnD%2FdjDAeb9fltBTG%2BCtqSbsWIidDh0nFwefsMjA%2BDhl1DA7f8B"></iframe>
+"""
 
-# ╔═╡ c4d5e3f9-7808-48f6-8d33-05607d8e5a4e
+# ╔═╡ c6fd0c18-8c77-4aca-aa42-2115c486f8ce
+
+
+# ╔═╡ 6b2a3293-23d0-45c2-bf1c-20f48a2383f7
+md"""
+# a) 💻 Reta de excitação 
+**Calcule o valor da tensão em vazio sem reóstato de excitação. Explique se o estado do interruptor influencia o valor da tensão de vazio do gerador.**
+"""
+
+# ╔═╡ a6eb6428-a075-41e7-b23a-59aa9a1c04bf
+md"""
+Analisando a forças magnetomotrizes (FMM), em vazio a $FMM_s << FMM_d$, logo o fluxo de excitação série é desprezável, não influenciando a FEM e por conseguinte, a tensão de vazio, $$U_0$$.
+
+Onde:
+-  $FMM_s$: força magnetomotriz do enrolamento de excitação série
+-  $FMM_d$: força magnetomotriz do enrolamento de excitação derivação
+"""
+
+# ╔═╡ c2f36f3f-4429-4614-bcfd-a9a5b0b1d4bc
 begin
-	Iᵢ=[0.0:15:120;]
-	#Iᵢ=[0.0, 15, 30, 45, 60, 75, 90, 105, 120]
-	ΔE=[0.0, 1.5, 4, 7.5, 12, 17, 23, 30.5, 40]*z
-	plot(Iᵢ, ΔE, title="ΔE=f(Iᵢ)", xlabel = "Iᵢ (A)", ylabel="ΔE (V)", xlims=(0,120), ylims=(0,40), framestyle = :origin, minorticks=5, label=:none, linewidth=2)
+	H1=("Rexc", @bind Rexc PlutoUI.Slider(Rd:(E₀_1500[2,1]/Iexc[2,1]), default=Rd, show_value=true))
+	H1
 end
 
-# ╔═╡ 54da2314-4fa8-483b-9627-9e454c110f3d
-
-
-# ╔═╡ f6fcec56-b080-4016-baf0-0ab728f255f3
-md"""
-# a) $$R_c$$ para condições nominais
-**Com o motor em excitação derivação, determine o valor do reóstato de campo, nas
-condições nominais $$(U_n, I_n, n_n)$$**;
-"""
-
-# ╔═╡ d9e431c5-be62-40c8-b5d6-59d5808e4436
-md"""
-Para se ter a informação completa das condições nominais do motor, falta determinar o valor da corrente nominal, $$I_n$$.\
-Da chapa de características do motor conhecem-se a potência útil (potência mecânica) e rendimento nominais, $$P_u$$ e $$\eta_n$$, respectivamente, o que permite obter a potência absorvida, $$P_{ab}=U_nI_n$$. Assim: 
-"""
-
-# ╔═╡ cde4847b-6c38-4bc6-a869-514774630c89
-md"""
-$$I_n=\frac{P_n}{\eta U_n}$$
-"""
-
-# ╔═╡ 1c70002d-e3fb-4d81-b0f9-ed00d69173ff
-Iₙ = Pᵤ / (ηₙ * Uₙ);
-
-# ╔═╡ 5b4c1912-126d-4fe8-87c5-f65b299f3642
-md"""
-Calculando obtém-se $$I_n=$$ $(Iₙ)A
-"""
-
-# ╔═╡ d8d6a6e9-df8d-47d2-832a-0d2126ce760e
-md"""
-A velocidade, $$n$$, é dependente do fluxo magnético, $$kϕ_0$$, que por sua vez depende da corrente de excitação, $$I_d$$ e da característica magnética da máquina.\
-Assim, a imagem do fluxo magnético presente na máquina é dada pela a força contra-electromotriz de vazio do motor, $$E_0^{'}$$:
-"""
-
-# ╔═╡ 0ff562ff-7af2-4749-87f5-8766cb695893
-md"""
-$$E_0^{'}=E^{'}+ΔE$$
-Sendo a  a força contra-electromotriz efectiva, $$E^{'}$$, dada por:\
-"""
-
-# ╔═╡ cf0f089a-1901-4ad1-8fe9-b9028679b109
-md"""
-$$E^{'}=U-R_iI_i$$
-"""
-
-# ╔═╡ de954f1d-a3ac-4830-acd0-85e64afdf0cd
-# computational method of querying the ΔE(Ii) curve, by interpolating the data using Pkg Dierckx.jl
+# ╔═╡ 9e4aa6bb-01a4-413d-b4d9-eb70d252b002
 begin
-	ΔE_int = Spline1D(Iᵢ, ΔE)  
-	ΔEₙ = ΔE_int(Iₙ)
-	ΔEₙ = round(ΔEₙ, digits=1)
-end;
-
-# ╔═╡ 68969be8-0bee-4cca-85de-7a8d2aa35ee2
-md"""
-O valor de $$ΔE$$ para $$I_n$$, consultando a sua curva de q.d.t é: $$ΔE=$$ $(ΔEₙ)V.  
-"""
-
-
-# ╔═╡ 8f5b0bd5-7a65-4ba3-bdd1-7cc3128fa8d8
-Eʼ = Uₙ - Rᵢ * Iₙ;
-
-# ╔═╡ 7d6a01a4-4876-42dc-ab66-f7f736d41a32
-Eʼ₀ₙ = Eʼ + ΔEₙ;
-
-# ╔═╡ 0a35c6dc-0967-4f8a-9fff-904f9062eeab
-md"""
-Calculando as f.c.e.m., obtêm-se $$E^{'}=$$ $(Eʼ)V e $$E_0^{'}=$$ $(Eʼ₀ₙ)V.
-"""
-
-# ╔═╡ 9d82a20f-3a14-4796-88e9-e27720632bbd
-md"""
-
-Note que tomou-se a corrente do rotor aproximadamente igual à corrente absorvida, $$I_i\simeq I_n$$, sendo no entanto, $$I_i=I_n+I_d$$. Contudo, não se está a desprezar a corrente $$I_d$$, mas sim a q.d.t. em $$R_i$$ devido a $$I_d$$. Ou seja, $$R_iI_d\lll R_iI$$ para efeito de cálculo de $$E_0^{'}$$ e uma vez que $$I_d$$ ainda não está calculada.
-"""
-
-# ╔═╡ 04b517f9-ed9f-4a5d-929b-82b10de843b9
-md"""
-A característica magnética foi obtida à mesma velocidade inscrita na chapa de características da máquina, $$n_n$$, por conseguinte, obtém-se dela directamente a corrente de campo, $$I_d$$.
-"""
-
-# ╔═╡ cfc7844e-3974-46ef-a53a-ee6a1a85d7f3
-# computational method of querying the ΔE(Ii) curve, by interpolating the data using Pkg Dierckx.jl
-begin
-	E₀ₙ = Eʼ₀ₙ  				# because they are at the same speed!
-	Id_int = Spline1D(E₀, Iex)  
-	Id = Id_int(E₀ₙ)
-	Id = round(Id, digits=2)
-end;
-
-# ╔═╡ 71356175-ffe4-4c3a-a895-8a4be8713a44
-md"""
-Consultando a característica magnética a 1200rpm, verifica-se para $$E₀=$$ $(E₀ₙ)V $$\Rightarrow$$ $$I_d=$$ $(Id)A.
-"""
-
-# ╔═╡ d85a5505-1ab5-43d0-97ad-a0cb4a220c06
-md"""
-Assim, o reostato de campo para colocar o motor *shunt* nas condições nominais é dado por:
-"""
-
-# ╔═╡ 7c572ab7-2292-423c-b611-68573b289265
-md"""
-$$R_c=\frac{U_n}{I_d}-R_d$$
-"""
-
-# ╔═╡ 14ad0875-e27a-442e-81e9-29d1abaeac17
-begin
-	Rc = Uₙ / Id - Rd
-	Rc = round(Rc, digits=1)
-end;
-
-# ╔═╡ 50022e39-c2f4-455f-8d26-7c9246190b11
-md"""
-Calculando, obtém-se $$R_c=$$ $(Rc)Ω
-"""
-
-# ╔═╡ 4bac08e5-7a7a-496f-8d67-aa2bc4b10236
-md"""
-> Poderá então observar as diferenças de cálculo relativas à presença de q.d.t. devido à reacção magnética do induzido, ou seja, uma máquina com pólos auxiliares (caso mais frequente), conduz a $$ΔE \neq 0$$V, variável em função da corrente do induzido. No caso de uma máquina com pólos auxiliares e enrolamentos de compensação, a reacção magnética do induzido estará compensada e assim tem-se:
-"""
-
-# ╔═╡ 5abe64cf-9291-48d6-bf60-7335551ee791
-md"""
-$$ΔE=0 \Rightarrow E_0^{'}=E^{'}$$
-"""
-
-# ╔═╡ ac32afe0-e30f-402e-995e-8b0cacf8af10
-
-
-# ╔═╡ 4989ff81-ac16-446c-8d8a-e3cb9e5950b6
-md"""
-# b) Motor shunt
-**Utilizando o reóstato de campo calculado na alínea anterior, determine as características de velocidade, binário e mecânica deste motor (excitação derivação);**
-"""
-
-# ╔═╡ 1d458a5a-545f-4ab6-900b-9d84ebbaf51d
-md"""
-> Na resolução computacional para o **motor de excitação derivação**, as grandezas calculadas estão identificadas como: k$$ϕ$$₀₁, n₁, E₁, ω₁, Td₁
-"""
-
-# ╔═╡ d25759bf-6e81-439c-a2c9-c19704379437
-begin
-	kϕ₀₁ = E₀ₙ / nmag
-	kϕ₀₁ = round(kϕ₀₁, digits=3)
-end;
-
-# ╔═╡ 4652d9e4-e2c6-47c4-93d1-1e360ffb7e57
-md"""
-Tomando o valor calculado de $$R_c=$$ $(Rc)Ω, resulta $$I_d=$$ $(Id)A, o que permite calcular o fluxo magnético da máquina em vazio, $$kϕ₀$$, que no motor de excitação derivação permanece constante.  
-Assim, $$kϕ₀=$$ $(kϕ₀₁)V/rpm
-"""
-
-# ╔═╡ 4629c049-8882-4823-bdea-93e3d70cc901
-md"""
-A determinação da característica de velocidade $$n=f(I)$$ ou $$n=f(I_i)$$, uma vez que $$I_i\simeq I$$, consiste em sucessivamente realizar o cálculo da velocidade do motor para diferentes valores de corrente:  
-"""
-
-# ╔═╡ ea81ca51-dccc-4187-b788-7ed64716e698
-md"""
-$$n=\frac{U-R_iI_i+\Delta E}{k\phi_0}$$ com $$n$$ em rpm, $$\Delta E=f(I_i)$$ e $$k\phi_0=$$constante, em V/rpm.
-"""
-
-# ╔═╡ 6030b931-51a0-42fc-9b74-5635b590e6f5
-# Speed curve:
-begin
-	I = 0:1:1.5*Iₙ
-	Ii = I .- Id
-	ΔEᵢ = ΔE_int(Ii)
-	n₁ = (Uₙ .- Rᵢ*Ii .+ ΔEᵢ) / kϕ₀₁
-end;
-
-# ╔═╡ d47a90f0-f8bc-44d0-b71c-c0bc59d0d23c
-md"""
-Similarmente, a característica de binário, $$T=f(I)$$ ou $$T=f(I_i)$$, podendo $$T$$ ser o binário desenvolvido, $$T_d$$, ou o binário útil, $$T_u$$, atendendo que: $$T_d=T_u+T_p$$, consiste em sucessivamente realizar o cálculo do binário para diferentes valores de corrente:  
-"""
-
-# ╔═╡ 3c921729-6534-4eac-abb0-4eb362295b91
-md"""
-$$T_d=\frac{E^{'}}{ω}I_i\:\:\:;\:\:\:ω=\frac{2πn}{60}$$ com $$ω$$ em rad/s.
-"""
-
-# ╔═╡ 4da7f391-e3bf-4e12-aa6b-a7ef5e45d3b9
-# Torque curve:
-begin
-	Eʼ₁ = Uₙ .- Rᵢ * Ii
-	ω₁ = 2π .* n₁ / 60
-	Td₁ = (Eʼ₁ ./ ω₁) .* Ii
-end;
-
-# ╔═╡ df3609ef-80f2-464a-b522-f289ea9344b4
-
-
-# ╔═╡ f499659c-b042-4002-bb27-980daf8502d4
-md"""
-# c) Motor compound
-**Idem, com excitação composta em longa derivação aditiva e subtrativa. Representar as características nos mesmos gráficos para comparação;**
-"""
-
-# ╔═╡ 72a079e6-0c41-4c50-9ee2-838d5cc60c85
-md"""
-No motor de excitação composta, o fluxo magnético depende da contribuição das forças magnetomotrizes de ambos os enrolamentos de excitação e da forma como estes estão ligados entre si (de forma aditiva ou subtractiva):
-"""
-
-# ╔═╡ 58e9df34-7471-4942-ac06-2505f52875f2
-md"""
-$$I_{ex}N_d=I_dN_d\pm I_sN_s$$
-sendo $$I_s$$ a corrente que percorre o enrolamento de excitação série.
-"""
-
-# ╔═╡ f305c434-9d0c-497d-8335-bf25aa80e915
-md"""
-Assim, $$I_{ex}$$ é a corrente de campo que representa o fluxo total da máquina, sendo obtida por:
-"""
-
-# ╔═╡ 0ce81a6e-965c-4dc0-b9f3-f8c09143460e
-md"""
-$$I_{ex}=I_d \pm \frac{N_s}{N_d}I_s$$
-"""
-
-# ╔═╡ 1cd42258-7583-4288-9c6d-4d47facb69e1
-md"""
-Assim, a característica de velocidade para o motor de excitação composta em longa derivação é obtida por cálculo sucessivo da velocidade do motor para diferentes valores de corrente, através de:  
-"""
-
-# ╔═╡ facb1900-1093-46c7-97b2-187b67e21294
-md"""
-$$n=\frac{U-(R_i+R_s)I_i+\Delta E}{k\phi_t}$$ com $$k\phi_t=k(\phi_d \pm 	\phi_s)$$, em V/rpm obtido através da característica magnética da máquina.
-"""
-
-# ╔═╡ 6aae7842-4889-4be6-bd1d-eab44c610af8
-
-
-# ╔═╡ 7ad852d3-e3b8-4799-8aae-a52c1ebe34ac
-md"""
-> Na resolução computacional para o **motor de excitação composta aditiva**, as grandezas calculadas estão identificadas como: `Iex₂`, `E₀₂`, `kϕ₀₂`, `n₂`, `E₂`, `ω₂`, `Td₂`
-"""
-
-# ╔═╡ b4e5cbd1-c1c1-47e1-a8aa-8fc2ef628e87
-begin
-	Iex₂ = Id .+ (Ns / Nd) * Ii
-	E₀_int1 = Spline1D(Iex, E₀)  # interpolation function to the no-load characteristic
-	E₀₂ = E₀_int1(Iex₂) #EMF that contains the magnetic flux shunt + series
-	kϕ₀₂ = E₀₂ / nmag
-	n₂ = (Uₙ .- (Rᵢ + Rₛ) * Ii .+ ΔEᵢ) ./ kϕ₀₂
-	Eʼ₂ = Uₙ .- (Rᵢ + Rₛ) * Ii
-	ω₂ = 2π .* n₂ / 60
-	Td₂ = (Eʼ₂ ./ ω₂) .* Ii
-end;
-
-# ╔═╡ 55397202-48ae-4a3d-a053-9f46e6638560
-
-
-# ╔═╡ 1a154f27-cd9a-4de8-b850-599b5e810811
-md"""
-> Na resolução computacional para o **motor de excitação composta subractiva**, as grandezas calculadas estão identificadas como: `Iex₃`, `E₀₃`, `kϕ₀₃`, `n₃`, `ω₃`, `Td₃`
-"""
-
-# ╔═╡ 626c5cab-64e2-446c-9d38-f01dde099d3e
-begin
-	Iex₃ = Id .- (Ns / Nd) * Ii
-	E₀₃ = E₀_int1(Iex₃) #EMF that contains the magnetic flux shunt - series
-	kϕ₀₃ = E₀₃ / nmag
-	n₃ = (Uₙ .- (Rᵢ + Rₛ) * Ii .+ ΔEᵢ) ./ kϕ₀₃
-	ω₃ = 2π .* n₃ / 60
-	# Note: Back-EMF assumes the same values as the previous situation:
-	Td₃ = (Eʼ₂ ./ ω₃) .* Ii
-end;
-
-# ╔═╡ 1c659ae6-1b29-43a5-92f7-30b1f24c3696
-
-
-# ╔═╡ 426c40b4-5fa1-4d8a-b03c-11f3008484f6
-md"""
-# d) Motor série
-**Determinar as curvas características com o circuito de derivação desligado (motor série). Representar as características nos mesmos gráficos para comparação;**
-"""
-
-# ╔═╡ 8dfd7146-2e55-4ea0-8cf2-3557d89e96e1
-md"""
-> Na resolução computacional para o **motor de excitação série**, as grandezas calculadas estão identificadas como: Iex₄, E₀₄, k$$ϕ$$₀₄, n₄, ω₄, Td₄
-"""
-
-# ╔═╡ 4e4469c8-994d-42c6-b373-8f295768b8b0
-begin
-	Iex₄ = (Ns / Nd) * Ii
-	E₀₄ = E₀_int1(Iex₄) #EMF that contains only series magnetic flux
-	kϕ₀₄ = E₀₄ / nmag
-	n₄ = (Uₙ .- (Rᵢ + Rₛ) *Ii .+ ΔEᵢ) ./ kϕ₀₄
-	ω₄ = 2π .* n₄ / 60
-	# Note: Back-EMF assumes the same values as the previous situation:
-	Td₄ = (Eʼ₂ ./ ω₄) .* Ii
-end;
-
-# ╔═╡ a45ad7c2-2f83-4e04-bdaf-8dcc30a150f5
-# Speed curves, plots:
-begin
-	plot(I, n₁, linewidth=2, title="Características de velocidade", xlabel = "I (A)", ylabel="n (rpm)",  framestyle = :origin, minorticks=5, label="shunt")
-	plot!(I,n₂, linewidth=2, label="comp. aditivo")
-	plot!(I,n₃, linewidth=2, label="comp. subtractivo", legend=:bottomleft)
-	plot!(I,n₄, linewidth=2, label="série", xlims=(0,120), ylims=(0,3000))
-end
-
-# ╔═╡ 5b866db3-ddd6-4bfd-b027-761c07d6755c
-# Torque curves, plots:
-begin
-	plot(I, Td₁, linewidth=2, title="Características de binário", xlabel = "I (A)", ylabel="Td (Nm)",  framestyle = :origin, minorticks=5, label="shunt")
-	plot!(I,Td₂, linewidth=2, label="comp. aditivo")
-	plot!(I,Td₃, linewidth=2, label="comp. subtractivo", legend=:topleft)
-	plot!(I,Td₄, linewidth=2, label="série", xlims=(0,120), ylims=(0,250))
-end
-
-# ╔═╡ 326135bd-24e3-492d-a7d5-1a14f065e80f
-# Mechanical curves, plots:
-begin
-	plot(Td₁, n₁, linewidth=2, title="Características mecânicas", ylabel = "n (rpm)", xlabel="Td (Nm)",  framestyle = :origin, minorticks=5, label="shunt")
-	plot!(Td₂, n₂, linewidth=2, label="comp. aditivo")
-	plot!(Td₃, n₃, linewidth=2, label="comp. subtractivo", legend=:topright)
-	plot!(Td₄, n₄, linewidth=2, label="série", xlims=(0,250), ylims=(0,3000))
-end
-
-# ╔═╡ 66e32f84-8b2a-4a3d-81fe-16437ecc3c18
-
-
-# ╔═╡ 60db00b7-c78b-4c26-9530-c62fcfd1bfd2
-md"""
-# e) 💻 MI: variação $$n=f(I)$$ 
-**Considere o motor com excitação independente (MI), Uexc = 240V , com o reóstato de campo calculado na alínea a). Explicite a variação da característica de velocidade nas situações:**
-1. **aumento de tensão do induzido;**
-2. **diminuição do reóstato de campo;**
-3. **aumento da resistência adicional.**
-"""
-
-# ╔═╡ 4fdea2ae-3bf8-42cd-bf6f-411eaf8223c3
-md"""
-> Na resolução computacional para o **motor de excitação separada**, as grandezas calculadas estão identificadas como: `Ui`, `Iex5`, `E₀₅`, `kϕ₀₅`, `ΔEᵢᵢ`, `n₅`, `ω₅`, `Td₅`
-"""
-
-# ╔═╡ 36295cf6-19ba-4240-9806-745ec0bfdccd
-md"""
-Tensão do induzido, $$Ui\:\: (\rm V):\quad$$ $(@bind Ui PlutoUI.Slider(150:1:350, default=250.0, show_value=true))
-
-Reóstato de campo, $$R_c\:\: (\rm \Omega):\quad$$ $(@bind Rc1 PlutoUI.Slider(0*Rc:0.01*Rc:2.5*Rc, default= Rc, show_value=true))
-
-Resistência adicional, $$R_{ad}\:\: (\rm \Omega):\quad$$ $(@bind Rad PlutoUI.Slider(0:0.1:1.5, default=0.0, show_value=true))
-"""
-
-# ╔═╡ e648310c-8172-4cf0-ab72-f40229ba2577
-begin
-	Uexc = 240
-	Iex₅ = Uexc /(Rc1 + Rd)
-	E₀₅ = E₀_int1(Iex₅) 				#EMF for separately excited
-	kϕ₀₅ = E₀₅ / nmag
-	ΔEᵢᵢ = ΔE_int(I)
-	n₅ = (Ui .- (Rᵢ + Rad) *I .+ ΔEᵢᵢ) ./ kϕ₀₅
-	Eʼ₅ = Ui .- (Rᵢ + Rad) * I
-	ω₅ = 2π .* n₅ / 60
-	Td₅ = (Eʼ₅ ./ ω₅) .* Ii
-end;
-
-# ╔═╡ 4919a95d-cd66-401c-af76-6155087462a3
-# Speed curve vs. variation of Ui, Rc1 and Rad; plots:
-begin
-	plot(I, n₅, ylims=(0,3000),linewidth=2, framestyle = :origin, title="Variação da característica de velocidade", label=:none, xlabel = "I (A)", ylabel="n (rpm)", minorticks=5, xlims=(0,120))
-end
-
-# ╔═╡ 8ad59666-3801-44a3-b26a-197a8f60db02
-aside((md"""
-!!! tip "Informação"
+	#plotly()
+	plot(Iexc, E₀_1500, title="U₀=f(Id), n=1500rpm", 
+		xflip=false, ylims=(0,350), xlabel = "Id(A)", ylabel="U₀(V)", xlims=(0,2), label=false, minorticks=0.1, minorgrid=true)
 	
-	Apresenta-se uma alínea f) idêntica à alínea anterior, mas considerando a característica de binário:  
+	plot!(Iexc,Rexc.*Iexc,label="Reta de excitação", legend=:bottomright)
+	end
 
-	👉 Arrastar para esta alínea os _sliders_,  $U_i,$ $R_c$ e $R_{ad}$ para observar os efeitos sobre a característica de binário.
+# ╔═╡ cae4c174-047b-4b76-9b6f-30246b47f4d4
+md"""
+Para $$R_c=0Ω$$ verifica-se que a interseção da reta de excitação com a característica magnética se dá em (1.3A; 290V).
+"""
+
+# ╔═╡ 4471a156-6f51-46d3-89db-571f3d4c2fa3
+
+
+# ╔═╡ 1914432c-4fce-4764-8265-8334a61ac45a
+md"""
+# b) Cálculo de $\Delta E$ 
+**Com o interruptor desligado, calcule o valor da q.d.t. devido à reação magnética do induzido, sabendo que nas condições nominais se obtém uma regulação plana.**
+"""
+
+# ╔═╡ 31c4ae08-32d3-4f1e-8c0d-cc44b9e04df1
+md"""
+Regulação plana, significa que a tensão em carga, $$U_{c}$$, é igual à tensão de vazio,  $$U_{0}$$. Por conseguinte, a regulação, $$\varepsilon$$, vem dada por:
+
+$$\varepsilon= \frac{U_{0}-U_{c}  }{U_{n} } 100$$
+"""
+
+# ╔═╡ 7b3e2eb1-17dd-4e22-a78e-8295205fb4da
+begin
+	U₀ = Un 
+	Uc = Un
+	ϵ = 100(U₀ - Uc) / Un
+end;
+
+# ╔═╡ 64e5f393-7951-4188-8e0b-90f48925caa9
+md"""
+Então, $$\varepsilon$$=$(ϵ)%
+"""
+
+# ╔═╡ 31c9ef56-0c61-4fdd-8ed1-16d7efa9b2bd
+Id0 = Idc = 0.8;
+
+# ╔═╡ a7851446-ae02-4853-910b-f00d6b6c9ed0
+md"""
+Na situação de regulação plana verifica-se que $$I_{dc}=I_{d0}$$. Ou seja, para $$U_{0}=I_{c}=U_{n}$$, tem-se consultando a característica magnética, para $$E_{0}=250$$V, uma $$I_{dc}=I_{d0}$$=$(Id0)A
+"""
+
+# ╔═╡ a82c8886-0c26-4e5c-8885-1463c8f0c3da
+md"""
+No entanto, o fluxo total da máquina, no ponto de funcionamente em carga, é caracterizado também pela contribuição de fluxo magnético criado no enrolamento de excitação série (montagem de excitação composta com fluxo aditivo). Assim, é necessário verificar a FMM do enrolamento série e a sua contribuição para a FEM, $$E_{0}$$, na situação de carga nominal, no presente caso: 
+
+$$I_{exc}=I_{d}+\frac{N_{s}}{N_{d}}I_{s}$$
+"""
+
+# ╔═╡ 6490896d-9a39-47fd-9965-3ea20de780c1
+begin
+	In = Pn / Un
+	Ii = In + Idc
+	Idserie = Ii * Ns / Nd
+	Idserie = round(Idserie, digits=2)
+	Iexcₜ = Idc + Idserie
+end;
+
+# ╔═╡ c106aed0-58d1-4139-985c-b639b7717810
+md"""
+Verifica-se assim, que o fluxo total (derivação + série) é produzido por uma corrente de excitação equivalente, vista pelo enrolamento $$N_{d}$$ de: $$I_{exc}$$=$(Iexcₜ)A.
+"""
+
+# ╔═╡ 024351f7-fc21-4be8-9abc-e1af4467d909
+aside((md"""
+!!! info "Atividade interativa"
+	No enunciado original é considerado interruptor **ligado**, o que corrresponde ao gerador de excitação derivação. Nesta versão computacional propõe-se a análise com o interruptor desligado, consequentemente o gerador encontra-se ligado com excitação composta.  \
+	\
+	👉 Analise a trajetória do ponto de funcionamento (característica externa), atuando na "carga" (corrente). \
+	
+	1. Para uma dada situação de carga verifique o que sucede ao ponto de funcionamento do gerador $(I, U)$ para um aumento de velocidade, atuando no _slider_ "Velocidade";
+
+	2. Idem, atuando no _slider_ "Rcampo".
+
 """), v_offset=100)
 
-# ╔═╡ f417c5f6-0a1f-4d60-b30f-2b9695d048f9
+# ╔═╡ 24faa076-0e3c-4f9a-a060-a60eb783b047
 md"""
-# f) 💻 MI: variação $$T=f(I)$$ 
+# c) 💻 $$\:U=f(I)$$ com ⇅ de $$n$$ e $$R_c$$
+**Com o interruptor desligado explicite qualitativamente a característica exterior do gerador.**
+
+**Qual a variação do ponto de funcionamento da característica externa para uma dada
+resistência de carga, nas seguintes situações:**
+1. **aumento da velocidade de accionamento;**
+2. **diminuição do reóstato de campo derivação.**
 """
 
-# ╔═╡ babc5b0b-3263-47d5-bd33-56917ece1e6b
-md"""
-**Considere o motor com excitação independente (MI), Uexc = 240V , com o reóstato de campo calculado na alínea a). Explicite a variação da característica de binário nas situações:**
-1. **aumento de tensão do induzido;**
-2. **diminuição do reóstato de campo;**
-3. **aumento da resistência adicional.**
-"""
-
-# ╔═╡ 49cc56bc-bd1e-4e07-9d9c-0ccfaa92e7b0
-# Torque curve vs. variation of Ui, Rc1 and Rad; plots:
+# ╔═╡ ca7301a6-f544-48be-88fb-6474c17be7e4
 begin
-	plot(I, Td₅, ylims=(0,250),linewidth=2, framestyle = :origin, title="Variação da característica de binário", label=:none, xlabel = "I (A)", ylabel="Td (Nm)", minorticks=5, xlims=(0,120))
+	H2=("Carga", @bind Icarga PlutoUI.Slider(0:1:In*1.4, default=In/2, show_value=false))
+	H3=("Rcampo", @bind Rcampo PlutoUI.Slider(0:1:300, default=100, show_value=true))
+	H4=("Velocidade", @bind rpm PlutoUI.Slider(500:2000, default=1500, show_value=true))
+	H2, H3, H4
 end
 
-# ╔═╡ 9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
+# ╔═╡ 424e21ad-c06a-4df9-87b1-a4207bcd8e7b
+E₀ₙ = round.((rpm/nₙ).*E₀_1500, digits=1)
+
+# ╔═╡ 3c1740df-b272-4b14-8d01-624cfa6a65ed
+begin
+	FMMs = Ns * Icarga
+	Idʼ = Ns * Icarga / Nd  		# to write Idʼ, do Id\rasp + TAB
+end;
+
+# ╔═╡ 4f4c10b4-ca77-4ff5-afd3-de59e5f9e146
+begin
+	I=0:1:60	
+	Id=0:0.001:2
+	xx0=-Idʼ.+Id
+	mxx0=(Rcampo+Rd).*xx0
+	y=Icarga*(Ri+Rs).+mxx0
+	E0n_i=Spline1D(Iexc,E₀ₙ)
+	E0n_ii=E0n_i(Id)
+	A=(E0n_ii-y)
+	a=findall(i->(-1 < i < 1), A)
+	Iex_fluxo=0.001*a[1,1]
+	E0n_ex=Spline1D(Iexc,E₀ₙ)
+	E0n_fluxo=E0n_ex(Iex_fluxo)
+	Id_fluxo=Iex_fluxo-Idʼ
+	U1p=(Rcampo+Rd)*Id_fluxo
+	
+	#plots
+	P1=plot([Icarga], seriestype = :vline, linecolor=:red, ylabel="U(V)", 
+			ylims=(0,400), xlims=(0,60), label=false,linestyle=:dash)
+	
+	plot!(I, (Ri+Rs).*I, linewidth=2, linecolor=:green, legend=:none)
+	
+	plot!([Icarga*(Ri+Rs)], seriestype=:hline, linecolor=:green, 
+			ylims=(0,400), xlims=(0,60), label=false,linestyle=:dash, legend=:none)
+	
+	plot!([Icarga], [U1p],markershape=:circle, label=false, legend=:none)
+	
+	plot!([U1p], seriestype = :hline, xlims=(0,60),linestyle=:dashdot,
+			linecolor=:purple, legend=:none)
+	
+	P2=plot(Iexc,E₀ₙ, xflip=true, ylims=(0,400), ylabel="U₀(V)", 
+			xlims=(0,2), linewidth=2, legend=:none)
+	
+	plot!(Id, (Rcampo+Rd).*Id, xlims=(0,2),ylims=(0,400), 
+			linecolor=:black, linewidth=2, label=false, legend=:none)
+	
+	plot!([Idʼ], seriestype = :vline, ylims=(0,400),linestyle=:dashdot, 
+			linewidth=2, linecolor=:red, label="Idʼ=$(Idʼ)A")
+	
+	plot!([Icarga*(Ri+Rs)], seriestype=:hline, linecolor=:green, 
+			ylims=(0,400), xlims=(0,2), label=false,linestyle=:dash, legend=:none)
+	
+	plot!(Id, y, linecolor=:black, ylims=(0,400), xlims=(0,2), 
+			label=false, linestyle=:dot, linewidth=2)
+	
+	plot!([Iex_fluxo], seriestype = :vline, ylims=(0,400), 
+			linestyle=:dashdot, linecolor=:purple, legend=:none)
+	
+	plot!([Id_fluxo], seriestype = :vline, ylims=(0,400),
+			linestyle=:dashdot, linecolor=:purple, legend=:none)
+	
+	plot!([U1p], seriestype = :hline, xlims=(0,2),linestyle=:dashdot, 
+			linecolor=:purple, legend=:none)
+	
+	P3=plot(Id, Nd.*Id, yflip=true, xflip=true, linewidth=2, legend=:none, 					ylims=(0,3000), ylabel="FMMd(Acond)",xlims=(0,2), xlabel = "Id(A)", 
+			label=false)
+	
+	plot!([FMMs], seriestype=:hline, ylims=(0,3000), linecolor=:red, 
+			linestyle=:dash, label=false,legend=:none)
+	
+	plot!([Idʼ], seriestype = :vline, ylims=(0,3000),linestyle=:dashdot, 
+			linewidth=2, linecolor=:red,label=false, legend=:none)
+	#plot!([Icarga], seriestype = :vline, xlabel = "I(A)", ylims=(0,3000), label=false,linestyle=:dash)
+		
+	P4=plot(I, Ns.*I, yflip=true, linewidth=2, ylabel="FMMs(Acond)", 
+			xlims=(0,60), label=false, legend=:none)
+	
+	plot!([FMMs], seriestype = :hline, ylims=(0,3000), 
+			linecolor=:red, linestyle=:dash, label=false)
+	
+	plot!([Icarga], seriestype = :vline, xlabel = "I(A)", ylims=(0,3000), 
+			label=false,linestyle=:dash, linecolor=:red, legend=:none)
+	
+	plot(P2, P1, P3, P4, layout = (2, 2), size=(750, 600))
+end
+
+# ╔═╡ 75b52a0f-51ee-461d-b481-b21e22011281
+begin
+	E0_est = Spline1D(Iexc,E₀_1500)
+	E0_carga = E0n_i(Iexcₜ)
+	E0_carga = round(E0_carga, digits=1)
+end;
+
+# ╔═╡ ab7434c2-0e62-4b84-ad2a-1e36d05d6983
+md"""
+Consultando a característica magnética verifica-se para $$I_{exc}$$ = $(Iexcₜ)A, uma FEM em carga de: 
+
+
+   $$E_{0}$$ = $(E0_carga)V"""
+
+# ╔═╡ 7f7f864e-1829-4840-8d6f-d16f0f62d87f
+begin
+	ΔUₜ = E0_carga - Uc
+	ΔE = ΔUₜ - (Ri+Rs)Ii
+	ΔE = round(ΔE, digits=1)
+end;
+
+# ╔═╡ e21e6327-7dd9-49ad-ae26-dc60e8000fe4
+md"""
+Queda de tensão total dada por: $$\Delta U_t=E_0-U_c$$, permite por decomposição das q.d.t. presentes na máquina, determinar a q.d.t. devido à reacção magnética do induzido, com $$\Delta{E}$$:
+
+$$\Delta{E}=\Delta U_{t}-\Delta U_{r}-\Delta U_{esc}$$
+Na presente montagem (longa derivação), $$\Delta U_r=(R_i+R_s)I_i$$   e   $$\Delta U_{esc} \simeq {0}$$.  
+
+Resolvendo, obtém-se: $$\Delta {E}$$ = $(ΔE)V.
+"""
+
+# ╔═╡ 9fc34ce9-2cb4-4bdc-b725-e884132664fa
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 @media screen {
@@ -485,7 +335,6 @@ html"""<style>
 		max-width: 1920px;
 		padding-left: 5%;
 		padding-right: 25.9%; 
-  	  # 383px to accomodate TableOfContents(aside=true)
 		}
 	}
 pluto-output {
@@ -495,17 +344,17 @@ pluto-output {
 </style>
 """
 
-# ╔═╡ 0835d195-7b73-4da2-bd99-a0adb9e893e8
+# ╔═╡ f5e272b6-e4e1-4ffb-aefb-344fd55d1683
 md"""
 # *Notebook*
 """
 
-# ╔═╡ 06a35d2a-9f74-4e85-8292-6f35431c91dc
+# ╔═╡ b2b2cd46-434c-4f99-9839-76f6efc82b1a
 md"""
 Documentação das bibliotecas Julia utilizadas:  [Dierckx](https://github.com/kbarbary/Dierckx.jl), [Plots](http://docs.juliaplots.org/latest/), [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html).
 """
 
-# ╔═╡ c430ff11-614a-4c3c-bbc7-58903b30df07
+# ╔═╡ a6b86643-9db4-40c8-9010-5d57de55c21d
 begin
 	version=VERSION
 	md"""
@@ -513,20 +362,20 @@ begin
 """
 end
 
-# ╔═╡ 87c62aa6-caee-45a8-b146-be3d11fbc0e4
+# ╔═╡ 78b8a1cd-d994-486b-a455-7d5b79a3a4b9
 TableOfContents(title="Índice")
 
-# ╔═╡ 38319731-adfe-4ac8-8004-6270d7752e1c
+# ╔═╡ 2b362b87-fb6a-4df0-8733-7935eb549f84
 aside((md"""
 !!! info "Informação"
 	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
 """), v_offset=-170)
 
-# ╔═╡ 49030da5-cd46-4d7d-8f29-703a4b1c7509
+# ╔═╡ b652ff6b-b261-4b79-a062-3890dd51b330
 md"""
 |  |  |
 |:--:|:--|
-|  | This notebook, [DCmotors.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/DCmotors/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+|  | This notebook, [Compound.GEN.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Compound.GEN/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
 | **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
 |  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
 """
@@ -1698,89 +1547,47 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─e227c53c-28a1-4d09-bf05-ba24236f613a
-# ╟─d45dcd85-db5f-4f9e-8f67-a82df904e0dc
-# ╟─ed44a647-2ed8-47f3-84d0-3efde79cf276
-# ╟─ed4846d5-70d2-4deb-9a4a-41cdc8c99bdd
-# ╠═1301d1ad-89e8-4282-ab35-1a6b8214bea0
-# ╟─1a427cf6-b2d3-4d9b-9cb5-4682d5f49869
-# ╟─8bde3ad9-2d03-4557-ab50-a89ac8e834a3
-# ╟─e2fc78d6-480b-4fe0-b844-0d4329c0d572
-# ╟─61238dc4-3c9d-4b59-9486-501988806c27
-# ╟─c4d5e3f9-7808-48f6-8d33-05607d8e5a4e
-# ╟─54da2314-4fa8-483b-9627-9e454c110f3d
-# ╟─f6fcec56-b080-4016-baf0-0ab728f255f3
-# ╟─d9e431c5-be62-40c8-b5d6-59d5808e4436
-# ╟─cde4847b-6c38-4bc6-a869-514774630c89
-# ╟─5b4c1912-126d-4fe8-87c5-f65b299f3642
-# ╠═1c70002d-e3fb-4d81-b0f9-ed00d69173ff
-# ╟─d8d6a6e9-df8d-47d2-832a-0d2126ce760e
-# ╟─0ff562ff-7af2-4749-87f5-8766cb695893
-# ╟─cf0f089a-1901-4ad1-8fe9-b9028679b109
-# ╟─68969be8-0bee-4cca-85de-7a8d2aa35ee2
-# ╠═de954f1d-a3ac-4830-acd0-85e64afdf0cd
-# ╟─0a35c6dc-0967-4f8a-9fff-904f9062eeab
-# ╠═8f5b0bd5-7a65-4ba3-bdd1-7cc3128fa8d8
-# ╠═7d6a01a4-4876-42dc-ab66-f7f736d41a32
-# ╟─9d82a20f-3a14-4796-88e9-e27720632bbd
-# ╟─04b517f9-ed9f-4a5d-929b-82b10de843b9
-# ╟─71356175-ffe4-4c3a-a895-8a4be8713a44
-# ╠═cfc7844e-3974-46ef-a53a-ee6a1a85d7f3
-# ╟─d85a5505-1ab5-43d0-97ad-a0cb4a220c06
-# ╟─7c572ab7-2292-423c-b611-68573b289265
-# ╟─50022e39-c2f4-455f-8d26-7c9246190b11
-# ╠═14ad0875-e27a-442e-81e9-29d1abaeac17
-# ╟─4bac08e5-7a7a-496f-8d67-aa2bc4b10236
-# ╟─5abe64cf-9291-48d6-bf60-7335551ee791
-# ╟─ac32afe0-e30f-402e-995e-8b0cacf8af10
-# ╟─4989ff81-ac16-446c-8d8a-e3cb9e5950b6
-# ╟─1d458a5a-545f-4ab6-900b-9d84ebbaf51d
-# ╟─4652d9e4-e2c6-47c4-93d1-1e360ffb7e57
-# ╠═d25759bf-6e81-439c-a2c9-c19704379437
-# ╟─4629c049-8882-4823-bdea-93e3d70cc901
-# ╟─ea81ca51-dccc-4187-b788-7ed64716e698
-# ╠═6030b931-51a0-42fc-9b74-5635b590e6f5
-# ╟─d47a90f0-f8bc-44d0-b71c-c0bc59d0d23c
-# ╟─3c921729-6534-4eac-abb0-4eb362295b91
-# ╠═4da7f391-e3bf-4e12-aa6b-a7ef5e45d3b9
-# ╟─a45ad7c2-2f83-4e04-bdaf-8dcc30a150f5
-# ╟─5b866db3-ddd6-4bfd-b027-761c07d6755c
-# ╟─326135bd-24e3-492d-a7d5-1a14f065e80f
-# ╟─df3609ef-80f2-464a-b522-f289ea9344b4
-# ╟─f499659c-b042-4002-bb27-980daf8502d4
-# ╟─72a079e6-0c41-4c50-9ee2-838d5cc60c85
-# ╟─58e9df34-7471-4942-ac06-2505f52875f2
-# ╟─f305c434-9d0c-497d-8335-bf25aa80e915
-# ╟─0ce81a6e-965c-4dc0-b9f3-f8c09143460e
-# ╟─1cd42258-7583-4288-9c6d-4d47facb69e1
-# ╟─facb1900-1093-46c7-97b2-187b67e21294
-# ╟─6aae7842-4889-4be6-bd1d-eab44c610af8
-# ╟─7ad852d3-e3b8-4799-8aae-a52c1ebe34ac
-# ╠═b4e5cbd1-c1c1-47e1-a8aa-8fc2ef628e87
-# ╟─55397202-48ae-4a3d-a053-9f46e6638560
-# ╟─1a154f27-cd9a-4de8-b850-599b5e810811
-# ╠═626c5cab-64e2-446c-9d38-f01dde099d3e
-# ╟─1c659ae6-1b29-43a5-92f7-30b1f24c3696
-# ╟─426c40b4-5fa1-4d8a-b03c-11f3008484f6
-# ╟─8dfd7146-2e55-4ea0-8cf2-3557d89e96e1
-# ╠═4e4469c8-994d-42c6-b373-8f295768b8b0
-# ╟─66e32f84-8b2a-4a3d-81fe-16437ecc3c18
-# ╟─60db00b7-c78b-4c26-9530-c62fcfd1bfd2
-# ╟─4fdea2ae-3bf8-42cd-bf6f-411eaf8223c3
-# ╠═e648310c-8172-4cf0-ab72-f40229ba2577
-# ╟─36295cf6-19ba-4240-9806-745ec0bfdccd
-# ╟─4919a95d-cd66-401c-af76-6155087462a3
-# ╟─8ad59666-3801-44a3-b26a-197a8f60db02
-# ╟─f417c5f6-0a1f-4d60-b30f-2b9695d048f9
-# ╟─babc5b0b-3263-47d5-bd33-56917ece1e6b
-# ╟─49cc56bc-bd1e-4e07-9d9c-0ccfaa92e7b0
-# ╠═9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
-# ╟─0835d195-7b73-4da2-bd99-a0adb9e893e8
-# ╟─06a35d2a-9f74-4e85-8292-6f35431c91dc
-# ╠═6b359fc5-ec8d-47ec-89ec-b1b214a37a82
-# ╟─c430ff11-614a-4c3c-bbc7-58903b30df07
-# ╠═87c62aa6-caee-45a8-b146-be3d11fbc0e4
-# ╟─38319731-adfe-4ac8-8004-6270d7752e1c
-# ╟─49030da5-cd46-4d7d-8f29-703a4b1c7509
+# ╟─a1307fbd-12bb-43b0-9ea9-e92cef5039a7
+# ╟─9ebdbc99-de18-4fdf-9203-17cc731144d9
+# ╟─6e05600b-5e0d-44e7-83ce-5abb23f22f10
+# ╟─e1b90c33-155d-4eda-b8f8-5ca4f9c120db
+# ╠═bbbff778-71d1-4500-8d00-500cdf2d9fab
+# ╠═0078df0c-34b0-4c46-bc8f-517b56eccf7c
+# ╟─619fd811-91a4-4a66-b2b1-ff03cc330110
+# ╟─bde6b85f-2481-4c30-a28b-e84f09f4c783
+# ╟─c6fd0c18-8c77-4aca-aa42-2115c486f8ce
+# ╟─6b2a3293-23d0-45c2-bf1c-20f48a2383f7
+# ╟─a6eb6428-a075-41e7-b23a-59aa9a1c04bf
+# ╟─c2f36f3f-4429-4614-bcfd-a9a5b0b1d4bc
+# ╟─9e4aa6bb-01a4-413d-b4d9-eb70d252b002
+# ╟─cae4c174-047b-4b76-9b6f-30246b47f4d4
+# ╟─4471a156-6f51-46d3-89db-571f3d4c2fa3
+# ╟─1914432c-4fce-4764-8265-8334a61ac45a
+# ╟─31c4ae08-32d3-4f1e-8c0d-cc44b9e04df1
+# ╟─64e5f393-7951-4188-8e0b-90f48925caa9
+# ╠═7b3e2eb1-17dd-4e22-a78e-8295205fb4da
+# ╟─a7851446-ae02-4853-910b-f00d6b6c9ed0
+# ╠═31c9ef56-0c61-4fdd-8ed1-16d7efa9b2bd
+# ╟─a82c8886-0c26-4e5c-8885-1463c8f0c3da
+# ╟─c106aed0-58d1-4139-985c-b639b7717810
+# ╠═6490896d-9a39-47fd-9965-3ea20de780c1
+# ╟─ab7434c2-0e62-4b84-ad2a-1e36d05d6983
+# ╠═75b52a0f-51ee-461d-b481-b21e22011281
+# ╟─e21e6327-7dd9-49ad-ae26-dc60e8000fe4
+# ╠═7f7f864e-1829-4840-8d6f-d16f0f62d87f
+# ╟─024351f7-fc21-4be8-9abc-e1af4467d909
+# ╟─24faa076-0e3c-4f9a-a060-a60eb783b047
+# ╠═424e21ad-c06a-4df9-87b1-a4207bcd8e7b
+# ╟─ca7301a6-f544-48be-88fb-6474c17be7e4
+# ╠═3c1740df-b272-4b14-8d01-624cfa6a65ed
+# ╟─4f4c10b4-ca77-4ff5-afd3-de59e5f9e146
+# ╟─9fc34ce9-2cb4-4bdc-b725-e884132664fa
+# ╟─f5e272b6-e4e1-4ffb-aefb-344fd55d1683
+# ╟─b2b2cd46-434c-4f99-9839-76f6efc82b1a
+# ╠═9279dd6e-0f39-44ee-884b-bca12177bb71
+# ╟─a6b86643-9db4-40c8-9010-5d57de55c21d
+# ╠═78b8a1cd-d994-486b-a455-7d5b79a3a4b9
+# ╟─2b362b87-fb6a-4df0-8733-7935eb549f84
+# ╟─b652ff6b-b261-4b79-a062-3890dd51b330
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
