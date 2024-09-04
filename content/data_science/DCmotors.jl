@@ -481,11 +481,10 @@ end
 html"""<style>
 @media screen {
 	main {
-		margin: 0 auto;
+		margin: auto;
 		max-width: 1920px;
-		align-self: flex-start;
-		padding-left: max(192px, 10%);
-		padding-right: max(327px, 17%); 
+		padding-left: 5%;
+		padding-right: 25.9%; 
   	  # 383px to accomodate TableOfContents(aside=true)
 		}
 	}
