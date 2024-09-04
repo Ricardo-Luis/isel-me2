@@ -23,7 +23,14 @@ macro bind(def, element)
 end
 
 # ╔═╡ 6b359fc5-ec8d-47ec-89ec-b1b214a37a82
-using PlutoUI, PlutoTeachingTools, Plots, Dierckx  						
+using PlutoUI, PlutoTeachingTools, Plots, Dierckx  
+#= 
+Brief description of the used Julia packages:
+  - PlutoUI.jl, to add interactivity objects
+  - PlutoTeachingTools.jl, to enhance the notebook
+  - Plots.jl, visualization interface and toolset to build graphics
+  - Dierckx.jl, tool for data interpolation
+=#
 
 # ╔═╡ e227c53c-28a1-4d09-bf05-ba24236f613a
 TwoColumnWideLeft(md"`DCmotors.jl`", md"`Last update: 09·09·2024`")
@@ -485,7 +492,6 @@ html"""<style>
 		max-width: 1920px;
 		padding-left: 5%;
 		padding-right: 25.9%; 
-  	  # 383px to accomodate TableOfContents(aside=true)
 		}
 	}
 pluto-output {
@@ -1774,7 +1780,7 @@ version = "1.4.1+1"
 # ╟─f417c5f6-0a1f-4d60-b30f-2b9695d048f9
 # ╟─babc5b0b-3263-47d5-bd33-56917ece1e6b
 # ╟─49cc56bc-bd1e-4e07-9d9c-0ccfaa92e7b0
-# ╠═9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
+# ╟─9aa6487a-1d1b-4b2d-9da5-4302a282d4f5
 # ╟─0835d195-7b73-4da2-bd99-a0adb9e893e8
 # ╟─06a35d2a-9f74-4e85-8292-6f35431c91dc
 # ╠═6b359fc5-ec8d-47ec-89ec-b1b214a37a82

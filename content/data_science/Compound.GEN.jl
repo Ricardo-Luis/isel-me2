@@ -329,11 +329,14 @@ Resolvendo, obtém-se: $$\Delta {E}$$ = $(ΔE)V.
 # ╔═╡ 9fc34ce9-2cb4-4bdc-b725-e884132664fa
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
-main {
-    max-width: 60%;
-    margin-left: 5%;
-    margin-right: 35% !important;
-}
+@media screen {
+	main {
+		margin: auto;
+		max-width: 1920px;
+		padding-left: 5%;
+		padding-right: 25.9%; 
+		}
+	}
 pluto-output {
     font-family: system-ui;
 	font-size:  100%
