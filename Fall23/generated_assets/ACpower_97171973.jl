@@ -504,11 +504,14 @@ Do gráfico anterior é possível verificar:
 # ╔═╡ 8ed9575a-eab7-4160-a9d8-719ad09b3f4e
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
-main {
-    max-width: 60%;
-    margin-left: 5%;
-    margin-right: 35% !important;
-}
+@media screen {
+	main {
+		margin: auto;
+		max-width: 1920px;
+		padding-left: 5%;
+		padding-right: 25.9%; 
+		}
+	}
 pluto-output {
     font-family: system-ui;
 	font-size:  100%

@@ -576,11 +576,14 @@ aside((md"""
 # ╔═╡ 3aaef504-b8a5-4214-973c-5b12c4cf4e4d
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
-main {
-    max-width: 60%;
-    margin-left: 5%;
-    margin-right: 35% !important;
-}
+@media screen {
+	main {
+		margin: auto;
+		max-width: 1920px;
+		padding-left: 5%;
+		padding-right: 25.9%; 
+		}
+	}
 pluto-output {
     font-family: system-ui;
 	font-size:  100%
