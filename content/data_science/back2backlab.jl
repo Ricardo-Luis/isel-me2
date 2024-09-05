@@ -621,18 +621,18 @@ md"""
 
 # ╔═╡ 46273cec-629b-4a2f-ba2c-e354e5003adc
 md"""
-Um diagrama de Sankey permite visualizar o fluxo de dados entre dois ou mais estados ou dimensões num dado processo. A largura das barras/setas de cada estado é proporcional à taxa de fluxo nessa fase do processo. O diagrama de Sankey é especialmente útil para a visualização global de fluxos de energia ou de potência em processos industriais ou numa rede elétrica com diferentes fontes de energia com os fluxos energéticos dirigidos a diferentes categorias de utilizadores de energia.
+Um diagrama de Sankey permite visualizar o fluxo de dados entre dois ou mais estados ou dimensões num dado processo. A largura das barras/setas de cada estado é proporcional à taxa de fluxo nessa fase do processo. O diagrama de Sankey é especialmente útil para a visualização global de fluxos de energia ou de potência em processos industriais ou numa rede elétrica com diferentes fontes de energia, sendo os fluxos energéticos dirigidos a diferentes categorias de utilizadores de energia.
 
-Em geral os diagramas de Sankey são grafos acíclicos dirigidos, ou seja, nenhuma das partes forma um ciclo. O que à partida inviabilizaria a sua utilização para análise do balanço de potência neste ensaio, pois pela [^Fig_2_2], o balanço de potências do ensaio _back-to-back_ forma um ciclo.
+Em geral, os diagramas de Sankey formam grafos acíclicos dirigidos, ou seja, nenhuma das partes do diagrama forma um ciclo. Esta característica, à partida inviabilizaria a sua utilização para análise do balanço de potência neste ensaio, pois pela [^Fig_2_2], o balanço de potências do ensaio _back-to-back_ forma um ciclo.
 
-No entanto, abrindo o ciclo, a sua representação em ferramenta computacional permite visualizar a evolução do diagrama de Sankey ao longo do ensaio _back-to-back_.\
+No entanto, abrindo o ciclo, a representação do balanço de potências no diagrama de Sankey, através de uma ferramenta computacional interativa, permite visualizar a evolução das perdas e potências das máquinas elétricas utilizadas ao longo do ensaio _back-to-back_.\
 Assim, verifica-se que:
 
 $P_u^G(k)=P_{ab}^M(k)-p_T(k)$
 
 com: $k \in \{1,2,3,...,10,\}$, correspondendo à ordem de ensaio na Tabela 1.
 
-Ou seja, em qualquer momento do ensaio _back-to-back_, a potência útil do gerador, $P_u^G(k)$, é entregue ao motor.
+Ou seja, verifica-se no diagrama de Sankey, em qualquer momento, $k$, do ensaio _back-to-back_, que a potência útil do gerador, $P_u^G(k)$, é entregue ao motor, sendo-lhe adicionada uma potência elétrica proveniente da rede DC, que é igual ao somatório das perdas, $p_T$, relativas às máquinas elétricas em funcionamento.
 """
 
 # ╔═╡ 50f9ef55-ec4d-4801-a7df-b755fcc9cdef
@@ -813,7 +813,7 @@ Verifica-se apesar dos ligeiros declives, que as perdas "constantes" do motor e 
 
 # ╔═╡ c870e56a-cc10-4f85-9767-af46d9845b6a
 md"""
-### 4.4.1 - Rendimento nominal
+### 4.3.1 - Rendimento nominal
 """
 
 # ╔═╡ d9063387-a1d9-44e5-81e8-9dd4111ad72a
@@ -842,7 +842,7 @@ end
 
 # ╔═╡ c674d531-be5a-45b6-b5be-480753f0135f
 md"""
-### 4.4.2 - Rendimento máximo
+### 4.3.2 - Rendimento máximo
 """
 
 # ╔═╡ 28563a65-dfbd-4143-a0ec-772e553a3fb9
