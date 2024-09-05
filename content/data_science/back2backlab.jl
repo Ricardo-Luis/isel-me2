@@ -660,12 +660,12 @@ src = [1, 2, 2, 3, 3, 4, 4, 5, 5, 6]; # sources (order number of state names) in
 # ╔═╡ b6d6d602-03f6-4d11-be10-631a3502ea40
 dst = [2, 3, 7, 8, 4, 9, 5, 10, 6, 11];  # destiny of the flow in the Sankey chart
 
+# ╔═╡ f5d3be1c-ccb1-43ec-8d5b-5afc631cb54b
+weights = [pₜ[k], U * Iₗᴹ[k] - pₑₓᴹ[k] - pⱼᴹ[k], pₑₓᴹ[k] + pⱼᴹ[k], pᵣₒₜ[k], Pᵤᴹ²[k], pᵣₒₜ[k], Pᵤᴹ²[k]-pᵣₒₜ[k], pⱼᴳ[k]+pₑₓᴳ[k], Pᵤᴹ²[k]-pₑₓᴳ[k]-pⱼᴳ[k]-pᵣₒₜ[k],Pᵤᴹ²[k]-pₑₓᴳ[k]-pⱼᴳ[k]-pᵣₒₜ[k]] 		# flow weights on Sankey chart (from previous loss and power calculations)
+
 # ╔═╡ e8e790c5-fd10-4797-8dbf-74cde9ac20a2
 colors = palette(:seaborn_bright);  	# palette colors used in the Sankey chart
 # from color schemes: https://docs.juliaplots.org/latest/generated/colorschemes/
-
-# ╔═╡ f5d3be1c-ccb1-43ec-8d5b-5afc631cb54b
-weights = [pₜ[k], U * Iₗᴹ[k] - pₑₓᴹ[k] - pⱼᴹ[k], pₑₓᴹ[k] + pⱼᴹ[k], pᵣₒₜ[k], Pᵤᴹ²[k], pᵣₒₜ[k], Pᵤᴹ²[k]-pᵣₒₜ[k], pⱼᴳ[k]+pₑₓᴳ[k], Pᵤᴹ²[k]-pₑₓᴳ[k]-pⱼᴳ[k]-pᵣₒₜ[k],Pᵤᴹ²[k]-pₑₓᴳ[k]-pⱼᴳ[k]-pᵣₒₜ[k]] 		# flow weights on Sankey chart (from previous loss and power calculations)
 
 # ╔═╡ fbb2ce7b-3a81-4c4e-b271-0f33819837a7
 sankey(src, dst, weights; node_labels=names, label_position=:bottom, label_size=12, edge_color=:gradient, compact=:true, node_colors=colors, size=(1100,500))
@@ -2718,13 +2718,13 @@ version = "1.4.1+1"
 # ╟─46273cec-629b-4a2f-ba2c-e354e5003adc
 # ╟─50f9ef55-ec4d-4801-a7df-b755fcc9cdef
 # ╟─80d0dbc9-9e4c-4270-9395-baec8974bdf2
-# ╠═fbb2ce7b-3a81-4c4e-b271-0f33819837a7
+# ╟─fbb2ce7b-3a81-4c4e-b271-0f33819837a7
 # ╟─994319d8-2e54-4edd-a6fb-cd8df9f9fcd7
 # ╠═a11a242c-4672-4639-ad54-faa63d0a1cd1
 # ╠═6873136d-76b9-41ee-a61f-2dd473ac8aca
 # ╠═b6d6d602-03f6-4d11-be10-631a3502ea40
-# ╠═e8e790c5-fd10-4797-8dbf-74cde9ac20a2
 # ╠═f5d3be1c-ccb1-43ec-8d5b-5afc631cb54b
+# ╠═e8e790c5-fd10-4797-8dbf-74cde9ac20a2
 # ╟─469dd7f7-dc57-4743-a844-714fa3952c8c
 # ╟─bbdfee6a-fd4d-4220-aadf-9ceba2415a75
 # ╟─884beeaf-d196-4d9a-9088-a3b88ff5670e
