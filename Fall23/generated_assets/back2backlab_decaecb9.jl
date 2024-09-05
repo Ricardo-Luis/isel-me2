@@ -332,7 +332,7 @@ Nesta secção apresentam-se os quadros relativos aos dados obtidos das leituras
 
 # ╔═╡ cf35b99b-b280-4866-a0e2-0092167a55ba
 md"""
-**Organização dos dados de ensaio para consstrução das Tabelas 1 e 2:** 
+**Organização dos dados de ensaio para construção das Tabelas 1 e 2:** 
 """
 
 # ╔═╡ fdb1a1d4-fb0f-45ae-96ef-5c3b5bec7f69
@@ -549,7 +549,7 @@ aside((md"""
 !!! tip "Proposta de atividade"
 	Para os objetivos definidos neste relatório não é necessário, mas adicionalmente poderá determinar-se a evolução de outras potências e binários de ambas as máquinas no ensaio *back-to-back*.
 	
-	Assim, utilizando a célula para código Julia inicada (com as potências e binários em comentário), calcule e represente graficamente as seguintes potências e binários:
+	Assim, utilizando a célula para código Julia indicada (com as potências e binários em comentário), calcule e represente graficamente as seguintes potências e binários:
 
 	- potência absorvidas do motor e gerador, $$P_{ab}^M$$ e $$P_{ab}^G$$
 	- potências desenvolvidas do motor e gerador, $$P_d^M$$ e $$P_d^G$$
@@ -561,7 +561,7 @@ aside((md"""
 
 # ╔═╡ 076bd182-885d-4808-ba4a-9d125cd09957
 md"""
-### 4.2.1 - 💻 Exercício: potências e binários
+### 4.2.1 - 💻 Potências e binários
 """
 
 # ╔═╡ c4fd1d3b-9b18-48b3-a0fd-466fcb3e17ee
@@ -643,7 +643,7 @@ Ou seja, verifica-se no diagrama de Sankey, em qualquer momento, $k$, do ensaio 
 # ╔═╡ 50f9ef55-ec4d-4801-a7df-b755fcc9cdef
 aside((md"""
 !!! tip "Atividade interativa"
-	👈 Através do _slider_ selecione o momento do ensaio realizado, $k$, e viasualize interativamente ao longo do ensaio _back-to-back_, a evolução relativa entre as perdas e as potências das máquinas elétricas de corrente contínua no diagrama de Sankey.
+	👈 Através do _slider_ selecione o momento do ensaio realizado, $k$, e visualize interativamente ao longo do ensaio _back-to-back_, a evolução relativa entre as perdas e as potências das máquinas elétricas de corrente contínua no diagrama de Sankey.
 """), v_offset=30)
 
 # ╔═╡ 80d0dbc9-9e4c-4270-9395-baec8974bdf2
