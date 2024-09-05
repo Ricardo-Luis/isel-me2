@@ -628,11 +628,11 @@ Em geral, os diagramas de Sankey formam grafos acíclicos dirigidos, ou seja, ne
 No entanto, abrindo o ciclo, a representação do balanço de potências no diagrama de Sankey, através de uma ferramenta computacional interativa, permite visualizar a evolução das perdas e potências das máquinas elétricas utilizadas ao longo do ensaio _back-to-back_.\
 Assim, verifica-se que:
 
-$P_u^G(k)=P_{ab}^M(k)-p_T(k)$
+$P_u^G(k)=P_{ab}^M(k)-p_t(k)$
 
 com: $k \in \{1,2,3,...,10,\}$, correspondendo à ordem de ensaio na Tabela 1.
 
-Ou seja, verifica-se no diagrama de Sankey, em qualquer momento, $k$, do ensaio _back-to-back_, que a potência útil do gerador, $P_u^G(k)$, é entregue ao motor, sendo-lhe adicionada uma potência elétrica proveniente da rede DC, que é igual ao somatório das perdas, $p_T$, relativas às máquinas elétricas em funcionamento.
+Ou seja, verifica-se no diagrama de Sankey, em qualquer momento, $k$, do ensaio _back-to-back_, que a potência útil do gerador, $P_u^G(k)$, é entregue ao motor, sendo-lhe adicionada uma potência elétrica proveniente da rede DC, que é igual ao somatório das perdas, $p_t$, relativas às máquinas elétricas em funcionamento.
 """
 
 # ╔═╡ 50f9ef55-ec4d-4801-a7df-b755fcc9cdef
