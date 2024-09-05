@@ -322,31 +322,36 @@ end;
 
 # ╔═╡ df5bc5cc-9d9d-41d7-9956-a5f9af31c4cf
 md"""
-## 3.2 - Apresentação dos dados
+## 3.2 - Apresentação dos dados de ensaio
 """
 
 # ╔═╡ 13d6e0d9-2cb9-4125-a406-c4caa0d63719
 md"""
-Nesta secção definem-se e preparam-se as grandezas a utilizar para a análise de resultados, obtidas das leituras realizadas.
+Nesta secção apresentam-se os quadros relativos aos dados obtidos das leituras realizadas, Tabelas 1 e 2:
+"""
+
+# ╔═╡ cf35b99b-b280-4866-a0e2-0092167a55ba
+md"""
+**Organização dos dados de ensaio para consstrução das Tabelas 1 e 2:** 
 """
 
 # ╔═╡ fdb1a1d4-fb0f-45ae-96ef-5c3b5bec7f69
-header_b2b = (["Irede", "Imot", "Iₑₓmot", "Iger", "Iₑₓger", "n"],["(A)", "(A)", "(A)", "(A)", "(A)", "(rpm)"]);  				# header of the table 1
+header_b2b = (["Irede", "Imot", "Iₑₓmot", "Iger", "Iₑₓger", "n"],["(A)", "(A)", "(A)", "(A)", "(A)", "(rpm)"]);  						# header of the table 1
 
 # ╔═╡ f202a1bf-aaf8-4115-98e9-eba0da1666e4
-coluna = (["tensão da rede DC", "resistência rotórica do motor", "resistência rotórica do gerador" ], ["(V)", "(Ω)", "(Ω)"]); 	# header of the table 2
+OthersHeader = (["tensão da rede DC", "resistência rotórica do motor", "resistência rotórica do gerador" ], ["(V)", "(Ω)", "(Ω)"]); 	# header of the table 2
 
 # ╔═╡ bba03ae4-313e-4e3a-a367-73b1d28e733e
  dados_b2b = [I Iₗᴹ Iₑₓᴹ Iₗᴳ Iₑₓᴳ n]; 		# data of the table 1
 
 # ╔═╡ 22e2b92e-d1e2-4f4b-b61c-f4776976f216
-dados1 = [U Rᵢᴹ Rᵢᴳ]; 						# data of the table 2
+OutrosDados = [U Rᵢᴹ Rᵢᴳ]; 					# data of the table 2
 
 # ╔═╡ 216e6f77-0b5a-4a38-aa82-6fc429147f23
 pretty_table(HTML, dados_b2b, header = header_b2b, alignment=:c, title = "Tabela 1: Leituras realizadas no ensaio back-to-back")
 
 # ╔═╡ b74e6eae-d059-4409-b0cb-ba19475a53a0
-pretty_table(HTML, dados1, header = coluna, alignment=:c, title = "Tabela 2: Outros dados registados")
+pretty_table(HTML, OutrosDados, header = OthersHeader, alignment=:c, title = "Tabela 2: Outros dados registados")
 
 # ╔═╡ 7becf999-5f11-4a47-8e3f-2b775f52bd27
 
@@ -638,12 +643,12 @@ Ou seja, verifica-se no diagrama de Sankey, em qualquer momento, $k$, do ensaio 
 # ╔═╡ 50f9ef55-ec4d-4801-a7df-b755fcc9cdef
 aside((md"""
 !!! tip "Atividade interativa"
-	👈 Através do _slider_ selecione o momento do ensaio realizado, $k$, e viasualize interativamente a evolução relativa das perdas e potências das máquinas elétricas de corrente contínua, ao longo do ensaio _back-to-back_.
-"""), v_offset=10)
+	👈 Através do _slider_ selecione o momento do ensaio realizado, $k$, e viasualize interativamente ao longo do ensaio _back-to-back_, a evolução relativa entre as perdas e as potências das máquinas elétricas de corrente contínua no diagrama de Sankey.
+"""), v_offset=30)
 
 # ╔═╡ 80d0dbc9-9e4c-4270-9395-baec8974bdf2
 md"""
-Linha dos dados no ensaio _back-to-back_ (Tabela 1): $\quad k=$ $(@bind k PlutoUI.Slider(1:1:10, default=6, show_value=true))
+Momento do ensaio _back-to-back_ (linha de dados da Tabela 1): $\quad k=$ $(@bind k PlutoUI.Slider(1:1:10, default=6, show_value=true))
 """
 
 # ╔═╡ 994319d8-2e54-4edd-a6fb-cd8df9f9fcd7
@@ -992,7 +997,7 @@ TableOfContents(title="Índice")
 # ╔═╡ 75189e15-e7bd-4dcc-9d41-27f83687b966
 aside((md"""
 !!! info "Informação"
-	No índice deste *notebook*, o tópico assinalado com "💻" requer a participação do estudante.
+	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
 """), v_offset=-170)
 
 # ╔═╡ 61d8b963-5ad7-4f64-8b5f-46e3b40346a0
@@ -2663,6 +2668,7 @@ version = "1.4.1+1"
 # ╟─d37297d1-3e7d-4a17-9169-6d9fe268f2c5
 # ╟─df5bc5cc-9d9d-41d7-9956-a5f9af31c4cf
 # ╟─13d6e0d9-2cb9-4125-a406-c4caa0d63719
+# ╟─cf35b99b-b280-4866-a0e2-0092167a55ba
 # ╠═fdb1a1d4-fb0f-45ae-96ef-5c3b5bec7f69
 # ╠═f202a1bf-aaf8-4115-98e9-eba0da1666e4
 # ╠═bba03ae4-313e-4e3a-a367-73b1d28e733e
