@@ -2,12 +2,12 @@
 # v0.19.27
 
 #> [frontmatter]
-#> chapter = 2
-#> section = 5
-#> order = 5
+#> chapter = 3
+#> section = 1
+#> order = 1
 #> title = "✏️ Critério da igualdade das áreas"
 #> layout = "layout.jlhtml"
-#> tags = ["lecture", "module3"]
+#> tags = ["lecture", "module4"]
 
 using Markdown
 using InteractiveUtils
