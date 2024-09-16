@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 2
-#> order = 2
+#> section = 3
+#> order = 3
 #> title = "✏️ Gerador compound"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
