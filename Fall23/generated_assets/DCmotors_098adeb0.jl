@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 4
-#> order = 4
+#> section = 5
+#> order = 5
 #> title = "✏️ Curvas características motores"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
