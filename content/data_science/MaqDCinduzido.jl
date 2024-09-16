@@ -8,6 +8,7 @@
 #> title = "📄 Máquina CC: induzido, RMI, comutação"
 #> tags = ["lecture", "module2"]
 #> date = "2024-09-16"
+#> layout = "layout.jlhtml"
 #> 
 #>     [[frontmatter.author]]
 #>     name = "Ricardo Luís"
