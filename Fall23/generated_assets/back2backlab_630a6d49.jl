@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 5
-#> order = 5
+#> section = 6
+#> order = 6
 #> title = "📈 Ensaio back-to-back"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
