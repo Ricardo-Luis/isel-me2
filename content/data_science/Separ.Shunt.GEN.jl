@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 1
-#> order = 1
+#> section = 2
+#> order = 2
 #> title = "✏️ Gerador: exc. separada vs. shunt"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
