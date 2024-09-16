@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 6
-#> order = 6
+#> section = 7
+#> order = 7
 #> title = "✏️ Motor série"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
