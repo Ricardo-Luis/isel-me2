@@ -2,9 +2,9 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = "1"
-#> section = "9"
-#> order = "9"
+#> chapter = 1
+#> section = 9
+#> order = 9
 #> title = "📄 Máquina CC: induzido, RMI, comutação"
 #> tags = ["lecture", "module2"]
 #> date = "2024-09-16"
@@ -12,7 +12,7 @@
 #> 
 #>     [[frontmatter.author]]
 #>     name = "Ricardo Luís"
-#>     url = "https://ricardo-luis.github.io/isel-me2/"
+#>     url = "https://ricardo-luis.github.io/"
 
 using Markdown
 using InteractiveUtils
