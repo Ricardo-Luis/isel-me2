@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 3
-#> order = 3
+#> section = 4
+#> order = 4
 #> title = "✏️ Paralelo de geradores"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
