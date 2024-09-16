@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 9
-#> order = 9
+#> section = 1
+#> order = 1
 #> title = "📄 Máquina CC: induzido, RMI, comutação"
 #> tags = ["lecture", "module2"]
 #> date = "2024-09-16"
