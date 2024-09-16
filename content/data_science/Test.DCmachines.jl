@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 1
-#> section = 7
-#> order = 7
+#> section = 8
+#> order = 8
 #> title = "📝 Teste 03.nov.2022"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module2"]
