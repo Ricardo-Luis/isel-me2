@@ -2,9 +2,9 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = "0"
-#> section = "3"
-#> order = "3"
+#> chapter = 0
+#> section = 3
+#> order = 3
 #> title = "Mapa de eficiência"
 #> date = "2024-10-31"
 #> tags = ["preliminaries"]
