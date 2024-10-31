@@ -8,6 +8,7 @@
 #> title = "Mapa de eficiência"
 #> date = "2024-10-31"
 #> tags = ["preliminaries"]
+#> layout = "layout.jlhtml"
 #> 
 #>     [[frontmatter.author]]
 #>     name = "Ricardo Luís"
