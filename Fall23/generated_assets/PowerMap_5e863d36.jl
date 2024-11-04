@@ -284,7 +284,7 @@ md"""
 Note que de um modo genérico:\
 
 
-Seja $\mathbf{a} = [a_1, a_2, \ldots, a_m]^T$ um vetor coluna de dimensão $m \times 1$, e $\mathbf{b} = [b_1, b_2, \ldots, b_n]$ um vetor linha de dimensão $1 \times n$. A multiplicação matricial, $\mathbf{ab}^T$, resulta numa matriz de dimensão $m \times n$:
+Seja $\mathbf{a} = [a_1, a_2, \ldots, a_m]^T$ um vetor coluna de dimensão $m \times 1$, e $\mathbf{b} = [b_1, b_2, \ldots, b_n]$ um vetor linha de dimensão $1 \times n$. A multiplicação matricial, $\mathbf{ab}$, resulta numa matriz de dimensão $m \times n$:
 """
 
 # ╔═╡ bb606ee0-6dfa-4c44-b63c-e5c231010985
