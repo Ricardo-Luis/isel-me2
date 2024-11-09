@@ -61,7 +61,7 @@ md"""
 # ╔═╡ a9743237-6408-406b-a8eb-9cbf8867f9ef
 md"""
 **Um gerador síncrono, ligação Y, 2300V, 1000kVA, fator de potência 0,8 indutivo,
-60Hz, 2 pólos, tem uma reatância síncrona de 1,1Ω e uma resistência do induzido de 0,15Ω. A 60Hz, as perdas por atrito e ventilação são 24kW, e as perdas no ferro 18kW. O enrolamento de campo é alimentado por uma tensão contínua de 200V e o valor máximo de $$I_F$$ são 10A. A resistência do circuito de excitação é ajustável entre 20 a 200Ω. O ensaio em circuito aberto deste gerador é o apresentado na figura seguinte:**
+60Hz, 2 pólos, tem uma reatância síncrona de 1,1Ω e uma resistência do induzido de 0,15Ω. A 60Hz, as perdas por atrito e ventilação são 24kW, e as perdas no ferro 18kW. O enrolamento de campo é alimentado por uma tensão contínua de 200V e o valor máximo de $$I_F$$ são 10A. O ensaio em circuito aberto deste gerador é o apresentado na figura seguinte:**
 """
 
 # ╔═╡ 4e44ac99-e751-49f0-a228-c8c34a2861f2
@@ -145,7 +145,7 @@ $$\frac{2392.4-2292.0}{4.44-4.25}=\frac{2392.4-2300.0}{4.44-I_{ex}}$$
 # ╔═╡ 4da8eaa3-0c65-4351-9242-adfc95af7353
 md"""
 # b) $$E_0$$ nas condições nominais
-**Qual a fem gerada por esta máquina nas condições nominais?**
+**Qual a força eletromotriz (FEM) gerada por esta máquina nas condições nominais?**
 """
 
 # ╔═╡ 4d2962a9-0816-4b25-ae7b-f3c87d375428
@@ -175,7 +175,7 @@ md"""
 # ╔═╡ f1abeadc-7d88-4cb3-8998-c4242460191e
 md"""
 # c) $$I_{exc}$$, alternador em carga 
-**Qual o valor da corrente de campo necessária para obter a tensão nominal, quando o alternador se encontra nas condições nominais?**
+**Qual o valor da corrente de campo necessário para obter a tensão nominal, quando o alternador se encontra nas condições nominais?**
 """
 
 # ╔═╡ 02deedfc-2306-470b-9a16-63b45a5ae638
@@ -191,7 +191,7 @@ $$E_{0ff}=E_0\sqrt3$$
 # ╔═╡ 3d61fd46-c01c-4c9a-ad5a-6182e8adef45
 md"""
 # d) Potência e binário de acionamento
-**Quais os valores de potência e binário necessários para o acionamento deste alternador?**
+**Quais os valores de potência e binário necessários, para o acionamento deste alternador nas condições nominais?**
 """
 
 # ╔═╡ 593c3b9a-76be-4fe3-8f9d-baaf86035b8c
