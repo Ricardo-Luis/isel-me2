@@ -2,13 +2,13 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = 2
-#> section = "4"
-#> order = "4"
-#> title = "✏️ Curvas de Mordey"
-#> layout = "layout.jlhtml"
-#> tags = ["lecture", "module3"]
+#> chapter = "2"
+#> section = "3"
+#> order = "3"
+#> title = "📚 Sincronização de um alternador"
 #> date = "2024-11-18"
+#> tags = ["lecture", "module3"]
+#> layout = "layout.jlhtml"
 #> 
 #>     [[frontmatter.author]]
 #>     name = "Ricardo Luís"
@@ -27,147 +27,235 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 1da453ff-3ed3-4377-83b5-1d047414ee49
-using PlutoUI, PlutoTeachingTools, Plots, LaTeXStrings
+# ╔═╡ 27615c10-a029-11ef-0909-737cb1f58c1e
+using PlutoUI, PlutoTeachingTools, Plots, Observables
 #=
 Brief description of the used Julia packages:
-  - PlutoUI.jl, to add interactivity objects
+  - PlutoUI.jl, for interactive sliders
   - PlutoTeachingTools.jl, to enhance the notebook
-  - Plots.jl, visualization interface and toolset to build graphics
-  - LaTeXStrings.jl, to make it easier to type LaTeX equations in string literals
+  - Plots.jl, for plotting
+  - Observables.jl, for working with observable variables
 =#
 
-# ╔═╡ 80618c9c-c484-4324-baec-37eb818b276d
-TwoColumnWideLeft(md"`Vcurves.jl`", md"`Last update: 18·11·2024`")
+# ╔═╡ b7d8fc6e-a226-4337-8622-9c717a1fa214
+TwoColumnWideLeft(md"`Synchro.jl`", md"`Last update: 18·11·2024`")
 
-# ╔═╡ 320f3507-5654-4b18-96c2-e9bebb6ec067
+# ╔═╡ b8d0fdc3-417d-4970-b861-fad6706198a5
 md"""
 ---
 $\textbf{MÁQUINAS ELÉTRICAS SÍNCRONAS TRIFÁSICAS}$
 
-$\text{EXERCÍCIO 6}$ 
+$\textbf{Sincronização de um alternador}$ 
 
-$\textbf{Máquina síncrona de polos lisos}$
-
-$\textbf{Contrução analítica das curvas "V" (curvas de Mordey)}$
+$\text{Observação temporal e fasorial}$
 ---
 """
 
-# ╔═╡ 3c0604d4-8cfc-4a37-8881-fdc58e0b249a
+# ╔═╡ 8488ef93-2996-41a7-a52e-097cfb069567
 md"""
-# Exercício 6. Dados:
+# Sincronização de um alternador
+
+Este _notebook_ pretende apresentar de forma interativa os princípios e as técnicas para a ligação de uma máquina síncrona trifásica à rede elétrica ou a colocação em paralelo entre alternadores.
 """
 
-# ╔═╡ 4c9ce872-1164-4c7f-9a26-3af89b345c41
+# ╔═╡ b5b19f34-5819-4d0d-8ff7-933ae22d1ede
 md"""
-**Considere um alternador síncrono com $$X_s=4\Omega$$ e $$R_s\thickapprox 0\Omega$$, o operar sob a rede de potência infinita: $$U_f=200\mathrm {V/fase}$$ e $$f=50\mathrm {Hz}$$.**
-"""
+Este _notebook_ não está finalizado estando previstas diversas atividades.
 
-# ╔═╡ dbbef57b-fc7c-4466-8d05-23e100ab0790
+TODO list:
 
+ $(@bind thing1 CheckBox(default=true)) osciloscópio e fasores da rede elétrica e alternador
 
-# ╔═╡ 9b3e08e0-7207-4099-96e4-c6e1e9892a1f
-md"""
-# a) 💻 Análise vetorial 
+ $(@bind thing11 CheckBox()) sequência de fases (interativa)
 
-**Traçar os diagramas vetoriais correspondentes às combinações entre as seguintes potências ativas e reativas:**
+ $(@bind thing2 CheckBox()) cálculo dos desfasamentos entre rede e alternador, para implementar o sincronoscópio 
 
-$$0;\quad 5;\quad 10;\quad 15;\quad 20;\quad \mathrm {kW, \: kVAr}$$
+ $(@bind thing3 CheckBox()) implementar o sincronoscópio 
 
-"""
+ $(@bind thing4 CheckBox()) cálculo ΔU, para implementar o método(s) das lâmpada(s) [Luxor.jl ??]
 
-# ╔═╡ 159419d5-0555-43a0-8320-9cb51e0b05ba
-md"""
-Conforme se verificou anteriormente, no traçado do diagrama P-Q para um alternador síncrono (Exercício 2), no diagrama vetorial de tensões, o vetor da queda de tensão na reatância síncrona, dado por $$jX_s\overline I$$, pode ser transformado no vetor de potência aparente, $$\overline S= P+ jQ$$, se multiplicarmos por um fator de escala constante: $$\frac{3U}{X_s}$$. 
+ $(@bind thing5 CheckBox()) implementar focos em extinção
 
-Desta forma, a posição dos afixos dos vetores, $$jX_s\overline I$$ ou $$\overline{E}_0$$, representam, adequando a escala para potências, o ponto de funcionamento da máquina, $$(Q, P)$$, num sistemas de eixos de potência ativa, $P(\delta)$, e reativa, $Q(\delta)$, representados a partir do afixo do vetor da tensão, $$\overline U$$.
-
-Para o traçado do diagrama vetorial de tensões do alternador são determinadas as componentes de ativa e reativa da corrente, $\overline I$:
-
-$\begin{align}
-I \cos \varphi &= \frac{P}{3U}\\
-I \sin \varphi &= -\frac{Q}{3U}\\
-\end{align}$
-
-com: $U=U_f\quad$ (tensão por fase)
-
-Assim, tém-se a colocação do vetor da corrente, $\overline I$, usando:
-
-$\overline I=I \cos \varphi + j I \sin \varphi$ 
-ou na forma de fasor: $\overline I=I \angle \varphi$
-
-Com os fasores da tensão, $\overline U$, e da corrente, $\overline I$, colocados no diagrama vetorial, os restantes vetores seguindo a equação vetorial relativa ao esquema equivalente por fase da máquina síncrona de polos lisos:
-
-$\overline E_0=\overline U + j X_s \overline I$
+ $(@bind thing5 CheckBox()) implementar focos girantes
 
 """
 
-# ╔═╡ fe93842c-8bee-42cc-95bf-b87db67a4de2
+# ╔═╡ eb025b44-4dd3-4c85-8341-8fcdd8ca81ef
 
 
-# ╔═╡ df708c4d-443b-4190-b72d-779c4e1e1bb1
+# ╔═╡ bb9cccb1-0428-462d-a4d5-af100b42a3cf
+
+
+# ╔═╡ 0ab243fe-a80f-4080-9b28-0d247bdd0d8a
+
+
+# ╔═╡ 1a3ab68f-fa0c-408e-9ee9-cd534b7785e1
 md"""
-**Diagrama vetorial:** $$\quad$$ Linhas de $$Q$$ constante: $(@bind z2 CheckBox()) $$\quad$$;$$\quad$$ Linhas de $$P$$ constante: $(@bind z1 CheckBox())
+# 💻 Processo de sincronização
 
-**Diagrama vetorial e curvas "V":** $$\quad$$ $$P\: (\rm W):$$ $(@bind P PlutoUI.Slider(0:5.0e3:20e3, default=15000,show_value=true)) $$\quad$$ $$\quad; \quad Q\:(\rm VAr):$$ $(@bind Q PlutoUI.Slider(-20e3:5.0e3:20e3, default=10000, show_value=true))
+**cliclar para  `tick/sec` no início!  🔽** (ajuste da velocidade de visualização)
+
+ $(@bind t Clock(50))  
+
+Frequência do alternador $(\rm Hz)$: $(@bind slider_freq Slider(45:0.1:55, show_value=true, default=50)) $$\quad\quad$$ Tensões do alternador $$(\rm pu)$$: $(@bind slider_amplitude Slider(0:0.1:1.5, show_value=true, default=0))
+"""
+# Use Clock for continuous update (keeping the cell running)
+# @bind t Clock(50)  # Set clock with an update value of 50
+
+# Slider to control the alternator frequency between 45 and 55 Hz
+# @bind slider_freq Slider(45:0.1:55, show_value=true, default=50)
+
+# Slider to control the alternator amplitude between 0 and 1.5
+# @bind slider_amplitude Slider(0:0.1:1.5, show_value=true, default=0)
+
+# ╔═╡ 928b23a5-55a7-4482-994c-b4482a65ed5f
 
 
+# ╔═╡ ebd0d744-3ee8-4a1c-a337-e32ef5b6350f
+
+
+# ╔═╡ 02f5a7d0-4a1b-42e1-b687-67c0f0c59c79
+
+
+# ╔═╡ aa567fce-56d7-4603-b0fb-bbbc8828a920
+
+
+# ╔═╡ 797de772-90b2-4968-93e5-1a79cbf8cdda
+md"""
+## Cálculos aux.
 """
 
-# ╔═╡ 66de4e49-ede7-44d1-b7b4-49ecb3ec2e53
+# ╔═╡ 3140f83d-8d30-4dea-8449-6562d61bdcf8
+# Phase speed for both grid voltage and alternator phasors
+begin
+	phase_speed = 0.0001            # Fixed phase shift speed
+	grid_amplitude = 1.0            # Fixed amplitude for grid voltage
+end;
+
+# ╔═╡ 378158a6-a77e-4bed-8e08-9a87dcc3bace
+# Observable vectors for phase shifts of each phasor group
+begin
+	phase_shifts_alternator = Observable([0.0, 0.0, 0.0]) 	  # Phase shifts for alternator
+	phase_shifts_grid = Observable([0.0, 0.0, 0.0])			  # Phase shifts for grid voltage
+end;
+
+# ╔═╡ b8cdc6d9-d368-4f64-aab1-4764231e389a
+# Observables for the highlighted point values (vectors of 3 values)
+begin
+	highlighted_value_alternator = Observable([0.0, 0.0, 0.0])
+	highlighted_value_grid = Observable([0.0, 0.0, 0.0])
+end;
+
+# ╔═╡ 48371af2-c2e0-42ec-ab63-3a2bb405dc08
+# Function to calculate the sine wave with phase shift and variable amplitude
+function sine_wave(t, freq, phase_shift, phase_offset, amplitude)
+    return amplitude * sin.(2 * π * freq * t .+ phase_shift .+ phase_offset)
+end;
+
+# ╔═╡ 45884c68-dd8b-4325-9d7a-07e9b2bf972c
+# Function to update phase shifts for each element in the phase shift vectors
+function update_phase_shifts!(phase_speed, t, freq_alternator, freq_grid)
+    phase_shifts_alternator[] = [phase_speed * freq_alternator * t, phase_speed * freq_alternator * t + 2π/3, phase_speed * freq_alternator * t + 4π/3]
+    phase_shifts_grid[] = [phase_speed * freq_grid * t, phase_speed * freq_grid * t + 2π/3, phase_speed * freq_grid * t + 4π/3]
+end;
+
+# ╔═╡ 2bf634cf-9b4b-4e9c-91c5-6490ff56b7ec
+# Specific time for highlighted points
+highlighted_time = 0.02;  # Middle of the time scale (0.02 seconds)
+
+# ╔═╡ eede33e8-ee35-47b3-920c-708f748bb726
+# Function to calculate the phasor at the point `highlighted_time` with amplitude
+function calculate_phasor(freq, phase_shift, offset, amplitude, initial_phase=0)
+    x = amplitude * cos(2 * π * freq * highlighted_time + phase_shift + offset + initial_phase)
+    y = amplitude * sin(2 * π * freq * highlighted_time + phase_shift + offset + initial_phase)
+    return x, y
+end;
+
+# ╔═╡ 719662e6-24e5-4732-84f9-013b557f397a
+# Define phase offsets and colors for the three phasors
+begin
+	phase_offsets = [0, 2π/3, 4π/3]
+	colors = [:blue, :red, :green];  # Colors for each phasor
+end;
+
+# ╔═╡ 47215f0b-b6fb-4391-81db-806c3bf0d730
+# Fixed frequency for the grid voltage
+fixed_freq_grid = 50; 		# Hz
+
+# ╔═╡ 8b9bdb0b-ce47-48b6-a27f-3499e920e420
+# Random initial phase for the grid voltage phasors
+initial_phase_grid = rand() * π;   # Random initial phase, same for all phasors in the grid voltage group
+
+# ╔═╡ 98783ee6-1d7c-4361-9080-6ae84f4df149
+# Continuously update the plots
+@bind _ begin
+    # Update phase shifts based on frequency and current time
+    update_phase_shifts!(phase_speed, t, slider_freq, fixed_freq_grid)
+    
+    # Left plot: Sine Waves
+    p1 = plot(xlim=(0, 0.041), ylim=(-1.5, 1.5), legend=false, title="Oscilloscope",
+             xlabel="Time (s)", ylabel="Voltage (pu)")
+    
+    # Right plot: Phasors
+    p2 = plot(xlim=(-1.5, 1.5), ylim=(-1.5, 1.5), legend=false, title="Phasor Voltage",
+              xlabel="X", ylabel="Y", aspect_ratio=1)
+    
+    # Temporary variables to store highlighted point values
+    values_alternator = Float64[]
+    values_grid = Float64[]
+
+    # Plot for alternator (variable frequency and amplitude controlled by sliders)
+    for (i, (offset, color)) in enumerate(zip(phase_offsets, colors))
+        # Calculate wave for specific phase shift and variable amplitude
+        t_range = range(0, stop=0.1, length=500)
+        wave = sine_wave(t_range, slider_freq, phase_shifts_alternator[][i], offset, slider_amplitude)
+        
+        # Plot wave in the left plot
+        plot!(p1, t_range, wave, color=color, lw=2)
+        
+        # Calculate and store the highlighted point value for the alternator
+        value_alternator = sine_wave(highlighted_time, slider_freq, phase_shifts_alternator[][i], offset, slider_amplitude)
+        push!(values_alternator, value_alternator)
+        scatter!(p1, [highlighted_time], [value_alternator], color=color, label="", marker=:circle, markersize=4)
+        
+        # Calculate and plot the phasor for alternator using `calculate_phasor`
+        x_alt, y_alt = calculate_phasor(slider_freq, phase_shifts_alternator[][i], offset, slider_amplitude)
+        quiver!(p2, [0], [0], quiver=([x_alt], [y_alt]), color=color, arrow=:arrow, label="", lw=2)
+    end
+
+    # Update observable `highlighted_value_alternator` with calculated values
+    highlighted_value_alternator[] = values_alternator
+
+    # Plot for grid voltage (fixed frequency of 50 Hz) with fixed amplitude and random initial phase
+    for (i, (offset, color)) in enumerate(zip(phase_offsets, colors))
+        # Calculate wave for specific phase shift, fixed frequency, and fixed amplitude
+        t_range = range(0, stop=0.1, length=500)
+        wave = sine_wave(t_range, fixed_freq_grid, phase_shifts_grid[][i], offset + initial_phase_grid, grid_amplitude)
+        
+        # Plot wave in the left plot with thicker and translucent line
+        plot!(p1, t_range, wave, color=color, lw=4, alpha=0.3)  # "alpha" Adds opacity (translucency)
+        
+        # Calculate and store the highlighted point value for the grid voltage
+        value_grid = sine_wave(highlighted_time, fixed_freq_grid, phase_shifts_grid[][i], offset + initial_phase_grid, grid_amplitude)
+        push!(values_grid, value_grid)
+        scatter!(p1, [highlighted_time], [value_grid], color=color, label="", marker=:circle, markersize=6, alpha=0.3)
+        
+        # Calculate and plot the phasor for the grid voltage using `calculate_phasor`
+        x_grid, y_grid = calculate_phasor(fixed_freq_grid, phase_shifts_grid[][i], offset, grid_amplitude, initial_phase_grid)
+        quiver!(p2, [0], [0], quiver=([x_grid], [y_grid]), color=color, arrow=:arrow, label="", lw=5, alpha=0.3)
+    end
+
+    # Update observable `highlighted_value_grid` with calculated values
+    highlighted_value_grid[] = values_grid
+
+    # Display the plots side by side
+    plot(p1, p2, layout=(1, 2), size=(800, 400))
+end
+
+# ╔═╡ c636562e-c20a-491c-a666-06c80cc6356a
 
 
-# ╔═╡ 3d8c7f7e-e765-41d9-8191-aef5e52984fc
-md"""
-# b) 💻 Curvas "V"  
-
-**Traçar as curvas em V, também designadas por curvas de Mordey, das potências requeridas.**
-"""
-
-# ╔═╡ db0fc7c2-9e8c-415f-95c1-686dbfc56347
-md"""
-O traçado das curvas em "V", ou curvas de Mordey, corresponde a uma representação do mapa de funcionamento da máquina síncrona, traduzido num conjunto de isolinhas (curvas de nível) para a potência ativa, que relacionam diferentes pares de valores $$(I_{exc}, I)$$ ou $$(E_0, I)$$ representando diferentes fatores de potência.
-
-Assim, partindo do diagrama vetorial de tensões, para os pontos de funcionamento $$(Q, P)$$ sobre a mesma linha de potência ativa, são registados consecutivamente os pares de valores relativos aos módulos dos vetores da FEM e da corrente do estator, $$E_0$$ e $$I$$.
-"""
-
-# ╔═╡ 6a1ee842-a2f1-4810-83d7-5ce931c47891
-md"""
-
-Repare-se que para $$P=0\mathrm W$$, $$(I\cos\varphi=0)$$, verifica-se que os vetores de tensão: $$\overline U, jX_s\overline I$$ e $$\overline E_0$$ são colineares (estão em fase), por conseguinte:
-
-Como alternador, de: $$\quad\overline{E}_0=\overline{U}+jX_s\overline{I}\quad$$ tém-se,
-
-$$E_0=U+X_sI \quad\mathrm{se} \quad\varphi = -90° \Rightarrow E_0>U$$ 
-
-$$E_0=U-X_sI \quad\mathrm{se} \quad\varphi = +90° \Rightarrow U>E_0$$
-
-o que resulta nas duas retas representadas no gráfico em $$P=0\mathrm W$$, representadas pelas equações:
-
-$$I=\frac{1}{X_s}E_0-\frac{1}{X_s}U \quad\mathrm{para} \quad\varphi = -90°$$ 
-
-$$I=-\frac{1}{X_s}E_0+\frac{1}{X_s}U \quad\mathrm{para} \quad\varphi = +90°$$
-
-"""
-
-# ╔═╡ 19822397-18c5-4a88-bac1-f3adbfd2b235
-#begin
-#	p2 = contour(c_cosφ)
-#	plot(p2)
-#end
-
-# ╔═╡ 594360d4-9bb8-4756-8f40-a5f0f9555aba
-md"""
-Assinale-se também para $$Q=0\mathrm {VAr}$$, $$(I\sin\varphi=0)$$, e por conseguinte tém-se, $\cos \varphi=1$. Assim, a corrente do estator terá apenas componente ativa, correspondendo ao valor mais baixo em cada isolinha de potência ativa. Esses pontos de funcionamento são designados por **pontos de excitação ótima**.
-"""
-
-# ╔═╡ 1b4d9fbd-be46-416a-a1fe-163f5a0b37a3
-md"""
-!!! nota
-	O estudante deverá procurar perceber onde se encontram os modos sobreexcitado e subexcitado, nos regimes de funcionamento alternador e motor, bem como os casos particulares da máquina a funcionar como compensador síncrono e com fator de potência unitário.
-"""
-
-# ╔═╡ e0418deb-b380-4c8b-b3bb-5075689f09a1
+# ╔═╡ 44fadf74-969f-47d7-b653-351bb0ac4db1
 # to adjust the notebook margins and used font-family/size on text content
 html"""<style>
 @media screen {
@@ -185,148 +273,33 @@ pluto-output {
 </style>
 """
 
-# ╔═╡ ddd9727a-3be9-4c53-919a-38a0ba0fa7b8
+# ╔═╡ eed84f60-3cb8-4541-8c39-5592bcd12b41
 md"""
 # *Notebook*
 """
 
-# ╔═╡ 750b6ab7-0b11-4b91-be34-ab7426625204
+# ╔═╡ 466b7448-efe6-4d09-a67a-18724051d0a2
 md"""
-## Notação complexa
+## Referência de colaboração com IA
+Este _notebook_ foi desenvolvido em colaboração com Inteligência Artificial (IA), especificamente utilizando o ChatGPT, um modelo de linguagem avançado criado pela [OpenAI](https://openai.com/).\
+O processo iniciou-se com o seguinte _prompt_:\
+$(@bind poem TextField((112, 4), "Utilizando Julia com Pluto.jl e Plots.jl, crie um gráfico interativo de uma onda sinusoidal, deslocando-se como a visualização num osciloscópio. A onda deve ser representada no tempo e no espaço, com o vetor de deslocamento angular (fasor) atualizado em tempo real, para um dado instante periódico, do movimento da onda ao longo do tempo. Adicionalmente, a frequência deve ser controlável via slider (PlutoUI.jl)."))
 """
 
-# ╔═╡ 026c8f3e-8ecd-459f-b496-511c38065cc6
-begin
-	∠(x) = cis(deg2rad(x)) 		# forma polar
-	j = Base.im 				# forma retangular
-end;
-
-# ╔═╡ fb03a3aa-f94b-4b73-a21b-f05bc548dd9d
-begin
-	Xₛ, U = 4, 200 		# data (Ω, V)
-	
-	U⃗ = (U)∠(0)
-
-	S⃗ = P + j*Q
-	
-	Icosφ = P/(3U)
-	Isenφ = -Q/(3U)
-	
-	I⃗ = (Icosφ)+j*Isenφ
-	
-	E⃗₀ = U⃗ + j*Xₛ*I⃗
-end;
-
-# ╔═╡ 41eac123-fa10-42c3-a801-8fb5f7bce7ae
-begin
-	E₀=abs(E⃗₀)
-	δ=angle(E⃗₀)
-
-	# axis: Q(δ), P(δ)
-	plot([0+j*0, 400+j*0], label=false, arrow=:head, linecolor=:black, linewidth=2)
-	annotate!(390, -10, text("\$Q(δ)\$", :black, :right, 10))
-	annotate!(390, -25, text("kVAr", :black, :right, 10))
-	
-	plot!([200-j*200, 200+j*200], label=false, arrow=:head, linecolor=:black, linewidth=2)
-	annotate!(195, 185, text(L"P(\delta)", :black, :right, 10))
-	annotate!(195, 170, text("kW", :black, :right, 10))
-
-	# Voltage vector diagram
-	K=4 	# to make the current visible on the voltage scale
-	plot!([0, U⃗], arrow=:closed, legend=:bottomright, label=L"U \angle \: 0°", linewidth=2, linecolor=:blue)
-	plot!([0, K*I⃗], arrow=:closed, label="$(L"I \angle \: \varphi \quad") (escala \$×\$ $(K))", linewidth=2, linecolor=:red)
-	plot!([U⃗, U⃗+j*Xₛ*I⃗], label=L"X_s I \angle \: (\varphi+90\degree)", arrow=:closed, linewidth=2, linecolor=:purple)
-	plot!([0, E⃗₀], label=L"E_0 \: \angle \: \delta", 
-		arrow=:closed, minorticks=5, linewidth=2, linecolor=:green, ylims=(-200,200), xlims=(0,400),size=(600,600))
-	annotate!(190, E₀*sin(δ), text("$(P/1000)", :black, :right, 8))
-	annotate!(E₀*cos(δ), -10, text("$(Q/1000)", :black, :right, 8))
-	annotate!(K*1.15*Icosφ, K*1.15*Isenφ, text("($(round(abs(I⃗), digits=1)) \$∠\$ $(round(rad2deg(angle(I⃗)), digits=1))°) A", :red, :center, 8))
-	annotate!(1.1*E₀*cos(δ), 1.1*E₀*sin(δ), text("($(round(E₀, digits=1)) \$∠\$ $(round(rad2deg(δ), digits=1))°) V", :green, :center, 8))
-	annotate!(1.1*E₀*cos(δ), 1.1*E₀*sin(δ), text("($(round(E₀, digits=1)) \$∠\$ $(round(rad2deg(δ), digits=1))°) V", :green, :center, 8))
-
-	rot=90+(rad2deg(angle(I⃗)))
-	annotate!(0.95*E₀*cos(δ), 0.95*E₀*sin(δ), text("($(round(abs(S⃗/1000), digits=1)) \$∠\$ $(round(rad2deg(angle(S⃗)), digits=1))°) kVA$(L"\quad\quad\quad")", :purple, :right, rotation = rot, 8))
-	
-	# locus of Q constant
-	φ_locus=-90:1:90
-	φ_locus=deg2rad.(φ_locus)
-	I=abs(I⃗)
-	φ=atan(-Q/(P+0.001))
-	Isinφ_Qlocus_=K*I*cos.(φ_locus).+j*K*I*sin(φ)
-	plot!(z2*Isinφ_Qlocus_, label="linha $(L"I \sin \varphi") constante",
-		linestyle=:dash, linecolor=:blue)
-	
-	δ_locus=0:1:90
-	δ_locus=deg2rad.(δ_locus)
-	E₀Q_locus_=E₀*cos(δ).+j.*E₀*sin.(δ_locus)
-	plot!(z2*E₀Q_locus_, label="linha de $(L"E_0 \cos \delta") constante", linestyle=:dashdot, linecolor=:blue)
-	
-	# locus of P constant
-	Isinφ_Plocus_=K*I*cos(φ).+j*K*I*sin.(φ_locus)
-	plot!(z1*Isinφ_Plocus_, label="linha de $(L"I \cos \varphi") constante", linestyle=:dash, linecolor=:red)
-	E₀P_locus_=E₀.*cos.(δ_locus).+j*E₀*sin(δ)
-	plot!(z1*E₀P_locus_, label="linha de $(L"E_0 \sin \delta") constante", linestyle=:dashdot, linecolor=:red)
-end
-
-# ╔═╡ d2ed65c3-24e3-42ee-ac6e-f743ef4b584d
-begin
-	#import GR
-	Pᵥ=[0, 5, 10, 15, 20]
-	Qᵥ=[-20, -15, -10, -5, 0, 5, 10, 15, 20]
-	#Iᵥcosφ, Iᵥsinφ
-	Iᵥcosφ=Pᵥ.*1e3./(3U)
-	Iᵥsinφ=transpose(Qᵥ.*1e3./(3U))
-	
-	#Inicialização de matrizes:
-	I⃗ᵥ=zeros(ComplexF64, 5, 9)
-	E⃗₀₁=zeros(ComplexF64, 5, 9)
-	Iᵥ=zeros(5,9)
-	φᵥ=zeros(5,9)
-	P₁=zeros(5,9)
-	c_cosφ=zeros(5,9)
-	E₀₁=zeros(5,9)
-	#δᵥ=zeros(5,9)
-	for l in 1:5
-		for c in 1:9
-			I⃗ᵥ[l,c]=Iᵥcosφ[l,1]+j*Iᵥsinφ[1,c]
-			Iᵥ[l,c]=abs(I⃗ᵥ[l,c])
-			φᵥ[l,c]=angle(I⃗ᵥ[l,c])
-			P₁[l,c]=3*U*Iᵥ[l,c]*cos(φᵥ[l,c])
-			#c_cosφ[l,c]=cos(φᵥ[l,c])
-			E⃗₀₁[l,c]=(U)∠(0)+j*Xₛ*I⃗ᵥ[l,c]
-			E₀₁[l,c]=abs(E⃗₀₁[l,c])
-			#δᵥ[l,c]=angle(E⃗₀₁[l,c])
-			#δᵥ[l,c]=rad2deg(δᵥ[l,c])
-		end
-	end
-	plot(E₀₁[1,:],Iᵥ[1,:],
-		legend=:bottomright, label=L"P=0 \mathrm{kW}", linewidth=2, 
-		xlabel = "E₀(V)", ylabel="I(A)",)	
-	plot!(E₀₁[2,:],Iᵥ[2,:], label=L"P=5 \mathrm{kW}", linewidth=2)
-	plot!(E₀₁[3,:],Iᵥ[3,:], label=L"P=10 \mathrm{kW}", linewidth=2)
-	plot!(E₀₁[4,:],Iᵥ[4,:], label=L"P=15 \mathrm{kW}", linewidth=2)
-	plot!(E₀₁[5,:],Iᵥ[5,:], label=L"P=20 \mathrm{kW}", linewidth=2)
-	plot!([E₀], [I], markershape=:circle,markersize=7, label="Ponto $(L"(E_0, I)")")
-	annotate!(241, 45, text(" \$I=\$ $(round(I, digits=1)) A", :black, :center, 9))
-	annotate!(240, 40, text(" \$E_0=\$ $(round(E₀, digits=1)) V", :black, :center, 9))
-	annotate!(80, 8, text(" \$S=\$ $(round(abs(S⃗/1000), digits=1)) kVA", :black, :left, 9))
-	annotate!(80, 3, text(" \$Q=\$ $(round((3*U*E₀*cos(δ)/Xₛ-3*U^2/Xₛ)/1000, digits=1)) kVAr", :black, :left, 9))
-end
-
-# ╔═╡ 3b6dba6c-f3f6-4e48-8bb0-a523872f894a
+# ╔═╡ f1185e20-95aa-4f4f-a08a-e641a133099d
 
 
-# ╔═╡ 8b6d78fb-1c10-430c-bcea-73c16b84498b
+# ╔═╡ 696045ec-f351-4b70-ba70-83b107fe5014
 md"""
 ## _Setup_
 """
 
-# ╔═╡ 63c7a971-9e7c-474c-b389-93ec7afcc010
+# ╔═╡ 2b072110-8590-4573-a37a-fe13c12c97e7
 md"""
-Documentação das bibliotecas `Julia` utilizadas:  [Plots](http://docs.juliaplots.org/latest/), [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html), [LaTeXStrings](https://github.com/JuliaStrings/LaTeXStrings.jl).
+Documentação das bibliotecas Julia utilizadas: [PlutoUI](https://juliahub.com/docs/PlutoUI/abXFp/0.7.6/), [PlutoTeachingTools](https://juliapluto.github.io/PlutoTeachingTools.jl/example.html), [Plots](http://docs.juliaplots.org/latest/), [Observables](https://juliagizmos.github.io/Observables.jl/stable/), .
 """
 
-# ╔═╡ 8d1f4326-137e-4125-b207-e3efbef3fdda
+# ╔═╡ 49d3eaec-0b12-40e9-a221-8211131bbd4b
 begin
 	version=VERSION
 	md"""
@@ -334,20 +307,20 @@ begin
 """
 end
 
-# ╔═╡ 6659497c-012d-4291-9b44-6d0ddcc24343
+# ╔═╡ 5b55673c-4789-4e1f-b858-4298d214438b
 TableOfContents(title="Índice")
 
-# ╔═╡ e0d03ecd-0b5e-49c0-9028-34fada324185
+# ╔═╡ 6965e9f3-7f28-445c-98ef-e42f8e972418
 md"""
 !!! info "Informação"
 	No índice deste *notebook*, os tópicos assinalados com "💻" requerem a participação do estudante.
 """
 
-# ╔═╡ 298d8208-5511-4f1d-94c6-c513e33b9548
+# ╔═╡ b6120816-62b5-431f-84d0-6d12c8fbfc52
 md"""
 |  |  |
 |:--:|:--|
-|  | This notebook, [Vcurves.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Vcurves/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
+|  | This notebook, [Synchro.jl](https://ricardo-luis.github.io/isel-me2/Fall23/data_science/Synchro/), is part of the collection "[_Notebooks_ Reativos de Apoio a Máquinas Elétricas II](https://ricardo-luis.github.io/isel-me2/)" by Ricardo Luís. |
 | **Terms of Use** | This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License ([CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)) for text content and under the [MIT License](https://www.tldrlegal.com/license/mit-license) for Julia code snippets.|
 |  | $©$ 2022-2024 [Ricardo Luís](https://ricardo-luis.github.io/) |
 """
@@ -355,13 +328,13 @@ md"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-LaTeXStrings = "~1.3.1"
+Observables = "~0.5.5"
 Plots = "~1.40.8"
 PlutoTeachingTools = "~0.2.15"
 PlutoUI = "~0.7.59"
@@ -373,7 +346,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.5"
 manifest_format = "2.0"
-project_hash = "65e01b5e7e1f856a737998c71541b57fd7cfc7e4"
+project_hash = "73b080e74095bec834313d69990256de310455c1"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -898,6 +871,11 @@ version = "1.0.2"
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
+
+[[deps.Observables]]
+git-tree-sha1 = "7438a59546cf62428fc9d1bc94729146d37a7225"
+uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
+version = "0.5.5"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1541,36 +1519,41 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─80618c9c-c484-4324-baec-37eb818b276d
-# ╟─320f3507-5654-4b18-96c2-e9bebb6ec067
-# ╟─3c0604d4-8cfc-4a37-8881-fdc58e0b249a
-# ╟─4c9ce872-1164-4c7f-9a26-3af89b345c41
-# ╟─dbbef57b-fc7c-4466-8d05-23e100ab0790
-# ╟─9b3e08e0-7207-4099-96e4-c6e1e9892a1f
-# ╟─159419d5-0555-43a0-8320-9cb51e0b05ba
-# ╠═fb03a3aa-f94b-4b73-a21b-f05bc548dd9d
-# ╟─fe93842c-8bee-42cc-95bf-b87db67a4de2
-# ╟─df708c4d-443b-4190-b72d-779c4e1e1bb1
-# ╟─41eac123-fa10-42c3-a801-8fb5f7bce7ae
-# ╟─66de4e49-ede7-44d1-b7b4-49ecb3ec2e53
-# ╟─3d8c7f7e-e765-41d9-8191-aef5e52984fc
-# ╟─db0fc7c2-9e8c-415f-95c1-686dbfc56347
-# ╟─d2ed65c3-24e3-42ee-ac6e-f743ef4b584d
-# ╟─6a1ee842-a2f1-4810-83d7-5ce931c47891
-# ╟─19822397-18c5-4a88-bac1-f3adbfd2b235
-# ╟─594360d4-9bb8-4756-8f40-a5f0f9555aba
-# ╟─1b4d9fbd-be46-416a-a1fe-163f5a0b37a3
-# ╟─e0418deb-b380-4c8b-b3bb-5075689f09a1
-# ╟─ddd9727a-3be9-4c53-919a-38a0ba0fa7b8
-# ╟─750b6ab7-0b11-4b91-be34-ab7426625204
-# ╠═026c8f3e-8ecd-459f-b496-511c38065cc6
-# ╟─3b6dba6c-f3f6-4e48-8bb0-a523872f894a
-# ╟─8b6d78fb-1c10-430c-bcea-73c16b84498b
-# ╟─63c7a971-9e7c-474c-b389-93ec7afcc010
-# ╠═1da453ff-3ed3-4377-83b5-1d047414ee49
-# ╟─8d1f4326-137e-4125-b207-e3efbef3fdda
-# ╠═6659497c-012d-4291-9b44-6d0ddcc24343
-# ╟─e0d03ecd-0b5e-49c0-9028-34fada324185
-# ╟─298d8208-5511-4f1d-94c6-c513e33b9548
+# ╟─b7d8fc6e-a226-4337-8622-9c717a1fa214
+# ╟─b8d0fdc3-417d-4970-b861-fad6706198a5
+# ╟─8488ef93-2996-41a7-a52e-097cfb069567
+# ╟─b5b19f34-5819-4d0d-8ff7-933ae22d1ede
+# ╟─eb025b44-4dd3-4c85-8341-8fcdd8ca81ef
+# ╟─bb9cccb1-0428-462d-a4d5-af100b42a3cf
+# ╟─0ab243fe-a80f-4080-9b28-0d247bdd0d8a
+# ╟─1a3ab68f-fa0c-408e-9ee9-cd534b7785e1
+# ╟─98783ee6-1d7c-4361-9080-6ae84f4df149
+# ╠═928b23a5-55a7-4482-994c-b4482a65ed5f
+# ╠═ebd0d744-3ee8-4a1c-a337-e32ef5b6350f
+# ╟─02f5a7d0-4a1b-42e1-b687-67c0f0c59c79
+# ╟─aa567fce-56d7-4603-b0fb-bbbc8828a920
+# ╟─797de772-90b2-4968-93e5-1a79cbf8cdda
+# ╠═3140f83d-8d30-4dea-8449-6562d61bdcf8
+# ╠═378158a6-a77e-4bed-8e08-9a87dcc3bace
+# ╠═b8cdc6d9-d368-4f64-aab1-4764231e389a
+# ╠═48371af2-c2e0-42ec-ab63-3a2bb405dc08
+# ╠═45884c68-dd8b-4325-9d7a-07e9b2bf972c
+# ╠═eede33e8-ee35-47b3-920c-708f748bb726
+# ╠═2bf634cf-9b4b-4e9c-91c5-6490ff56b7ec
+# ╠═719662e6-24e5-4732-84f9-013b557f397a
+# ╠═47215f0b-b6fb-4391-81db-806c3bf0d730
+# ╠═8b9bdb0b-ce47-48b6-a27f-3499e920e420
+# ╠═c636562e-c20a-491c-a666-06c80cc6356a
+# ╟─44fadf74-969f-47d7-b653-351bb0ac4db1
+# ╟─eed84f60-3cb8-4541-8c39-5592bcd12b41
+# ╟─466b7448-efe6-4d09-a67a-18724051d0a2
+# ╟─f1185e20-95aa-4f4f-a08a-e641a133099d
+# ╟─696045ec-f351-4b70-ba70-83b107fe5014
+# ╟─2b072110-8590-4573-a37a-fe13c12c97e7
+# ╠═27615c10-a029-11ef-0909-737cb1f58c1e
+# ╟─49d3eaec-0b12-40e9-a221-8211131bbd4b
+# ╠═5b55673c-4789-4e1f-b858-4298d214438b
+# ╟─6965e9f3-7f28-445c-98ef-e42f8e972418
+# ╟─b6120816-62b5-431f-84d0-6d12c8fbfc52
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
