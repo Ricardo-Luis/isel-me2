@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 2
-#> section = "4"
-#> order = "4"
+#> section = 4
+#> order = 4
 #> title = "✏️ Curvas de Mordey"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module3"]
