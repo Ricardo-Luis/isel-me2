@@ -2,9 +2,9 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = "2"
-#> section = "3"
-#> order = "3"
+#> chapter = 2
+#> section = 3
+#> order = 3
 #> title = "📚 Sincronização de um alternador"
 #> date = "2024-11-18"
 #> tags = ["lecture", "module3"]
