@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 2
-#> section = 6
-#> order = 6
+#> section = 7
+#> order = 7
 #> title = "📝 Teste 27.jan.2023"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module3"]
@@ -346,7 +346,7 @@ begin
 	# f(P) alternator prime-mover curves
 	plot(Pₗ₁, fₗ₁, framestyle=:zerolines, linewidth=2, linecolor=:red, 
 		label="f₁ = f(P₁)", xlim=[-1,1], ylim=[0,60],
-		xticks=(-1:0.2:1, [1 0.8 0.6 0.4 0.2 0 0.2 0.4 0.6 0.8 10]))
+		xticks=(-1:0.2:1, [1 0.8 0.6 0.4 0.2 0 0.2 0.4 0.6 0.8 1.0]))
 	plot!(Pₗ₂, fₗ₂, linewidth=2, linecolor=:blue, label="f₂ = f(P₂)", 
 		ylabel="f (Hz)", xlabel="P (MW)")
 
