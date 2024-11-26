@@ -2,9 +2,9 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = "2"
-#> section = "5"
-#> order = "5"
+#> chapter = 2
+#> section = 5
+#> order = 5
 #> title = "Paralelo de alternadores"
 #> date = "2024-11-26"
 #> tags = ["lecture", "module3"]
