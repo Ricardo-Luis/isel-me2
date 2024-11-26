@@ -3,8 +3,8 @@
 
 #> [frontmatter]
 #> chapter = 2
-#> section = 5
-#> order = 5
+#> section = 6
+#> order = 6
 #> title = "✏️ Motor polos salientes"
 #> layout = "layout.jlhtml"
 #> tags = ["lecture", "module3"]
