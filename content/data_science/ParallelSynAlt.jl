@@ -83,7 +83,7 @@ E ainda com fator de potência unitário $(Q=0)$, como compensador síncrono $(P
 
 # ╔═╡ e9a658d3-0f3a-4a0a-9da2-0d6074ca2af4
 md"""
-Assim, o funcionamento da máquina síncrona ligada à rede pode ser analisado por por funções de $f=\rm{f}$$(P)$ e $U=\rm{f}$$(Q)$, em que a rede elétrica apresenta uma característica **astática**, ou **isócrona**, significando que assegura uma frequência e tensão praticamente invariantes. Tal deve-se à presença de múltiplos alternadores na rede elétrica e ao equilíbrio entre a produção e o consumo de energia.
+Assim, o funcionamento da máquina síncrona ligada à rede pode ser analisado por funções de $f=\rm{f}$$(P)$ e $U=\rm{f}$$(Q)$, em que a rede elétrica apresenta uma característica **astática**, ou **isócrona**, significando que assegura uma frequência e tensão praticamente invariantes. Tal deve-se à presença de múltiplos alternadores na rede elétrica e ao equilíbrio entre a produção e o consumo de energia.
 """
 
 # ╔═╡ 552e5d38-2099-44fc-9b2d-5a6cb2e9e623
@@ -126,7 +126,7 @@ md"""
 md"""
 A regulação de frequência -- potência ativa de uma rede elétrica isolada formada por mais de que um alternador requer a operação simultânea dos reguladores de velocidade das turbinas que acionam os respetivos alternadores. Deste modo, são associadas curvas características que relacionam a frequência e a potência ativa, $f=\rm{f}$$(P)$ de cada grupo turbina-alternador.
 
-Os sistemas de regulação de velocidade, e por consequentemente da frequência de funcionamento da rede, apresentam características lineares, $f=\rm{f}$$(P)$, onde a inclinação destas retas características é designada por **estatismo**, apresentada usualmente nas unidades de $\rm {Hz/W}$. 
+Os sistemas de regulação de velocidade, e consequentemente da frequência de funcionamento da rede, apresentam características lineares, $f=\rm{f}$$(P)$, onde a inclinação destas retas características é designada por **estatismo**, apresentada usualmente nas unidades de $\rm {Hz/W}$. 
 
 Por simplicidade e para uma melhor generalização, nos exemplos seguintes, as potências ativas e o estatismo vem apresentados em valores por unidade $\rm{(pu)}$ e em percentagem, $(\%)$, respetivamente. É ainda possível representar qualquer dos alternadores 1 e 2 numa situação prévia de funcionamento com carga inicial, alterando o valor da frequência inicial de $f=\rm{f}$$(P)$ desse alternador, através da variável, $f_0$.
 """
