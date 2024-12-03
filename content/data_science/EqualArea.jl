@@ -92,7 +92,7 @@ end
 
 # ╔═╡ 81b6e423-06df-4060-880a-def29c5b31a7
 md"""
-O valor da corrente de curto-circuito, por fase, em regime permanente é dada por: 
+O valor da corrente de curto-circuito, por fase, em regime permanente é dado por: 
 
 $I_{cc}\simeq\frac{E_0}{X_s}$
 
