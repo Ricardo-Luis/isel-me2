@@ -52,66 +52,88 @@ $\textbf{Análise de grandes perturbações: critério da igualdade das áreas}$
 ---
 """
 
-# ╔═╡ 62f87bb9-0d7d-4417-9a38-88d5525c8812
+# ╔═╡ b0e3a3c9-ce9e-4b72-a722-a14aac19abda
+md"""
+**Considere dois alternadores síncronos trifásicos de $$5\rm{MVA}$$, $$6\rm{kV}$$, $$50\rm{Hz}$$, ligação em $$\rm Y$$, $$\ 2p=4$$, ligados em paralelo a uma rede de capacidade infinita $(6 \rm {kV -}$ $50 \rm Hz)$, fornecendo $1\rm{MW}$ cada, com $$\cos \varphi= 1$$.**\
+**Sabe-se ainda que:**
+
+|  | Alternador 1 | Alternador 2|
+|--:|:--:|:--:|
+| Máquina síncrona: | polos lisos | polos salientes|
+| Reatâncias/fase: | $X_s=12.75\Omega$ | $X_d=12.75\Omega$;  $X_q=\dfrac{X_d}{2}$ |
+| Resistência do estator: | $R \simeq\ 0 \Omega$ | $R \simeq\ 0 \Omega$ |
+| FEM/fase: | $E_0=3.675 \rm{kV}$ | $E_0=3.675 \rm{kV}$ | 
+
+\
+**Utilizando o critério de igualdade das áreas, determinar a máxima perturbação admissível de cada um dos alternadores, mantendo o funcionamento da máquina síncrona estável.**
+
+**Analise as diferenças entre os alternadores.**
+"""
+
+# ╔═╡ d0d780cd-3834-4809-89e0-00badf51d6bb
 md"""
 # Dados:
 """
 
-# ╔═╡ b0e3a3c9-ce9e-4b72-a722-a14aac19abda
-md"""
-**Considere um alternador síncrono trifásico de $$1\rm{MVA}$$, $$6\rm{kV}$$, $$50\rm{Hz}$$, ligação em $$\rm Y$$, $$\ 2p=4$$, ligado em paralelo a uma rede de capacidade infinita a plena carga, com $$\cos \varphi= 1$$.**\
-**Sabe-se ainda que: $$I_{cc}=3I_n$$ (curto-circuito 3~ do alternador em vazio com $E_{0c}=U_n$), que $$\dfrac{UE_0}{X_s}=\rm{constante}$$ e $$R=0\Omega$$.**\
-**Determinar a máxima perturbação admissível mantendo o funcionamento da máquina síncrona estável.**
-"""
-
-# ╔═╡ d0d780cd-3834-4809-89e0-00badf51d6bb
-
-
 # ╔═╡ de12bd49-a980-4483-9039-36f1074e2bb3
-(Sₙ, Uₙ,fₙ, p, cosφₙ)=(1e6, 6e3, 50, 2, 1)
+Sₙ, Uₙ,fₙ, p, Pᵤ, cosφ = 1e6, 6e3, 50, 2, 1e6, 1
 
-# ╔═╡ 6593403e-abe6-42fa-98b8-d5b61086f814
+# ╔═╡ 46e4954b-243a-46c8-86d6-f79028a22fa2
+Xₛ, R, E₀, Xd, Xq = 12.75, 0, 3.675e3, 12.75, 12.75/2
 
+# ╔═╡ 0bbc6fd0-ce52-44f0-a9e7-656334d1a180
+U = Uₙ/√3 					# per phase voltage (star connection), [V]
 
-# ╔═╡ d477daa2-ba94-4d93-a18b-4cb1be539064
+# ╔═╡ 2db11d7e-2501-41b6-a3cd-e14af5021000
 md"""
-Cálculos auxiliares:
+# $δ$ inicial dos alternadores $(1\rm MW)$
 """
 
-# ╔═╡ e66936da-00d5-4c92-8e5e-651357c00c98
+# ╔═╡ a5a94dc9-76e4-422d-b80f-7128a24fd7fe
+md"""
+O ângulo de carga, $\delta$, de cada alternador pode ser obtido diretamente das respetivas expressões das potências desenvolvidas, $P_d(\delta)$:
+"""
+
+# ╔═╡ f9c26907-2d3a-4dd4-b44e-8e6605f2a697
+md"""
+$P_{d1}(\delta)=\frac{3UE_0}{X_s}\sin \delta_{01} \quad\quad;\quad\quad P_{d2}(\delta)=\dfrac{3UE_0}{X_d}\sin \delta_{02}+ \dfrac{3U^2(X_d - Xq)}{2 X_d X_q}\sin (2\delta_{02})$
+"""
+
+# ╔═╡ 6c990dc7-c7f6-4338-af92-de271e9e32eb
 begin
-	Iₙ= Sₙ/(√3*Uₙ)				# rated current, [A]
-	Icc=3*Iₙ 					# short-circuit current (problem data), [A]
-	U=Uₙ/√3 					# per phase voltage (star connection), [V]
-	Pₙ=Sₙ*cosφₙ 				# rated active power, [W]
-	δ₀=asin(Pₙ/(3*U*Icc))		# initial power angle (for the given Pₙ), [rad]
-	δ₀=rad2deg(δ₀)
-	δ₀=round(δ₀, digits=2)
-	Iₙ, Icc, U, Pₙ, δ₀ 			# results
+	# Alternator 1:
+	δ₀₁ = asin(Pᵤ*Xₛ/(3*U*E₀))			# initial power angle (for the given Pᵤ), [rad]
+	δ₀₁ = rad2deg(δ₀₁)
+	δ₀₁ = round(δ₀₁, digits=2)
 end
 
-# ╔═╡ 81b6e423-06df-4060-880a-def29c5b31a7
+# ╔═╡ 2db7a025-69cd-48e6-b536-8f3cd14ab8c7
+begin
+	# Alternator 2:
+	f₂(δ₀₂) = (3*U*E₀/Xd)*sin(δ₀₂) + (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin(2*δ₀₂) - Pᵤ
+	δ₀₂ = find_zero(f₂, 0)				# initial power angle (for the given Pᵤ), [rad]
+	δ₀₂ = round(δ₀₂*180/π, digits=2)
+end
+
+# ╔═╡ b70aaeb0-f279-45bb-a2af-d18fa900ff61
 md"""
-O valor da corrente de curto-circuito, por fase, em regime permanente é dado por: 
+Dado que $R=0\Omega$, tém-se $$P_d=P_u=$$ $(Pᵤ/1e6) MW.
 
-$I_{cc}\simeq\frac{E_0}{X_s}$
-
-Assim, a potência desenvolvida, $P_d(\delta)$ pode ser reescrita:
-
-$P_d(\delta)=\frac{3UE_0}{X_s}\sin \delta = 3UI_{cc}\sin \delta$
-
-Dado que $R=0\Omega$, tém-se $$P_d=P_u=$$ $(Pₙ/1e6) MW.
-
-Substituindo em $P_d(\delta)$, obtém-se $\delta=$ $(δ₀)°.
-
+Substituindo em $P_{d1,2}(\delta)$, obtêm-se os ângulos de carga iniciais:
+$$\delta_{01}=$$ $(δ₀₁)°; $$\quad\delta_{02}=$$ $(δ₀₂)° dos alternadores síncronos 1 e 2, respetivamente.
 """
 
-# ╔═╡ 1045bc06-e94b-4537-9946-f0f005b667f6
+# ╔═╡ 1afd0a56-f9be-48f4-970d-7fca7ece36c4
 
+
+# ╔═╡ 1045bc06-e94b-4537-9946-f0f005b667f6
+md"""
+# Alternador 1: polos lisos
+"""
 
 # ╔═╡ 8f9a070a-d870-4402-9a79-83858520018e
 md"""
-# 💻 Método das áreas
+## 💻 Critério de igualdade das áreas
 """
 
 # ╔═╡ de0aadad-0967-4309-b0e5-b3e2204e17db
@@ -119,43 +141,48 @@ md"""
 O **critério da igualdade das áreas** permite verificar o limite de estabilidade dinâmica no funcionamento da máquina síncrona. No presente problema, pretende-se verificar qual a carga máxima admissível da máquina síncrona, em regime transitório.
 """
 
+# ╔═╡ e85dd884-b04e-4ce6-a706-6c25387cd844
+begin
+	δ = 0:0.1:180 					# δ values for plotting, [°]
+	P₁ᵐᵃˣ = 3*U*E₀/Xₛ 				# potência máxima para δ=90°
+end;
+
 # ╔═╡ 4ed89457-39b8-4a65-8ac3-8f7866f3c3aa
 md"""
-Ajuste a potência abaixo, $$P_{lim}$$, de modo a obter a igualdade das áreas:
+Ajuste a potência abaixo, $$P_1^{lim}$$, de modo a obter a igualdade das áreas:
 """
 
 # ╔═╡ ab964942-c7aa-4591-a1d0-2399dcf8cf74
 md"""
- $$P_{lim}\:\:\rm (MW):$$ $(@bind Pₗᵢₘ PlutoUI.Slider(1:0.01:3, default=2, show_value=true))
+ $$P_1^{lim}\:\:\rm (MW):$$ $(@bind P₁ˡⁱᵐ PlutoUI.Slider(1:0.01:P₁ᵐᵃˣ/1e6, default=2, show_value=true))
 """
 
 # ╔═╡ ffff3c2c-e08b-4292-9c0b-78d792d8f761
 begin
-	δ=0:0.1:180 			# valores de δ para realização dos gráficos, [°]
-	Pₘₐₓ=3*U*Icc 			# potência máxima para δ=90°
-	δₗᵢₘ=asin(Pₗᵢₘ*1e6/Pₘₐₓ)# δ para a potência escolhida, [rad]
-	δₗᵢₘ=rad2deg(δₗᵢₘ)		# δ para a potência escolhida, [°]
-	δₗᵢₘ=round(δₗᵢₘ, digits=2)	
-	P(δ)=Pₘₐₓ*sin(δ*π/180)	# função potência desenvolvida, [W]
+
+	δ₁ˡⁱᵐ = asin(P₁ˡⁱᵐ *1e6/P₁ᵐᵃˣ)	# δ for the chosen power, [rad]
+	δ₁ˡⁱᵐ = rad2deg(δ₁ˡⁱᵐ)			# δ for the chosen power, [°]
+	δ₁ˡⁱᵐ = round(δ₁ˡⁱᵐ, digits=2)	
+	P₁(δ) = P₁ᵐᵃˣ*sin(δ*π/180)		# developed power function, [W]
 
 	# Gráfico:
-	plot(δ -> P(δ), 0, δ₀, 
-		linewidth=3, linecolor=:blue, label="P(δ)", 
-		ylabel="P (W)", xlabel="δ (°)", xlims=(0,210), ylims=(0,1.2*Pₘₐₓ),
-		title="Aplicação do critério da igualdade das áreas",)
-	plot!([Pₙ], seriestype=:hline, 
+	plot(δ -> P₁(δ), 0, δ₀₁, 
+		linewidth=3, linecolor=:blue, label="P₁(δ)", 
+		ylabel="P (W)", xlabel="δ (°)", xlims=(0,210), ylims=(0,1.2*P₁ᵐᵃˣ),
+		title="Alternador síncrono de polos lisos", size=[750, 450])
+	plot!([Pᵤ], seriestype=:hline, 
 		linewidth=2, linecolor=:green, label="Pₙ")
-	plot!([δ₀], seriestype=:vline, label="δ₀=$δ₀ °",
+	plot!([δ₀₁], seriestype=:vline, label="δ₀₁=$δ₀₁ °",
 		linewidth=1, linecolor=:green, linestyle=:dash)
-	plot!(δ -> P(δ), δ₀, δₗᵢₘ, fillrange = Pₗᵢₘ*1e6,
+	plot!(δ -> P₁(δ), δ₀₁, δ₁ˡⁱᵐ, fillrange = P₁ˡⁱᵐ*1e6,
 		linewidth=3, linecolor=:blue, label=false, fillcolor=:green)
-	plot!([Pₗᵢₘ*1e6], seriestype=:hline,
-		linewidth=2, linecolor=:red, label="Pₗᵢₘ=$Pₗᵢₘ MW")
-	plot!(δ -> P(δ), δₗᵢₘ, 180-δₗᵢₘ, fillrange = Pₗᵢₘ*1e6,
+	plot!([P₁ˡⁱᵐ*1e6], seriestype=:hline,
+		linewidth=2, linecolor=:red, label="P₁ˡⁱᵐ=$P₁ˡⁱᵐ MW")
+	plot!(δ -> P₁(δ), δ₁ˡⁱᵐ, 180-δ₁ˡⁱᵐ, fillrange = P₁ˡⁱᵐ*1e6,
 		linewidth=3, linecolor=:blue, label=false, fillcolor=:grey)
-	plot!(δ -> P(δ), 180-δₗᵢₘ, 180,
+	plot!(δ -> P₁(δ), 180-δ₁ˡⁱᵐ, 180,
 		linewidth=3, linecolor=:blue, label=false)
-	plot!([δₗᵢₘ], seriestype=:vline, label="δₗᵢₘ=$δₗᵢₘ °",
+	plot!([δ₁ˡⁱᵐ], seriestype=:vline, label="δ₁ˡⁱᵐ=$δ₁ˡⁱᵐ °",
 		linewidth=1, linecolor=:red, linestyle=:dash)
 end
 
@@ -166,45 +193,49 @@ Os resultados das áreas $$A_1$$ e $$A_2$$ acima apresentados, são obtidos com 
 
 # ╔═╡ 3be5577e-7075-4d50-9566-945f65a49836
 begin
-	δ₁=collect(δ₀*π/180:π/1000:δₗᵢₘ*π/180)	#interval of δ for calculating the area A₁
+	#interval of δ for calculating the area A₁
+	δ₁ᴬ¹ = collect(δ₀₁*π/180:π/1000:δ₁ˡⁱᵐ*π/180)	
 	
 	# calculation of the developed powers in the interval δ of area A₁
-	P₁=Pₘₐₓ*sin.(δ₁) 
+	P₁ᴬ¹ = P₁ᵐᵃˣ*sin.(δ₁ᴬ¹) 
 
-	# calculation of the area of P(δ) in the range: δ₀ to δₗᵢₘ, [NumericalIntegration.jl]
-	A₁₁=integrate(δ₁,P₁)
+	# calculation of the area of P(δ) in the range: δ₀ to δ₁ˡⁱᵐ, [NumericalIntegration.jl]
+	A₁₁ᴳ¹ = integrate(δ₁ᴬ¹, P₁ᴬ¹)
 
-	# calculation of the area of Pₗᵢₘ in the range: δ₀ to δₗᵢₘ
-	A₁₂=Pₗᵢₘ*1e6*(δₗᵢₘ*π/180-δ₀*π/180)
+	# calculation of the area of P₁ˡⁱᵐ in the range: δ₀ to δ₁ˡⁱᵐ
+	A₁₂ᴳ¹ = P₁ˡⁱᵐ*1e6*(δ₁ˡⁱᵐ*π/180 - δ₀₁*π/180)
 	
-	A₁=(A₁₂-A₁₁)/1000 						# Area A₁ (green area ), [kWrad]
-	A₁=round(A₁, sigdigits=4)
+	# Area A₁ (green area ), [kWrad]
+	A₁ᴳ¹ = (A₁₂ᴳ¹-A₁₁ᴳ¹)/1000 						
+	A₁ᴳ¹ = round(A₁ᴳ¹, sigdigits=4)
 end;
 
 # ╔═╡ 96a40106-4515-451a-b854-f9dff2a6962f
 begin
-	δ₂=collect(δₗᵢₘ*π/180:π/1000:(π-δₗᵢₘ*π/180)) # interval of δ for calculating the area A₂
+	# interval of δ for calculating the area A₂
+	δ₁ᴬ² = collect(δ₁ˡⁱᵐ*π/180:π/1000:(π-δ₁ˡⁱᵐ*π/180))
 	
 	# Calculation of the developed powers in the interval δ of area A₂
-	P₂=Pₘₐₓ*sin.(δ₂)	
+	P₁ᴬ² = P₁ᵐᵃˣ*sin.(δ₁ᴬ²)	
 
-	# calculation of the area of P(δ) in the range:  δₗᵢₘ to π-δₗᵢₘ, [NumericalIntegration.jl]
-	A₂₁=integrate(δ₂,P₂)
+	# calculation of the area of P(δ) in the range:  δ₁ˡⁱᵐ to π-δ₁ˡⁱᵐ, [NumericalIntegration.jl]
+	A₂₁ᴳ¹ = integrate(δ₁ᴬ², P₁ᴬ²)
 
-	# calculation of the area of Pₗᵢₘ in the range: δₗᵢₘ a π-δₗᵢₘ
-	A₂₂=Pₗᵢₘ*1e6*(π-δₗᵢₘ*π/180-δₗᵢₘ*π/180)
-	
-	A₂=(A₂₁-A₂₂)/1000 						# Area A₂ (grey area), [kWrad]
-	A₂=round(A₂, sigdigits=4)
+	# calculation of the area of Pₗᵢₘ in the range: δ₁ˡⁱᵐ a π-δ₁ˡⁱᵐ
+	A₂₂ᴳ¹ = P₁ˡⁱᵐ*1e6*(π - δ₁ˡⁱᵐ*π/180 - δ₁ˡⁱᵐ*π/180)
+
+	# Area A₂ (grey area), [kWrad]
+	A₂ᴳ¹ = (A₂₁ᴳ¹-A₂₂ᴳ¹)/1000 						
+	A₂ᴳ¹ = round(A₂ᴳ¹, sigdigits=4)
 end;
 
 # ╔═╡ 7829dd76-6213-4700-bcc2-671189c819d9
 md"""
-### Cálculo numérico das áreas
+## Cálculo numérico das áreas (alternador síncrono de polos lisos)
 
-**área verde:** $$\quad A_1=$$ $A₁ $$\rm{kWrad}$$ 
+**área verde:** $$\quad A_1=$$ $A₁ᴳ¹ $$\rm{kWrad}$$ 
 
-**área cinza:** $$\quad A_2=$$ $A₂ $$\rm{kWrad}$$
+**área cinza:** $$\quad A_2=$$ $A₂ᴳ¹ $$\rm{kWrad}$$
 """
 
 # ╔═╡ 05108e15-1238-4f48-a945-dd3fd11a3329
@@ -212,7 +243,7 @@ md"""
 
 # ╔═╡ 6ef341e8-308e-4e91-ab97-b107e4d5b01e
 md"""
-# Resolução analítica
+## Resolução analítica
 """
 
 # ╔═╡ 2cf60d8b-6e25-419a-94e0-4aba427260f4
@@ -251,38 +282,173 @@ A resolução da equação que satisfaz o critério de igualdade das áreas cons
 
 # ╔═╡ 901b299e-d5de-49f1-839d-2ffa6265107a
 begin
-	δᵢ=deg2rad(δ₀);
+	δᵢ = deg2rad(δ₀₁);
 	# function to be determined by root: f(δ), [package: Roots.jl]
 	f(δ) = (sin(δ))*(π-δ-δᵢ)-cos(δᵢ)+cos(π-δ)
 end;
 
 # ╔═╡ 0303bb5f-69a3-4964-96fe-df95e45655d1
- begin
+begin
 	 # determination of δ for equality of areas [package: Roots.jl]
-	 δₛₒₗ=find_zero(f, (δᵢ, π))	# find f(δ)=0 in the range from δᵢ to π, [Roots.jl]
-	 δₛₒₗ=rad2deg(δₛₒₗ)
-	 δₛₒₗ=round(δₛₒₗ, digits=2)
- end;
+	 δₛₒₗ = find_zero(f, (δᵢ, π))	# find f(δ)=0 in the range from δᵢ to π, [Roots.jl]
+	 δₛₒₗ = rad2deg(δₛₒₗ)
+	 δₛₒₗ = round(δₛₒₗ, digits=2)
+end;
 
 # ╔═╡ 0cba8247-fcc5-4c6e-aa64-36a9ae056b26
 md"""
 A determinação da raíz para $$f(\delta)$$ corresonde à solução do critério da igualdade das áreas, $$A_1$$ e $$A_2$$.
 
-Assim, com recurso a método numérico computacional, o ângulo de carga correspondente a $$f(\delta)=0$$, vem dado por: $$\delta_{lim}=$$ $δₛₒₗ $$°$$.
+Assim, com recurso a método numérico computacional, o ângulo de carga correspondente a $$f(\delta)=0$$, vem dado por: $$\delta_1^{lim}=$$ $δₛₒₗ $$°$$.
 """
-
-# ╔═╡ c6abc55f-e79e-44cc-88a0-2530270764e4
-
 
 # ╔═╡ 46004f22-cd53-46d9-8176-b38419b2ef3d
 begin
-	Pₛₒₗ=P(δₛₒₗ)/1e6
-	Pₛₒₗ=round(Pₛₒₗ, digits=2)
+	Pₛₒₗ = P₁(δₛₒₗ)/1e6
+	Pₛₒₗ = round(Pₛₒₗ, digits=2)
 end;
 
 # ╔═╡ 420bc556-5d93-4995-abae-2e8e8b69e44e
 md"""
-Substituindo $$\delta_{lim}$$ na expressão da potência desenvolvida, $$P(\delta)$$, obtém a potência admissível pela máquina síncrona em regime de grandes perturbações, $$P_{lim}=$$ $Pₛₒₗ $$\rm{MW}$$, quando esta se encontra a funcionar em regime nominal.
+Substituindo $$\delta_1^{lim}$$ na expressão da potência desenvolvida, $$P_1(\delta)$$, obtém a potência admissível pela máquina síncrona em regime de grandes perturbações, $$P_1^{lim}=$$ $Pₛₒₗ $$\rm{MW}$$, quando esta se encontra a funcionar em regime nominal.
+"""
+
+# ╔═╡ 77572793-7820-47d8-822e-f2bb573672ea
+
+
+# ╔═╡ 00199cb1-986d-4c49-bf50-4eb4d4678870
+md"""
+# Alternador 2: polos salientes
+"""
+
+# ╔═╡ 5ba05512-39b6-48a3-a164-375efe57625f
+md"""
+## 💻 Critério de igualdade das áreas
+"""
+
+# ╔═╡ 611dc20c-7be6-4cb3-b1c3-6e972af5bf69
+md"""
+O **critério da igualdade das áreas** é aplicável à máquina síncrona de polos salientes para verificar o limite de estabilidade dinâmica no seu funcionamento. No entanto, a solução análítica é de difícil obtenção, pelo que a integração numérica das áreas, obtida computacionalmente, permite verificar qual a carga máxima admissível da máquina síncrona, em regime transitório.
+"""
+
+# ╔═╡ 6eeee6e0-185d-4fb4-ae7f-9ebe5dd3ba25
+md"""
+Cálculo da potência máxima desenvolvida pela máquina síncrona de polos salientes:
+"""
+
+# ╔═╡ 24156688-e096-403c-9f3e-5984f250255d
+begin
+	# δ for maximum developed power, [rad]
+	f₂ᵐᵃˣ(δ₂ᵐᵃˣ) = (3*U*E₀/Xd)*cos(δ₂ᵐᵃˣ) + (3*U^2*(Xd-Xq)/(Xd*Xq))*cos(2*δ₂ᵐᵃˣ) 
+	δ₂ᵐᵃˣ = find_zero(f₂ᵐᵃˣ, (π/4, π/2))				
+	
+	# maximum developed power, [W]
+	P₂ᵐᵃˣ = (3*U*E₀/Xd)*sin(δ₂ᵐᵃˣ) + (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin(2*δ₂ᵐᵃˣ) 				# potência 
+
+	# results
+	δ₂ᵐᵃˣ = round(δ₂ᵐᵃˣ*180/π, digits=2)
+	δ₂ᵐᵃˣ, P₂ᵐᵃˣ
+end
+
+# ╔═╡ 0e83d341-e86f-4578-8150-f4066e9da587
+md"""
+Ajuste a potência abaixo, $$P_2^{lim}$$, de modo a obter a igualdade das áreas:
+"""
+
+# ╔═╡ 0d7dc845-6645-4f28-8cbf-ae6c08bb2f4b
+md"""
+ $$P_2^{lim}\:\:\rm (MW):$$ $(@bind P₂ˡⁱᵐ PlutoUI.Slider(1:0.01:P₂ᵐᵃˣ/1e6, default=2, show_value=true))
+"""
+
+# ╔═╡ 9f6ecd73-c6d3-4681-95d2-73c7515e0cd9
+begin
+	# solve δ₂ˡⁱᵐ, δ₂ʼˡⁱᵐ for potential power limit, P₂ˡⁱᵐ:
+	f₂ˡⁱᵐ(δ₂ˡⁱᵐ) = (3*U*E₀/Xd)*sin(δ₂ˡⁱᵐ) + (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin(2*δ₂ˡⁱᵐ) - P₂ˡⁱᵐ*1e6
+	δ₂ˡⁱᵐ=find_zero(f₂ˡⁱᵐ, 0)				
+	δ₂ˡⁱᵐ=round(rad2deg(δ₂ˡⁱᵐ), digits=2)	
+	
+	f₂ʼˡⁱᵐ(δ₂ʼˡⁱᵐ) = (3*U*E₀/Xd)*sin(δ₂ʼˡⁱᵐ) + (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin(2*δ₂ʼˡⁱᵐ) - P₂ˡⁱᵐ*1e6
+	δ₂ʼˡⁱᵐ = find_zero(f₂ʼˡⁱᵐ, (δ₂ᵐᵃˣ*π/180, π))				
+	δ₂ʼˡⁱᵐ = round(rad2deg(δ₂ʼˡⁱᵐ), digits=2)	
+
+	# developed power function, [W]
+	P₂(δ) = (3*U*E₀/Xd)*sin(δ*π/180) + (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin(2*δ*π/180) 		
+	
+	
+	# Graphs:
+	plot(δ -> P₂(δ), 0, δ₀₂, 
+		linewidth=3, linecolor=:blue, label="P₂(δ)", 
+		ylabel="P (W)", xlims=(0,210), ylims=(-1.5e6,1.2*P₂ᵐᵃˣ),
+		title="Alternador síncrono de polos salientes",size=[750,500], framestyle = :origin)
+	annotate!(195, -0.45e6, "δ (°)")
+	plot!([Pᵤ], seriestype=:hline, 
+		linewidth=2, linecolor=:green, label="Pₙ")
+	plot!([δ₀₂], seriestype=:vline, label="δ₀₂=$δ₀₂ °",
+		linewidth=1, linecolor=:green, linestyle=:dash)
+	plot!(δ -> P₂(δ), δ₀₂, δ₂ˡⁱᵐ, fillrange = P₂ˡⁱᵐ*1e6,
+		linewidth=3, linecolor=:blue, label=false, fillcolor=:green)
+	plot!([P₂ˡⁱᵐ*1e6], seriestype=:hline,
+		linewidth=2, linecolor=:red, label="P₂ˡⁱᵐ=$(round(P₂ˡⁱᵐ, digits=2)) MW")
+	plot!(δ -> P₂(δ), δ₂ˡⁱᵐ, δ₂ʼˡⁱᵐ, fillrange = P₂ˡⁱᵐ*1e6,
+		linewidth=3, linecolor=:blue, label=false, fillcolor=:grey)
+	plot!(δ -> P₂(δ), δ₂ʼˡⁱᵐ, 180,
+		linewidth=3, linecolor=:blue, label=false)
+	plot!([δ₂ˡⁱᵐ], seriestype=:vline, label="δ₂ˡⁱᵐ=$(round(δ₂ˡⁱᵐ, digits=2)) °",
+		linewidth=1, linecolor=:red, linestyle=:dash)
+	plot!(δ -> P₂(δ) .- P₁(δ), 0, 180, lc=:blue, ls=:dashdot, label="P₂ʳᵉˡ")
+	plot!(δ -> P₁(δ), 0, 180, lc=:blue, ls=:dash, label="P₂ᶠᵉᵐ")
+end
+
+# ╔═╡ 987bafde-7b9d-4c8a-8b3c-ea9d488dafed
+md"""
+Os resultados das áreas $$A_1$$ e $$A_2$$ acima apresentados, são obtidos com a ajuda de ferramenta numérica computacional, para o cálculo dos integrais relativos à potência desenvolvida, nos intervalos de $$[\delta_0, \; \delta_{lim}]$$ e $$[\delta_{lim}, \; \delta'_{lim}]$$, respetivamente.
+"""
+
+# ╔═╡ 8b02f189-21d9-499b-85b8-cde39e4f4a24
+begin
+	#interval of δ for calculating the area A₁
+	δ₂ᴬ¹ = collect(δ₀₂*π/180:π/1000:δ₂ˡⁱᵐ*π/180)
+	
+	# calculation of the developed powers in the interval δ of area A₁
+	P₂ᴬ¹ = (3*U*E₀/Xd)*sin.(δ₂ᴬ¹) .+ (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin.(2*δ₂ᴬ¹) 
+	
+	# calculation of the area of P(δ) in the range: δ₀₂ to δ₂ˡⁱᵐ, [NumericalIntegration.jl]
+	A₁₁ᴳ² = integrate(δ₂ᴬ¹, P₂ᴬ¹)
+
+	# calculation of the area of P₁ˡⁱᵐ in the range: δ₀₂ to δ₂ˡⁱᵐ
+	A₁₂ᴳ² = P₂ˡⁱᵐ*1e6*(δ₂ˡⁱᵐ*π/180 - δ₀₂*π/180)
+
+	# Area A₁ (green area), [kWrad]
+	A₁ᴳ² = (A₁₂ᴳ²-A₁₁ᴳ²)/1000 						
+	A₁ᴳ² = round(A₁ᴳ², sigdigits=4)
+end;
+
+# ╔═╡ f76ab11d-21a6-4b41-91d2-803cd82c932b
+begin
+	# interval of δ for calculating the area A₂
+	δ₂ᴬ² = collect(δ₂ˡⁱᵐ*π/180:π/1000:δ₂ʼˡⁱᵐ*π/180) 
+	
+	# Calculation of the developed powers in the interval δ of area A₂
+	P₂ᴬ² = (3*U*E₀/Xd)*sin.(δ₂ᴬ²) .+ (3*U^2*(Xd-Xq)/(2*Xd*Xq))*sin.(2*δ₂ᴬ²) 
+
+	# calculation of the area of P(δ) in the range:  δ₂ˡⁱᵐ to δ₂ʼˡⁱᵐ, [NumericalIntegration.jl]
+	A₂₁ᴳ² = integrate(δ₂ᴬ², P₂ᴬ²)
+
+	# calculation of the area of Pₗᵢₘ in the range: δ₂ˡⁱᵐ to δ₂ʼˡⁱᵐ
+	A₂₂ᴳ² = P₂ˡⁱᵐ*1e6*(δ₂ʼˡⁱᵐ*π/180 - δ₂ˡⁱᵐ*π/180)
+
+	# Area A₂ (grey area), [kWrad]
+	A₂ᴳ² = (A₂₁ᴳ²-A₂₂ᴳ²)/1000 						
+	A₂ᴳ² = round(A₂ᴳ², sigdigits=4)
+end;
+
+# ╔═╡ e4a51fb1-3242-4767-9c70-82cf18eb4d77
+md"""
+## Cálculo numérico das áreas (alternador síncrono de polos salientes)
+
+**área verde:** $$\quad A_1=$$ $A₁ᴳ² $$\rm{kWrad}$$ 
+
+**área cinza:** $$\quad A_2=$$ $A₂ᴳ² $$\rm{kWrad}$$
 """
 
 # ╔═╡ 192e0f84-83f1-4383-a3b1-9df317392eb4
@@ -1653,17 +1819,22 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─dd81ad88-d8b7-41e6-ae46-85cf1b91d5d6
 # ╟─e1065fe1-4b9a-430c-9e74-4f0bb187b2f1
-# ╟─62f87bb9-0d7d-4417-9a38-88d5525c8812
 # ╟─b0e3a3c9-ce9e-4b72-a722-a14aac19abda
 # ╟─d0d780cd-3834-4809-89e0-00badf51d6bb
 # ╠═de12bd49-a980-4483-9039-36f1074e2bb3
-# ╟─6593403e-abe6-42fa-98b8-d5b61086f814
-# ╟─81b6e423-06df-4060-880a-def29c5b31a7
-# ╟─d477daa2-ba94-4d93-a18b-4cb1be539064
-# ╠═e66936da-00d5-4c92-8e5e-651357c00c98
+# ╠═46e4954b-243a-46c8-86d6-f79028a22fa2
+# ╠═0bbc6fd0-ce52-44f0-a9e7-656334d1a180
+# ╟─2db11d7e-2501-41b6-a3cd-e14af5021000
+# ╟─a5a94dc9-76e4-422d-b80f-7128a24fd7fe
+# ╟─f9c26907-2d3a-4dd4-b44e-8e6605f2a697
+# ╟─b70aaeb0-f279-45bb-a2af-d18fa900ff61
+# ╠═6c990dc7-c7f6-4338-af92-de271e9e32eb
+# ╠═2db7a025-69cd-48e6-b536-8f3cd14ab8c7
+# ╟─1afd0a56-f9be-48f4-970d-7fca7ece36c4
 # ╟─1045bc06-e94b-4537-9946-f0f005b667f6
 # ╟─8f9a070a-d870-4402-9a79-83858520018e
 # ╟─de0aadad-0967-4309-b0e5-b3e2204e17db
+# ╠═e85dd884-b04e-4ce6-a706-6c25387cd844
 # ╟─4ed89457-39b8-4a65-8ac3-8f7866f3c3aa
 # ╟─ab964942-c7aa-4591-a1d0-2399dcf8cf74
 # ╟─ffff3c2c-e08b-4292-9c0b-78d792d8f761
@@ -1680,9 +1851,21 @@ version = "1.4.1+1"
 # ╠═901b299e-d5de-49f1-839d-2ffa6265107a
 # ╟─0cba8247-fcc5-4c6e-aa64-36a9ae056b26
 # ╠═0303bb5f-69a3-4964-96fe-df95e45655d1
-# ╟─c6abc55f-e79e-44cc-88a0-2530270764e4
 # ╟─420bc556-5d93-4995-abae-2e8e8b69e44e
 # ╠═46004f22-cd53-46d9-8176-b38419b2ef3d
+# ╟─77572793-7820-47d8-822e-f2bb573672ea
+# ╟─00199cb1-986d-4c49-bf50-4eb4d4678870
+# ╟─5ba05512-39b6-48a3-a164-375efe57625f
+# ╟─611dc20c-7be6-4cb3-b1c3-6e972af5bf69
+# ╟─6eeee6e0-185d-4fb4-ae7f-9ebe5dd3ba25
+# ╠═24156688-e096-403c-9f3e-5984f250255d
+# ╟─0e83d341-e86f-4578-8150-f4066e9da587
+# ╟─0d7dc845-6645-4f28-8cbf-ae6c08bb2f4b
+# ╟─9f6ecd73-c6d3-4681-95d2-73c7515e0cd9
+# ╟─e4a51fb1-3242-4767-9c70-82cf18eb4d77
+# ╟─987bafde-7b9d-4c8a-8b3c-ea9d488dafed
+# ╠═8b02f189-21d9-499b-85b8-cde39e4f4a24
+# ╠═f76ab11d-21a6-4b41-91d2-803cd82c932b
 # ╟─192e0f84-83f1-4383-a3b1-9df317392eb4
 # ╟─6830b808-4fbc-4282-8f95-c2aebadbdc3e
 # ╟─70f9768a-189f-4a61-bb55-1ec017ac2bdb
