@@ -2,9 +2,9 @@
 # v0.19.46
 
 #> [frontmatter]
-#> chapter = "3"
-#> section = "2"
-#> order = "2"
+#> chapter = 3
+#> section = 2
+#> order = 2
 #> layout = "layout.jlhtml"
 #> date = "2024-12-11"
 #> tags = ["lecture", "module4"]
