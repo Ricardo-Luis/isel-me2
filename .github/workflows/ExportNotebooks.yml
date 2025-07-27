@@ -59,7 +59,7 @@ jobs:
                 
             - name: 🪴 Generate site
               run: |
-                echo "🔧 Gerando site com PlutoPages usando pasta content..."
+                echo "🔧 Preparando estrutura para PlutoPages..."
                 
                 # Verificar estrutura atual
                 echo "📂 Verificando estrutura da pasta content:"
@@ -69,6 +69,14 @@ jobs:
                   echo "❌ Pasta content não encontrada"
                   exit 1
                 fi
+                
+                # Criar symbolic link de content para src (PlutoPages espera pasta src)
+                echo "🔗 Criando link simbólico de content para src..."
+                ln -sf content src
+                
+                # Verificar se o link foi criado
+                echo "✅ Link criado, verificando:"
+                ls -la src/
                 
                 julia --project=pluto-deployment-environment -e '
                   import Pkg;
@@ -87,12 +95,8 @@ jobs:
                   import PlutoPages;
                   println("✅ PlutoPages importado com sucesso");
                   
-                  println("🔧 Gerando site usando pasta content...");
-                  # Usar content como src_dir em vez da pasta src padrão
-                  PlutoPages.generate("."; 
-                    src_dir="content",
-                    html_report_path="generation_report.html"
-                  );
+                  println("🔧 Gerando site usando link simbólico para content...");
+                  PlutoPages.generate("."; html_report_path="generation_report.html");
                   println("✅ Site gerado com sucesso");
                 '
                   
