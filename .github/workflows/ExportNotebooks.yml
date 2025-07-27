@@ -40,20 +40,20 @@ jobs:
 
 # NEW: ----------------------------
             - name: 🔧 Regenerate Manifest for Julia 1.11
-                          run: |
-                            echo "📦 Removendo Manifest.toml obsoleto..."
-                            rm -f PlutoPages/pluto-deployment-environment/Manifest.toml
-                            echo "📦 Regenerando dependências para Julia 1.11..."
-                            julia --project=PlutoPages/pluto-deployment-environment -e '
-                                import Pkg;
-                                println("📋 Atualizando registry...");
-                                Pkg.Registry.update();
-                                println("📋 Resolvendo dependências...");
-                                Pkg.resolve();
-                                println("📋 Instalando dependências...");
-                                Pkg.instantiate();
-                                println("✅ Ambiente atualizado para Julia 1.11");
-                            '
+              run: |
+              echo "📦 Removendo Manifest.toml obsoleto..."
+              rm -f PlutoPages/pluto-deployment-environment/Manifest.toml
+              echo "📦 Regenerando dependências para Julia 1.11..."
+              julia --project=PlutoPages/pluto-deployment-environment -e '
+                  import Pkg;
+                  println("📋 Atualizando registry...");
+                  Pkg.Registry.update();
+                  println("📋 Resolvendo dependências...");
+                  Pkg.resolve();
+                  println("📋 Instalando dependências...");
+                  Pkg.instantiate();
+                  println("✅ Ambiente atualizado para Julia 1.11");
+              '
 # FIM NEW -----------------------------------------------------------------
 
 
