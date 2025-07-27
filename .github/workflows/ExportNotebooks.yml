@@ -37,20 +37,27 @@ jobs:
                 restore-keys: |
                     ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
                     
-            - name: 🔧 Regenerate Manifest for Julia 1.11
+            - name: 🔧 Fix Manifest compatibility for Julia 1.11
               run: |
-                echo "📦 Removendo Manifest.toml obsoleto..."
-                rm -f PlutoPages/pluto-deployment-environment/Manifest.toml
-                echo "📦 Regenerando dependências para Julia 1.11..."
+                echo "📦 Verificando Project.toml..."
+                cat PlutoPages/pluto-deployment-environment/Project.toml
+                echo "📦 Tentando instantiate direto (sem resolver)..."
                 julia --project=PlutoPages/pluto-deployment-environment -e '
                     import Pkg;
                     println("📋 Atualizando registry...");
                     Pkg.Registry.update();
-                    println("📋 Resolvendo dependências...");
-                    Pkg.resolve();
-                    println("📋 Instalando dependências...");
-                    Pkg.instantiate();
-                    println("✅ Ambiente atualizado para Julia 1.11");
+                    println("📋 Instalando dependências (forçando compatibilidade)...");
+                    try
+                        Pkg.instantiate();
+                        println("✅ Instantiate bem sucedido");
+                    catch e
+                        println("⚠️ Instantiate falhou, tentando dev mode...");
+                        println(e);
+                        # Tentar com dev mode para dependências não registradas
+                        Pkg.develop(path=".");
+                        Pkg.instantiate();
+                        println("✅ Ambiente configurado em dev mode");
+                    end
                 '
                 
             - name: 🪴 Generate site
