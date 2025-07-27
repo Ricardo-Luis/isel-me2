@@ -20,23 +20,42 @@ jobs:
             - name: 🙌 Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "~1.11.6"
+                  version: "~1.11"
 
             - name: ⏱ Cache notebook states
               uses: actions/cache@v4
               with:
                 path: _cache
-                key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                key: ${{ runner.os }}-pluto_state_cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                 restore-keys: |
-                    ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    ${{ runner.os }}-pluto_state_cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
 
             - name: ⏱ Cache .julia
               uses: actions/cache@v4
               with:
                 path: ~/.julia
-                key: ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                key: ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                 restore-keys: |
-                    ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+
+# NEW: ----------------------------
+            - name: 🔧 Regenerate Manifest for Julia 1.11
+                          run: |
+                            echo "📦 Removendo Manifest.toml obsoleto..."
+                            rm -f PlutoPages/pluto-deployment-environment/Manifest.toml
+                            echo "📦 Regenerando dependências para Julia 1.11..."
+                            julia --project=PlutoPages/pluto-deployment-environment -e '
+                                import Pkg;
+                                println("📋 Atualizando registry...");
+                                Pkg.Registry.update();
+                                println("📋 Resolvendo dependências...");
+                                Pkg.resolve();
+                                println("📋 Instalando dependências...");
+                                Pkg.instantiate();
+                                println("✅ Ambiente atualizado para Julia 1.11");
+                            '
+# FIM NEW -----------------------------------------------------------------
+
 
             - name: 🪴 Generate site
               run: julia --project=PlutoPages/pluto-deployment-environment -e '
@@ -47,10 +66,11 @@ jobs:
 
             - name: 📰 Upload site generation report
               uses: actions/upload-artifact@v4
-              if: always()
+              if: always() && hashFiles('generation_report.html') != '' #always()
               with:
                 name: generation-report  # 🔧 ADICIONADO: obrigatório na v4
                 path: generation_report.html
+                if-no-files-found: warn  #ADICIONADO
                 
             - name: 🔀 Combine semesters into single site
               run: |
