@@ -19,7 +19,7 @@ jobs:
             - name: 🙌 Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "1.11"  # Simplificado
+                  version: "1.11"  # Versão mais recente para os notebooks
                   
             - name: ⏱ Cache notebook states
               uses: actions/cache@v4
@@ -33,38 +33,56 @@ jobs:
               uses: actions/cache@v4
               with:
                 path: ~/.julia
-                key: ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                key: ${{ runner.os }}-dotjulia-julia111-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                 restore-keys: |
-                    ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    ${{ runner.os }}-dotjulia-julia111-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
                     
-            - name: 🔧 Fix Manifest compatibility for Julia 1.11
+            - name: 🔧 Create fresh Julia 1.11 compatible environment
               run: |
-                echo "📦 Verificando Project.toml..."
-                cat PlutoPages/pluto-deployment-environment/Project.toml
-                echo "📦 Tentando instantiate direto (sem resolver)..."
+                echo "📋 Versão Julia:"
+                julia --version
+                echo "📦 Removendo ambiente antigo incompatível..."
+                rm -rf PlutoPages/pluto-deployment-environment/Manifest.toml
+                
+                echo "📦 Criando Project.toml atualizado para Julia 1.11..."
+                cat > PlutoPages/pluto-deployment-environment/Project.toml << 'EOF'
+                [deps]
+                Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
+                PlutoSliderServer = "2fc8631c-6f24-4c5b-bca7-cbb509c42db4"
+                PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+                
+                [compat]
+                julia = "1.11"
+                Pluto = "0.20"
+                PlutoSliderServer = "1.3"
+                PlutoUI = "0.7"
+                EOF
+                
+                echo "📦 Configurando ambiente novo..."
                 julia --project=PlutoPages/pluto-deployment-environment -e '
                     import Pkg;
                     println("📋 Atualizando registry...");
                     Pkg.Registry.update();
-                    println("📋 Instalando dependências (forçando compatibilidade)...");
-                    try
-                        Pkg.instantiate();
-                        println("✅ Instantiate bem sucedido");
-                    catch e
-                        println("⚠️ Instantiate falhou, tentando dev mode...");
-                        println(e);
-                        # Tentar com dev mode para dependências não registradas
-                        Pkg.develop(path=".");
-                        Pkg.instantiate();
-                        println("✅ Ambiente configurado em dev mode");
-                    end
+                    println("📋 Adicionando dependências modernas...");
+                    
+                    # Instalar versões mais recentes compatíveis com Julia 1.11
+                    Pkg.add([
+                        Pkg.PackageSpec(name="Pluto", version="0.20.13"),
+                        Pkg.PackageSpec(name="PlutoUI", version="0.7.68"),
+                        Pkg.PackageSpec(name="PlutoSliderServer", version="1.3.1")
+                    ]);
+                    
+                    println("📋 Instalando dependências...");
+                    Pkg.instantiate();
+                    println("✅ Ambiente Julia 1.11 com Pluto 0.20.13 criado!");
                 '
-                
+                    
             - name: 🪴 Generate site
               run: |
-                echo "📋 Iniciando geração do site..."
-                echo "🔧 Versão Julia:"
+                echo "📋 Versão Julia:"
                 julia --version
+                echo "🔧 Verificando ambiente criado..."
+                julia --project=PlutoPages/pluto-deployment-environment -e 'import Pkg; Pkg.status()'
                 echo "🔧 Executando generate.jl..."
                 julia --project=PlutoPages/pluto-deployment-environment -e 'include("./PlutoPages/generate.jl")'
                 echo "✅ Geração concluída"
