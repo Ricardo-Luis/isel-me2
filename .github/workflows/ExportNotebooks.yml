@@ -64,7 +64,11 @@ jobs:
                 # Verificar estrutura atual
                 echo "📂 Verificando estrutura da pasta content:"
                 if [ -d "content" ]; then
-                  find content -type f -name "*.jl" -o -name "*.jlmd" -o -name "*.md" | head -20
+                  echo "📓 Notebooks encontrados:"
+                  find content -type f -name "*.jl" | head -20
+                  echo ""
+                  echo "📄 Outros ficheiros:"
+                  find content -type f -name "*.jlmd" -o -name "*.md" | head -20
                 else
                   echo "❌ Pasta content não encontrada"
                   exit 1
@@ -75,9 +79,10 @@ jobs:
                 ln -sf content src
                 
                 # Verificar se o link foi criado
-                echo "✅ Link criado, verificando:"
-                ls -la src/
+                echo "✅ Link criado, verificando estrutura:"
+                find src -type f -name "*.jl" -o -name "*.jlmd" | head -10
                 
+                echo "🚀 Gerando site com PlutoPages..."
                 julia --project=pluto-deployment-environment -e '
                   import Pkg;
                   println("🔍 Ambiente ativo: ", Pkg.project().path);
@@ -95,9 +100,27 @@ jobs:
                   import PlutoPages;
                   println("✅ PlutoPages importado com sucesso");
                   
-                  println("🔧 Gerando site usando link simbólico para content...");
-                  PlutoPages.generate("."; html_report_path="generation_report.html");
-                  println("✅ Site gerado com sucesso");
+                  println("🔧 Gerando site...");
+                  try
+                    PlutoPages.generate("."; html_report_path="generation_report.html");
+                    println("✅ Site gerado com sucesso");
+                  catch e
+                    println("❌ Erro durante a geração:");
+                    println(e);
+                    
+                    # Tentar ler o relatório HTML se existir
+                    if isfile("generation_report.html")
+                      println("📄 Relatório HTML gerado, uploading como artifact...");
+                    end
+                    
+                    # Verificar se algum output foi gerado mesmo com erro
+                    if isdir("_site")
+                      println("📂 Pasta _site encontrada mesmo com erro");
+                      run(`find _site -type f | head -10`);
+                    end
+                    
+                    rethrow(e);
+                  end
                 '
                   
             - name: 📰 Upload site generation report
@@ -105,7 +128,10 @@ jobs:
               if: always()
               with:
                 name: generation-report
-                path: generation_report.html
+                path: |
+                  generation_report.html
+                  _site/
+                retention-days: 1
                 
             - name: 🔍 Debug - Check repository structure
               run: |
