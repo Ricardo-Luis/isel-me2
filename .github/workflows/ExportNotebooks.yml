@@ -1,8 +1,6 @@
 name: Export Pluto notebooks & Deploy
 permissions:
     contents: write
-    pages: write
-    id-token: write
 on:
     push:
         branches:
@@ -12,7 +10,7 @@ on:
             - main
     workflow_dispatch:
 concurrency:
-    group: pluto-export-${{ github.ref }}
+    group: export
     cancel-in-progress: true
 jobs:
     build-and-deploy:
@@ -26,68 +24,82 @@ jobs:
               with:
                   version: "1"
                   
-            - name: Cache Julia artifacts & such
-              uses: julia-actions/cache@v2
-              with:
-                cache-registries: "true"
-                
-            - name: Set up notebook state cache
+            - name: ⏱ Cache notebook states
               uses: actions/cache@v4
               with:
-                  path: pluto_state_cache
-                  key: ${{ runner.os }}-pluto_state_cache-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml', '.github/workflows/*' ) }}-${{ hashFiles('**/*jl') }}
-                  restore-keys: |
-                      ${{ runner.os }}-pluto_state_cache-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml', '.github/workflows/*' ) }}
-                      
-            - name: Ignore notebook state cache in export
-              run: echo 'pluto_state_cache' >> .gitignore
-              
-            - name: 🪴 Run & export Pluto notebooks
-              run: |
-                julia -e 'using Pkg
-                  Pkg.activate(mktempdir())
-                  Pkg.add([
-                    Pkg.PackageSpec(name="PlutoSliderServer", version="1"),
-                  ])
-                  import PlutoSliderServer
-                  PlutoSliderServer.github_action(".";
-                    Export_cache_dir="pluto_state_cache",
-                    Export_baked_notebookfile=false,
-                    Export_baked_state=false,
-                  )'
+                path: _cache
+                key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                restore-keys: |
+                    ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    
+            - name: ⏱ Cache .julia
+              uses: actions/cache@v4
+              with:
+                path: ~/.julia
+                key: ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                restore-keys: |
+                    ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    
+            - name: 🪴 Generate site
+              run: julia --project=pluto-deployment-environment -e '
+                  import Pkg;
+                  Pkg.instantiate();
+                  import PlutoPages;                   
+                  PlutoPages.generate("."; html_report_path="generation_report.html")'
                   
+            - name: 📰 Upload site generation report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                name: generation-report
+                path: generation_report.html
+                
+            - name: 🔍 Debug - Check generated files
+              run: |
+                echo "📂 Estrutura após geração:"
+                ls -la
+                echo ""
+                echo "📂 Conteúdo _site (se existir):"
+                if [ -d "_site" ]; then
+                  find _site -type f | head -10
+                else
+                  echo "❌ _site não encontrado"
+                fi
+                echo ""
+                echo "📂 Conteúdo extra_outputs (se existir):"
+                if [ -d "extra_outputs" ]; then
+                  find extra_outputs -type f | head -10
+                else
+                  echo "❌ extra_outputs não encontrado"
+                fi
+                
             - name: 🔀 Combine semesters into single site
               run: |
-                echo "🔧 Organizando estrutura do site..."
+                echo "🔧 Criando estrutura do site..."
                 mkdir -p www
                 
-                # Mover ficheiros exportados para estrutura do site
-                if [ -d "_site" ]; then
+                # Verificar se _site existe e mover
+                if [ -d "_site" ] && [ "$(ls -A _site)" ]; then
                   mv _site www/Fall23
                   echo "✅ _site movido para www/Fall23"
                 else
-                  echo "⚠️ _site não encontrado, procurando ficheiros HTML..."
+                  echo "❌ _site não encontrado ou vazio"
+                  # Criar pasta vazia como fallback
                   mkdir -p www/Fall23
-                  # Mover ficheiros HTML gerados
-                  find . -name "*.html" -not -path "./www/*" -not -path "./_site/*" -not -path "./pluto_state_cache/*" | head -20 | while read file; do
-                    echo "📄 Movendo: $file"
-                    cp "$file" www/Fall23/
-                  done
+                  echo "<h1>Site em construção</h1>" > www/Fall23/index.html
                 fi
                 
-                # Verificar se há outros outputs
+                # Verificar se extra_outputs existe e mover
                 if [ -d "extra_outputs" ] && [ "$(ls -A extra_outputs)" ]; then
-                  mv extra_outputs/* www/ 2>/dev/null || echo "⚠️ Erro ao mover extra_outputs"
+                  mv extra_outputs/* www/
+                  echo "✅ extra_outputs movido para www/"
                 else
-                  echo "ℹ️ Sem extra_outputs"
+                  echo "ℹ️ extra_outputs não encontrado ou vazio"
                 fi
                 
-                echo "📁 Estrutura final do site:"
-                find www -type f | head -10
-                
-            - name: 📝 Create root index.html
-              run: |
-                cat > www/index.html << 'EOF'
+                # Criar index.html na raiz se não existir
+                if [ ! -f "www/index.html" ]; then
+                  cat > www/index.html << 'EOF'
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>
@@ -132,34 +144,27 @@ jobs:
                 </body>
                 </html>
                 EOF
-                echo "✅ index.html criado na raiz com redirect para Fall23"
+                  echo "✅ index.html criado na raiz"
+                fi
                 
-            - name: 🔍 Debug - List final structure
-              run: |
-                echo "📂 Estrutura completa do diretório www:"
+                echo "📁 Estrutura final do www:"
                 find www -type f | sort
-                echo ""
-                echo "📄 Conteúdo do index.html:"
-                head -20 www/index.html
                 
-            # Deploy principal para o branch main
-            - name: 🚀 Deploy to GitHub Pages (Main)
+            - name: 🚀 Deploy to GitHub Pages (main)
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: JamesIves/github-pages-deploy-action@v4
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  branch: output
-                  folder: www
-                  single-commit: true
-                  clean: true
-                  
-            # Deploy de preview para PRs (mantém a funcionalidade original)
-            - name: 🔍 Deploy PR preview
+                token: ${{ secrets.GITHUB_TOKEN }}
+                branch: output
+                folder: www
+                clean-exclude: |
+                  previews/*
+    
+            - name: Deploy PR preview
               if: github.event_name == 'pull_request' && github.repository == github.event.pull_request.head.repo.full_name
               uses: JamesIves/github-pages-deploy-action@v4
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  branch: output
-                  folder: www
-                  target-folder: "previews/PR${{ github.event.number }}"
-                  clean: false
+                token: ${{ secrets.GITHUB_TOKEN }}
+                branch: output
+                folder: www
+                target-folder: "previews/PR${{ github.event.number }}"
