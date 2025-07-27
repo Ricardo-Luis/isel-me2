@@ -7,7 +7,7 @@ on:
             - main
     workflow_dispatch:
 concurrency:
-    group: export
+    group: pluto-export
     cancel-in-progress: true
 jobs:
     build-and-deploy:
@@ -19,108 +19,72 @@ jobs:
             - name: 🙌 Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "1.11"  # Versão mais recente para os notebooks
+                  version: "1"  # Última versão automaticamente
                   
-            - name: ⏱ Cache notebook states
+            - name: Cache Julia artifacts & such
+              uses: julia-actions/cache@v2
+              with:
+                cache-registries: "true"
+                
+            # Cache para notebooks exportados - se o notebook não mudou, usa cache
+            - name: Set up notebook state cache
               uses: actions/cache@v4
               with:
-                path: _cache
-                key: ${{ runner.os }}-pluto_state_cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
-                restore-keys: |
-                    ${{ runner.os }}-pluto_state_cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-                    
-            - name: ⏱ Cache .julia
-              uses: actions/cache@v4
-              with:
-                path: ~/.julia
-                key: ${{ runner.os }}-dotjulia-julia111-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
-                restore-keys: |
-                    ${{ runner.os }}-dotjulia-julia111-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-                    
-            - name: 🔧 Create fresh Julia 1.11 compatible environment
+                  path: pluto_state_cache
+                  key: ${{ runner.os }}-pluto_state_cache-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml', '.github/workflows/*' ) }}-${{ hashFiles('**/*jl') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pluto_state_cache-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml', '.github/workflows/*' ) }}
+                      
+            - name: Ignore notebook state cache in export
+              run: echo 'pluto_state_cache' >> .gitignore
+              
+            - name: 🪴 Run & export Pluto notebooks
               run: |
-                echo "📋 Versão Julia:"
-                julia --version
-                echo "📦 Removendo ambiente antigo incompatível..."
-                rm -rf PlutoPages/pluto-deployment-environment/Manifest.toml
-                
-                echo "📦 Criando Project.toml atualizado para Julia 1.11..."
-                cat > PlutoPages/pluto-deployment-environment/Project.toml << 'EOF'
-                [deps]
-                Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
-                PlutoSliderServer = "2fc8631c-6f24-4c5b-bca7-cbb509c42db4"
-                PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-                
-                [compat]
-                julia = "1.11"
-                Pluto = "0.20"
-                PlutoSliderServer = "1.3"
-                PlutoUI = "0.7"
-                EOF
-                
-                echo "📦 Configurando ambiente novo..."
-                julia --project=PlutoPages/pluto-deployment-environment -e '
-                    import Pkg;
-                    println("📋 Atualizando registry...");
-                    Pkg.Registry.update();
-                    println("📋 Adicionando dependências modernas...");
-                    
-                    # Instalar versões mais recentes compatíveis com Julia 1.11
-                    Pkg.add([
-                        Pkg.PackageSpec(name="Pluto", version="0.20.13"),
-                        Pkg.PackageSpec(name="PlutoUI", version="0.7.68"),
-                        Pkg.PackageSpec(name="PlutoSliderServer", version="1.3.1")
-                    ]);
-                    
-                    println("📋 Instalando dependências...");
-                    Pkg.instantiate();
-                    println("✅ Ambiente Julia 1.11 com Pluto 0.20.13 criado!");
-                '
-                    
-            - name: 🪴 Generate site
-              run: |
-                echo "📋 Versão Julia:"
-                julia --version
-                echo "🔧 Verificando ambiente criado..."
-                julia --project=PlutoPages/pluto-deployment-environment -e 'import Pkg; Pkg.status()'
-                echo "🔧 Executando generate.jl..."
-                julia --project=PlutoPages/pluto-deployment-environment -e 'include("./PlutoPages/generate.jl")'
-                echo "✅ Geração concluída"
-                
-            - name: 📰 Upload site generation report
-              uses: actions/upload-artifact@v4
-              if: always() && hashFiles('generation_report.html') != ''
-              with:
-                name: generation-report
-                path: generation_report.html
-                if-no-files-found: warn
-                
+                julia -e 'using Pkg
+                  Pkg.activate(mktempdir())
+                  Pkg.add([
+                    Pkg.PackageSpec(name="PlutoSliderServer", version="1"),
+                  ])
+                  import PlutoSliderServer
+                  PlutoSliderServer.github_action(".";
+                    Export_cache_dir="pluto_state_cache",
+                    Export_baked_notebookfile=false,
+                    Export_baked_state=false,
+                  )'
+                  
             - name: 🔀 Combine semesters into single site
               run: |
-                echo "🔧 Criando estrutura do site..."
+                echo "🔧 Organizando estrutura do site..."
                 mkdir -p www
                 
-                if [ -d "PlutoPages/_site" ]; then
-                  mv PlutoPages/_site www/Fall23
+                # Mover ficheiros exportados para estrutura do site
+                if [ -d "_site" ]; then
+                  mv _site www/Fall23
                   echo "✅ _site movido para www/Fall23"
                 else
-                  echo "❌ _site não encontrado"
+                  echo "⚠️ _site não encontrado, procurando ficheiros HTML..."
                   mkdir -p www/Fall23
-                  echo "<h1>Erro na geração do site</h1>" > www/Fall23/index.html
+                  # Mover ficheiros HTML gerados
+                  find . -name "*.html" -not -path "./www/*" -not -path "./_site/*" -not -path "./pluto_state_cache/*" | head -20 | while read file; do
+                    echo "📄 Movendo: $file"
+                    cp "$file" www/Fall23/
+                  done
                 fi
                 
-                if [ -d "PlutoPages/extra_outputs" ] && [ "$(ls -A PlutoPages/extra_outputs)" ]; then
-                  mv PlutoPages/extra_outputs/* www/ 2>/dev/null || echo "⚠️ Nenhum ficheiro em extra_outputs"
+                # Verificar se há outros outputs
+                if [ -d "extra_outputs" ] && [ "$(ls -A extra_outputs)" ]; then
+                  mv extra_outputs/* www/ 2>/dev/null || echo "⚠️ Erro ao mover extra_outputs"
                 else
-                  echo "⚠️ extra_outputs vazio ou inexistente"
+                  echo "ℹ️ Sem extra_outputs"
                 fi
                 
-                echo "📁 Estrutura final:"
+                echo "📁 Estrutura final do site:"
                 find www -type f | head -10
                 
             - name: 🚀 Deploy to GitHub Pages
               uses: JamesIves/github-pages-deploy-action@v4
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  branch: output
+                  branch: output  # Mantém o seu branch 'output'
                   folder: www
+                  single-commit: true
