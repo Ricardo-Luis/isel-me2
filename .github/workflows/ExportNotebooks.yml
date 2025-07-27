@@ -9,19 +9,18 @@ on:
 concurrency:
     group: export
     cancel-in-progress: true
-
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Fall 23 source
               uses: actions/checkout@v4
-
+              
             - name: 🙌 Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "1.11"
-
+                  version: "1.11"  # Simplificado
+                  
             - name: ⏱ Cache notebook states
               uses: actions/cache@v4
               with:
@@ -29,7 +28,7 @@ jobs:
                 key: ${{ runner.os }}-pluto_state_cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                 restore-keys: |
                     ${{ runner.os }}-pluto_state_cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-
+                    
             - name: ⏱ Cache .julia
               uses: actions/cache@v4
               with:
@@ -37,8 +36,7 @@ jobs:
                 key: ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                 restore-keys: |
                     ${{ runner.os }}-dotjulia-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-
-# NEW: ----------------------------
+                    
             - name: 🔧 Regenerate Manifest for Julia 1.11
               run: |
                 echo "📦 Removendo Manifest.toml obsoleto..."
@@ -54,33 +52,50 @@ jobs:
                     Pkg.instantiate();
                     println("✅ Ambiente atualizado para Julia 1.11");
                 '
-# FIM NEW -----------------------------------------------------------------
-
-
+                
             - name: 🪴 Generate site
-              run: julia --project=PlutoPages/pluto-deployment-environment -e '
-                  import Pkg;
-                  Pkg.instantiate();
-
-                  include("./PlutoPages/generate.jl")'
-
+              run: |
+                echo "📋 Iniciando geração do site..."
+                echo "🔧 Versão Julia:"
+                julia --version
+                echo "🔧 Executando generate.jl..."
+                julia --project=PlutoPages/pluto-deployment-environment -e 'include("./PlutoPages/generate.jl")'
+                echo "✅ Geração concluída"
+                
             - name: 📰 Upload site generation report
               uses: actions/upload-artifact@v4
-              if: always() && hashFiles('generation_report.html') != '' #always()
+              if: always() && hashFiles('generation_report.html') != ''
               with:
-                name: generation-report  # 🔧 ADICIONADO: obrigatório na v4
+                name: generation-report
                 path: generation_report.html
-                if-no-files-found: warn  #ADICIONADO
+                if-no-files-found: warn
                 
             - name: 🔀 Combine semesters into single site
               run: |
-                mkdir www
-                mv PlutoPages/_site www/Fall23
-                mv PlutoPages/extra_outputs/* www
-
+                echo "🔧 Criando estrutura do site..."
+                mkdir -p www
+                
+                if [ -d "PlutoPages/_site" ]; then
+                  mv PlutoPages/_site www/Fall23
+                  echo "✅ _site movido para www/Fall23"
+                else
+                  echo "❌ _site não encontrado"
+                  mkdir -p www/Fall23
+                  echo "<h1>Erro na geração do site</h1>" > www/Fall23/index.html
+                fi
+                
+                if [ -d "PlutoPages/extra_outputs" ] && [ "$(ls -A PlutoPages/extra_outputs)" ]; then
+                  mv PlutoPages/extra_outputs/* www/ 2>/dev/null || echo "⚠️ Nenhum ficheiro em extra_outputs"
+                else
+                  echo "⚠️ extra_outputs vazio ou inexistente"
+                fi
+                
+                echo "📁 Estrutura final:"
+                find www -type f | head -10
+                
             - name: 🚀 Deploy to GitHub Pages
-              uses: JamesIves/github-pages-deploy-action@v4 #JamesIves/github-pages-deploy-action@releases/v3
+              uses: JamesIves/github-pages-deploy-action@v4
               with:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  BRANCH: output
-                  FOLDER: www
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: output
+                  folder: www
