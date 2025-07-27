@@ -1,13 +1,18 @@
 name: Export Pluto notebooks & Deploy
 permissions:
     contents: write
+    pages: write
+    id-token: write
 on:
     push:
         branches:
             - main
+    pull_request:
+        branches:
+            - main
     workflow_dispatch:
 concurrency:
-    group: pluto-export
+    group: pluto-export-${{ github.ref }}
     cancel-in-progress: true
 jobs:
     build-and-deploy:
@@ -19,14 +24,13 @@ jobs:
             - name: 🙌 Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "1"  # Última versão automaticamente
+                  version: "1"
                   
             - name: Cache Julia artifacts & such
               uses: julia-actions/cache@v2
               with:
                 cache-registries: "true"
                 
-            # Cache para notebooks exportados - se o notebook não mudou, usa cache
             - name: Set up notebook state cache
               uses: actions/cache@v4
               with:
@@ -81,10 +85,81 @@ jobs:
                 echo "📁 Estrutura final do site:"
                 find www -type f | head -10
                 
-            - name: 🚀 Deploy to GitHub Pages
+            - name: 📝 Create root index.html
+              run: |
+                cat > www/index.html << 'EOF'
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Computational Thinking</title>
+                    <meta http-equiv="refresh" content="0; url=./Fall23/">
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            text-align: center; 
+                            padding: 50px; 
+                            background-color: #f5f5f5;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background: white;
+                            padding: 40px;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        }
+                        a { 
+                            color: #007bff; 
+                            text-decoration: none; 
+                            font-weight: bold;
+                        }
+                        a:hover { text-decoration: underline; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Computational Thinking</h1>
+                        <p>A redirecionar para o conteúdo Fall 23...</p>
+                        <p>Se não for redirecionado automaticamente, <a href="./Fall23/">clique aqui</a>.</p>
+                    </div>
+                    <script>
+                        setTimeout(function() {
+                            window.location.href = './Fall23/';
+                        }, 100);
+                    </script>
+                </body>
+                </html>
+                EOF
+                echo "✅ index.html criado na raiz com redirect para Fall23"
+                
+            - name: 🔍 Debug - List final structure
+              run: |
+                echo "📂 Estrutura completa do diretório www:"
+                find www -type f | sort
+                echo ""
+                echo "📄 Conteúdo do index.html:"
+                head -20 www/index.html
+                
+            # Deploy principal para o branch main
+            - name: 🚀 Deploy to GitHub Pages (Main)
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: JamesIves/github-pages-deploy-action@v4
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  branch: output  # Mantém o seu branch 'output'
+                  branch: output
                   folder: www
                   single-commit: true
+                  clean: true
+                  
+            # Deploy de preview para PRs (mantém a funcionalidade original)
+            - name: 🔍 Deploy PR preview
+              if: github.event_name == 'pull_request' && github.repository == github.event.pull_request.head.repo.full_name
+              uses: JamesIves/github-pages-deploy-action@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: output
+                  folder: www
+                  target-folder: "previews/PR${{ github.event.number }}"
+                  clean: false
