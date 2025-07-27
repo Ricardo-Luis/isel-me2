@@ -59,11 +59,20 @@ jobs:
                 
             - name: 🪴 Generate site
               run: |
-                echo "🔧 Gerando site com PlutoPages..."
+                echo "🔧 Gerando site com PlutoPages usando pasta content..."
+                
+                # Verificar estrutura atual
+                echo "📂 Verificando estrutura da pasta content:"
+                if [ -d "content" ]; then
+                  find content -type f -name "*.jl" -o -name "*.jlmd" -o -name "*.md" | head -20
+                else
+                  echo "❌ Pasta content não encontrada"
+                  exit 1
+                fi
+                
                 julia --project=pluto-deployment-environment -e '
                   import Pkg;
                   println("🔍 Ambiente ativo: ", Pkg.project().path);
-                  println("📦 Dependências: ", keys(Pkg.project().dependencies));
                   Pkg.instantiate();
                   
                   # Verificar se PlutoPages está disponível
@@ -78,8 +87,12 @@ jobs:
                   import PlutoPages;
                   println("✅ PlutoPages importado com sucesso");
                   
-                  println("🔧 Gerando site...");
-                  PlutoPages.generate("."; html_report_path="generation_report.html");
+                  println("🔧 Gerando site usando pasta content...");
+                  # Usar content como src_dir em vez da pasta src padrão
+                  PlutoPages.generate("."; 
+                    src_dir="content",
+                    html_report_path="generation_report.html"
+                  );
                   println("✅ Site gerado com sucesso");
                 '
                   
@@ -90,24 +103,26 @@ jobs:
                 name: generation-report
                 path: generation_report.html
                 
-            - name: 🔍 Debug - Check generated files
+            - name: 🔍 Debug - Check repository structure
               run: |
-                echo "📂 Estrutura após geração:"
-                ls -la
+                echo "📂 Estrutura completa do repositório:"
+                find . -type f -name "*.jl" -o -name "*.md" | head -20
                 echo ""
-                echo "📂 Conteúdo _site (se existir):"
-                if [ -d "_site" ]; then
-                  find _site -type f | head -10
+                echo "📂 Verificando pasta src:"
+                if [ -d "src" ]; then
+                  echo "✅ Pasta src existe"
+                  echo "📄 Conteúdo da pasta src:"
+                  ls -la src/
+                  find src -type f | head -10
                 else
-                  echo "❌ _site não encontrado"
+                  echo "❌ Pasta src não existe"
                 fi
                 echo ""
-                echo "📂 Conteúdo extra_outputs (se existir):"
-                if [ -d "extra_outputs" ]; then
-                  find extra_outputs -type f | head -10
-                else
-                  echo "❌ extra_outputs não encontrado"
-                fi
+                echo "📂 Procurando notebooks (.jl) em todo o repositório:"
+                find . -name "*.jl" -type f | head -10
+                echo ""
+                echo "📂 Estrutura geral (primeiros 20 itens):"
+                ls -la | head -20
                 
             - name: 🔀 Combine semesters into single site
               run: |
