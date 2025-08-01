@@ -17,7 +17,7 @@ jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-            # --- Fase 1: Setup inicial ---
+            # --- Fase 1: Setup ---
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
@@ -28,132 +28,140 @@ jobs:
               with:
                 version: '1.11'
 
-            # --- Fase 2: Build ---
-            - name: Setup environment
+            # --- Fase 2: Configuração do Ambiente ---
+            - name: Setup Pluto environment
               run: |
+                  # Cria ambiente se não existir
+                  if [ ! -d "pluto-deployment-environment" ]; then
+                      mkdir pluto-deployment-environment
+                      julia -e 'using Pkg; Pkg.activate("pluto-deployment-environment"); Pkg.add("PlutoPages")'
+                  fi
+                  
                   julia --project=pluto-deployment-environment -e '
                     using Pkg
                     Pkg.instantiate()
                     Pkg.precompile()
                   '
 
-            - name: Generate Pluto notebooks
+            # --- Fase 3: Geração do Site ---
+            - name: Generate notebooks
               id: generate
               run: |
-                  ln -sfn content src || true
+                  # Cria link simbólico obrigatório
+                  ln -sfn content src
+                  
+                  # Verifica se existem notebooks
+                  if [ -z "$(find content -name '*.jl' -print -quit)" ]; then
+                      echo "::error::No notebooks found in content/"
+                      exit 1
+                  fi
                   
                   julia --project=pluto-deployment-environment -e '
                     using Pkg; Pkg.instantiate()
                     using PlutoPages
+                    
                     try
+                        println("Starting generation with PlutoPages v", pkgversion(PlutoPages))
+                        
+                        # Configuração robusta
                         PlutoPages.generate("."; 
                             html_report_path="generation_report.html",
-                            verbose=true
+                            verbose=true,
+                            create_notebook_shortcuts=true,
+                            fail_on_error=true
                         )
-                        println("::set-output name=status::success")
+                        
+                        # Verificação pós-geração
+                        if !isdir("_site")
+                            error("❌ _site directory was not created!")
+                        else
+                            println("✅ Generated ", length(readdir("_site")), " files in _site")
+                        end
+                        
                     catch e
                         println("::error::Generation failed")
                         showerror(stdout, e)
                         println("\nStacktrace:")
                         Base.show_backtrace(stdout, catch_backtrace())
-                        println("::set-output name=status::failed")
                         exit(1)
                     end
                   '
 
-            # --- Fase 3: Deploy ---
-            - name: Build final site
+            # --- Fase 4: Deploy ---
+            - name: Prepare deployment
               run: |
                   mkdir -p www
-                  if [ -d "_site" ]; then
-                      mv _site www/Fall23
-                      echo "✅ Site moved to www/Fall23"
-                  else
-                      mkdir -p www/Fall23
-                      echo "<h1>Content coming soon</h1>" > www/Fall23/index.html
-                      echo "⚠️ Created placeholder content"
-                  fi
                   
-                  cat > www/index.html << 'EOF'
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                      <meta charset="UTF-8">
-                      <meta http-equiv="refresh" content="0; url=./Fall23/">
-                  </head>
-                  <body>
-                      <p>Redirecting to <a href="./Fall23/">course content</a>...</p>
-                  </body>
-                  </html>
-                  EOF
+                  if [ -d "_site" ]; then
+                      # Move conteúdo gerado
+                      mv _site www/Fall23
+                      
+                      # Adiciona redirect
+                      cat > www/index.html << 'EOF'
+                      <!DOCTYPE html>
+                      <html>
+                      <head>
+                          <meta charset="UTF-8">
+                          <meta http-equiv="refresh" content="0; url=./Fall23/">
+                      </head>
+                      <body>
+                          <p>Redirecting to <a href="./Fall23/">course content</a>...</p>
+                      </body>
+                      </html>
+                      EOF
+                      
+                      echo "✅ Site prepared for deployment"
+                  else
+                      echo "::error::No _site directory found after generation"
+                      exit 1
+                  fi
 
             - name: Deploy to GitHub Pages
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/deploy-pages@v4
 
-            - name: Upload artifact
-              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-              uses: actions/upload-pages-artifact@v3
-              with:
-                path: www
-
-            # --- Fase 4: Relatório de diagnóstico (só executa se falhar) ---
-            - name: Generate diagnostic report
-              if: failure() || steps.generate.outputs.status == 'failed'
+            # --- Fase 5: Relatório (só em falhas) ---
+            - name: Generate failure report
+              if: failure()
               run: |
-                  # Instala dependências para o relatório
-                  sudo apt-get update && sudo apt-get install -y tree || true
+                  echo "# 🛠 Failure Analysis" > report.md
                   
-                  echo "# 🛠 Diagnostic Report" > diagnostic_report.md
-                  echo "**Workflow Status:** FAILED" >> diagnostic_report.md
-                  echo "**Date:** $(date)" >> diagnostic_report.md
+                  # 1. Ambiente
+                  echo -e "\n## Environment" >> report.md
+                  echo '```' >> report.md
+                  julia -e 'using InteractiveUtils; versioninfo()' >> report.md
+                  echo -e "\nActive project:" >> report.md
+                  julia --project=pluto-deployment-environment -e 'using Pkg; println(Pkg.project().path)' >> report.md
+                  echo '```' >> report.md
                   
-                  # 1. Estrutura do repositório
-                  echo -e "\n## Repository Structure" >> diagnostic_report.md
-                  echo '```sh' >> diagnostic_report.md
-                  tree -a -L 3 -I ".git|_cache" >> diagnostic_report.md 2>&1 || find . -maxdepth 3 >> diagnostic_report.md
-                  echo '```' >> diagnostic_report.md
-                  
-                  # 2. Arquivos de build
-                  echo -e "\n## Build Artifacts" >> diagnostic_report.md
+                  # 2. Conteúdo gerado
+                  echo -e "\n## Generated Content" >> report.md
                   if [ -f "generation_report.html" ]; then
-                      echo -e "\n### Generation Report" >> diagnostic_report.md
-                      echo '```html' >> diagnostic_report.md
-                      head -n 100 generation_report.html >> diagnostic_report.md
-                      echo '```' >> diagnostic_report.md
+                      echo -e "\n### Generation Log" >> report.md
+                      echo '```html' >> report.md
+                      grep -A 50 -B 10 "ERROR" generation_report.html | head -100 >> report.md || echo "No errors found in log" >> report.md
+                      echo '```' >> report.md
                   fi
                   
-                  # 3. Conteúdo gerado
-                  echo -e "\n### Generated Site Content" >> diagnostic_report.md
-                  if [ -d "_site" ]; then
-                      echo '```' >> diagnostic_report.md
-                      find _site -type f | head -30 >> diagnostic_report.md
-                      echo '```' >> diagnostic_report.md
-                  else
-                      echo "No _site directory found" >> diagnostic_report.md
-                  fi
+                  # 3. Notebooks problemáticos
+                  echo -e "\n### Notebook Status" >> report.md
+                  echo '```' >> report.md
+                  find content -name "*.jl" -exec sh -c 'echo "\nChecking {}..."; julia --project=pluto-deployment-environment -e "using Pluto; try; Pluto.activate(\"$(dirname {})\"; println(\"✅ Load successful\"); catch e; println(\"❌ Error: \", sprint(showerror, e)); end"' \; >> report.md
+                  echo '```' >> report.md
                   
-                  # 4. System info
-                  echo -e "\n## Environment" >> diagnostic_report.md
-                  echo '```' >> diagnostic_report.md
-                  julia -e 'using InteractiveUtils; versioninfo()' >> diagnostic_report.md
-                  echo -e "\nJulia Packages:" >> diagnostic_report.md
-                  julia --project=pluto-deployment-environment -e 'using Pkg; Pkg.status()' >> diagnostic_report.md
-                  echo '```' >> diagnostic_report.md
-                  
-                  # Define output
-                  echo "REPORT_FILE=diagnostic_report.md" >> $GITHUB_ENV
+                  # Upload como artifact
+                  echo "REPORT_FILE=report.md" >> $GITHUB_ENV
 
-            - name: Upload diagnostic report
-              if: failure() || steps.generate.outputs.status == 'failed'
+            - name: Upload failure report
+              if: failure()
               uses: actions/upload-artifact@v4
               with:
-                name: diagnostic-report
+                name: failure-analysis
                 path: ${{ env.REPORT_FILE }}
                 retention-days: 7
 
             - name: Show report in summary
-              if: failure() || steps.generate.outputs.status == 'failed'
+              if: failure()
               run: |
-                  echo "## 🚨 Diagnostic Information" >> $GITHUB_STEP_SUMMARY
+                  echo "## 🚨 Failure Analysis" >> $GITHUB_STEP_SUMMARY
                   cat ${{ env.REPORT_FILE }} >> $GITHUB_STEP_SUMMARY
