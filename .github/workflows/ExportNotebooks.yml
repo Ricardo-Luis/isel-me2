@@ -16,171 +16,146 @@ jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Fall 23 source
+            - name: Checkout repository
               uses: actions/checkout@v4
               
-            - name: 🙌 Install Julia
+            - name: 🙌 Install Julia (Latest Stable)
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "1"
+                  version: '1.11'  # Usando a versão mais recente 1.11.x
                   
             - name: ⏱ Cache notebook states
               uses: actions/cache@v4
               with:
                 path: _cache
-                key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                key: ${{ runner.os }}-pluto_state_cache-v5-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
                 restore-keys: |
-                    ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    ${{ runner.os }}-pluto_state_cache-v5-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
                     
             - name: ⏱ Cache .julia
               uses: actions/cache@v4
               with:
                 path: ~/.julia
-                key: ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                key: ${{ runner.os }}-dotjulia-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
                 restore-keys: |
-                    ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                    ${{ runner.os }}-dotjulia-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
                     
-            - name: 🔧 Setup Julia environment
+            - name: 🔍 Verify environment
               run: |
-                echo "🔍 Verificando ambiente pluto-deployment-environment..."
-                if [ -f "pluto-deployment-environment/Project.toml" ]; then
-                  echo "✅ Project.toml encontrado"
-                  echo "📄 Conteúdo do Project.toml:"
-                  cat pluto-deployment-environment/Project.toml
-                  echo ""
-                  if [ -f "pluto-deployment-environment/Manifest.toml" ]; then
-                    echo "📄 Manifest.toml também existe"
-                  else
-                    echo "⚠️ Manifest.toml não encontrado"
-                  fi
-                else
-                  echo "❌ Project.toml não encontrado em pluto-deployment-environment/"
-                fi
+                echo "Julia version:"
+                julia --version
+                echo ""
+                echo "📂 Repository structure:"
+                ls -la
+                echo ""
+                echo "📄 Project.toml content:"
+                cat pluto-deployment-environment/Project.toml
+                
+            - name: 📦 Install Julia dependencies
+              run: |
+                julia --project=pluto-deployment-environment -e '
+                  using Pkg
+                  Pkg.instantiate()
+                  Pkg.precompile()
+                  println("Installed packages:")
+                  Pkg.status()
+                '
+                
+            - name: 🔍 Verify notebook structure
+              run: |
+                echo "📂 Content directory:"
+                ls -la content/
+                echo ""
+                echo "🔍 Found notebooks:"
+                find content -name "*.jl" | head -10
                 
             - name: 🪴 Generate site
               run: |
-                echo "🔧 Preparando estrutura para PlutoPages..."
+                # Create symbolic link for PlutoPages
+                ln -sfn content src
                 
-                # Verificar estrutura atual
-                echo "📂 Verificando estrutura da pasta content:"
-                if [ -d "content" ]; then
-                  echo "📓 Notebooks encontrados:"
-                  find content -type f -name "*.jl" | head -20
-                  echo ""
-                  echo "📄 Outros ficheiros:"
-                  find content -type f -name "*.jlmd" -o -name "*.md" | head -20
-                else
-                  echo "❌ Pasta content não encontrada"
-                  exit 1
-                fi
-                
-                # Criar symbolic link de content para src (PlutoPages espera pasta src)
-                echo "🔗 Criando link simbólico de content para src..."
-                ln -sf content src
-                
-                # Verificar se o link foi criado
-                echo "✅ Link criado, verificando estrutura:"
-                find src -type f -name "*.jl" -o -name "*.jlmd" | head -10
-                
-                echo "🚀 Gerando site com PlutoPages..."
-                julia --project=pluto-deployment-environment -e '
-                  import Pkg;
-                  println("🔍 Ambiente ativo: ", Pkg.project().path);
-                  Pkg.instantiate();
+                julia --color=yes --project=pluto-deployment-environment -e '
+                  using Pkg
+                  Pkg.instantiate()
                   
-                  # Verificar se PlutoPages está disponível
-                  if haskey(Pkg.project().dependencies, "PlutoPages")
-                    println("✅ PlutoPages encontrado nas dependências");
-                  else
-                    println("⚠️ PlutoPages não está nas dependências, adicionando...");
-                    Pkg.add("PlutoPages");
-                  end
-                  
-                  println("🚀 Importando PlutoPages...");
-                  import PlutoPages;
-                  println("✅ PlutoPages importado com sucesso");
-                  
-                  println("🔧 Gerando site...");
+                  @info "Starting PlutoPages generation..."
                   try
-                    PlutoPages.generate("."; html_report_path="generation_report.html");
-                    println("✅ Site gerado com sucesso");
+                      using PlutoPages
+                      
+                      @info "PlutoPages version: $(pkgversion(PlutoPages))"
+                      
+                      PlutoPages.generate("."; 
+                          html_report_path="generation_report.html",
+                          verbose=true
+                      )
+                      
+                      @info "✅ Site generation completed"
+                      
+                      # Safe directory listing using Julia
+                      if isdir("_site")
+                          @info "Contents of _site:"
+                          for (root, dirs, files) in walkdir("_site")
+                              println("📁 ", root)
+                              if !isempty(files)
+                                  println("   └ ", join(files[1:min(5, end)], "\n    └ "))
+                              end
+                          end
+                      else
+                          @error "❌ _site directory not created!"
+                      end
                   catch e
-                    println("❌ Erro durante a geração:");
-                    println(e);
-                    
-                    # Tentar ler o relatório HTML se existir
-                    if isfile("generation_report.html")
-                      println("📄 Relatório HTML gerado, uploading como artifact...");
-                    end
-                    
-                    # Verificar se algum output foi gerado mesmo com erro
-                    if isdir("_site")
-                      println("📂 Pasta _site encontrada mesmo com erro");
-                      run(`find _site -type f | head -10`);
-                    end
-                    
-                    rethrow(e);
+                      @error "❌ Generation failed!" exception=(e, catch_backtrace())
+                      
+                      # Try to read the report if exists
+                      if isfile("generation_report.html")
+                          println("\n📄 Generation report content:")
+                          println(read("generation_report.html", String))
+                      end
+                      
+                      exit(1)
                   end
                 '
-                  
-            - name: 📰 Upload site generation report
+                
+            - name: 📰 Upload generation artifacts
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: generation-report
+                name: generation-artifacts
                 path: |
                   generation_report.html
                   _site/
                 retention-days: 1
                 
-            - name: 🔍 Debug - Check repository structure
+            - name: 🔍 Debug - Check generated site
+              if: always()
               run: |
-                echo "📂 Estrutura completa do repositório:"
-                find . -type f -name "*.jl" -o -name "*.md" | head -20
+                echo "Julia version details:"
+                julia -e 'versioninfo()'
                 echo ""
-                echo "📂 Verificando pasta src:"
-                if [ -d "src" ]; then
-                  echo "✅ Pasta src existe"
-                  echo "📄 Conteúdo da pasta src:"
-                  ls -la src/
-                  find src -type f | head -10
+                if [ -d "_site" ]; then
+                  echo "✅ _site directory exists ($(du -sh _site))"
+                  echo "📂 First 10 files:"
+                  find _site -type f | head -10
                 else
-                  echo "❌ Pasta src não existe"
+                  echo "❌ _site directory missing"
                 fi
-                echo ""
-                echo "📂 Procurando notebooks (.jl) em todo o repositório:"
-                find . -name "*.jl" -type f | head -10
-                echo ""
-                echo "📂 Estrutura geral (primeiros 20 itens):"
-                ls -la | head -20
                 
-            - name: 🔀 Combine semesters into single site
+            - name: 🏗 Build final site structure
               run: |
-                echo "🔧 Criando estrutura do site..."
                 mkdir -p www
                 
-                # Verificar se _site existe e mover
+                # Move generated site
                 if [ -d "_site" ] && [ "$(ls -A _site)" ]; then
                   mv _site www/Fall23
-                  echo "✅ _site movido para www/Fall23"
+                  echo "✅ Moved _site to www/Fall23"
                 else
-                  echo "❌ _site não encontrado ou vazio"
-                  # Criar pasta vazia como fallback
                   mkdir -p www/Fall23
-                  echo "<h1>Site em construção</h1>" > www/Fall23/index.html
+                  echo "<h1>Site under construction</h1>" > www/Fall23/index.html
+                  echo "⚠️ Created fallback index.html"
                 fi
                 
-                # Verificar se extra_outputs existe e mover
-                if [ -d "extra_outputs" ] && [ "$(ls -A extra_outputs)" ]; then
-                  mv extra_outputs/* www/
-                  echo "✅ extra_outputs movido para www/"
-                else
-                  echo "ℹ️ extra_outputs não encontrado ou vazio"
-                fi
-                
-                # Criar index.html na raiz se não existir
-                if [ ! -f "www/index.html" ]; then
-                  cat > www/index.html << 'EOF'
+                # Create root redirect
+                cat > www/index.html << 'EOF'
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>
@@ -214,30 +189,20 @@ jobs:
                 <body>
                     <div class="container">
                         <h1>Computational Thinking</h1>
-                        <p>A redirecionar para o conteúdo Fall 23...</p>
-                        <p>Se não for redirecionado automaticamente, <a href="./Fall23/">clique aqui</a>.</p>
+                        <p>Redirecting to Fall 23 content...</p>
+                        <p>If not redirected, <a href="./Fall23/">click here</a>.</p>
                     </div>
-                    <script>
-                        setTimeout(function() {
-                            window.location.href = './Fall23/';
-                        }, 100);
-                    </script>
                 </body>
                 </html>
                 EOF
-                  echo "✅ index.html criado na raiz"
-                fi
                 
-                echo "📁 Estrutura final do www:"
-                find www -type f | sort
+                echo "📁 Final www structure:"
+                tree -L 3 www || find www -type f | sort
                 
-            - name: 🚀 Deploy to GitHub Pages (main)
+            - name: 🚀 Deploy to GitHub Pages
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/deploy-pages@v4
-              with:
-                token: ${{ secrets.GITHUB_TOKEN }}
-                artifact_name: github-pages
-                
+              
             - name: 📦 Upload Pages artifact
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/upload-pages-artifact@v3
