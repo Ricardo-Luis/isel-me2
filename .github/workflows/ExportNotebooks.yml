@@ -12,208 +12,148 @@ on:
 concurrency:
     group: export
     cancel-in-progress: true
+
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
+            # --- Fase 1: Setup inicial ---
             - name: Checkout repository
               uses: actions/checkout@v4
-              
-            - name: 🙌 Install Julia (Latest Stable)
+              with:
+                fetch-depth: 0
+
+            - name: Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: '1.11'  # Usando a versão mais recente 1.11.x
+                version: '1.11'
+
+            # --- Fase 2: Build ---
+            - name: Setup environment
+              run: |
+                  julia --project=pluto-deployment-environment -e '
+                    using Pkg
+                    Pkg.instantiate()
+                    Pkg.precompile()
+                  '
+
+            - name: Generate Pluto notebooks
+              id: generate
+              run: |
+                  ln -sfn content src || true
                   
-            - name: ⏱ Cache notebook states
-              uses: actions/cache@v4
-              with:
-                path: _cache
-                key: ${{ runner.os }}-pluto_state_cache-v5-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-                restore-keys: |
-                    ${{ runner.os }}-pluto_state_cache-v5-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-                    
-            - name: ⏱ Cache .julia
-              uses: actions/cache@v4
-              with:
-                path: ~/.julia
-                key: ${{ runner.os }}-dotjulia-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-                restore-keys: |
-                    ${{ runner.os }}-dotjulia-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
-                    
-            - name: 🔍 Verify environment
+                  julia --project=pluto-deployment-environment -e '
+                    using Pkg; Pkg.instantiate()
+                    using PlutoPages
+                    try
+                        PlutoPages.generate("."; 
+                            html_report_path="generation_report.html",
+                            verbose=true
+                        )
+                        println("::set-output name=status::success")
+                    catch e
+                        println("::error::Generation failed")
+                        showerror(stdout, e)
+                        println("\nStacktrace:")
+                        Base.show_backtrace(stdout, catch_backtrace())
+                        println("::set-output name=status::failed")
+                        exit(1)
+                    end
+                  '
+
+            # --- Fase 3: Deploy ---
+            - name: Build final site
               run: |
-                echo "Julia version:"
-                julia --version
-                echo ""
-                echo "📂 Repository structure:"
-                ls -la
-                echo ""
-                echo "📄 Project.toml content:"
-                cat pluto-deployment-environment/Project.toml
-                
-            - name: 📦 Install Julia dependencies
-              run: |
-                julia --project=pluto-deployment-environment -e '
-                  using Pkg
-                  Pkg.instantiate()
-                  Pkg.precompile()
-                  println("Installed packages:")
-                  Pkg.status()
-                '
-                
-            - name: 🔍 Verify notebook structure
-              run: |
-                echo "📂 Content directory:"
-                ls -la content/
-                echo ""
-                echo "🔍 Found notebooks:"
-                find content -name "*.jl" | head -10
-                
-            - name: 🪴 Generate site
-              run: |
-                # Create symbolic link for PlutoPages
-                ln -sfn content src
-                
-                julia --color=yes --project=pluto-deployment-environment -e '
-                  using Pkg
-                  Pkg.instantiate()
+                  mkdir -p www
+                  if [ -d "_site" ]; then
+                      mv _site www/Fall23
+                      echo "✅ Site moved to www/Fall23"
+                  else
+                      mkdir -p www/Fall23
+                      echo "<h1>Content coming soon</h1>" > www/Fall23/index.html
+                      echo "⚠️ Created placeholder content"
+                  fi
                   
-                  @info "Starting PlutoPages generation..."
-                  try
-                      using PlutoPages
-                      
-                      @info "PlutoPages version: $(pkgversion(PlutoPages))"
-                      
-                      PlutoPages.generate("."; 
-                          html_report_path="generation_report.html",
-                          verbose=true
-                      )
-                      
-                      @info "✅ Site generation completed"
-                      
-                      # Safe directory listing using Julia
-                      if isdir("_site")
-                          @info "Contents of _site:"
-                          for (root, dirs, files) in walkdir("_site")
-                              println("📁 ", root)
-                              if !isempty(files)
-                                  println("   └ ", join(files[1:min(5, end)], "\n    └ "))
-                              end
-                          end
-                      else
-                          @error "❌ _site directory not created!"
-                      end
-                  catch e
-                      @error "❌ Generation failed!" exception=(e, catch_backtrace())
-                      
-                      # Try to read the report if exists
-                      if isfile("generation_report.html")
-                          println("\n📄 Generation report content:")
-                          println(read("generation_report.html", String))
-                      end
-                      
-                      exit(1)
-                  end
-                '
-                
-            - name: 📰 Upload generation artifacts
-              uses: actions/upload-artifact@v4
-              if: always()
-              with:
-                name: generation-artifacts
-                path: |
-                  generation_report.html
-                  _site/
-                retention-days: 1
-                
-            - name: 🔍 Debug - Check generated site
-              if: always()
-              run: |
-                echo "Julia version details:"
-                julia -e 'versioninfo()'
-                echo ""
-                if [ -d "_site" ]; then
-                  echo "✅ _site directory exists ($(du -sh _site))"
-                  echo "📂 First 10 files:"
-                  find _site -type f | head -10
-                else
-                  echo "❌ _site directory missing"
-                fi
-                
-            - name: 🏗 Build final site structure
-              run: |
-                mkdir -p www
-                
-                # Move generated site
-                if [ -d "_site" ] && [ "$(ls -A _site)" ]; then
-                  mv _site www/Fall23
-                  echo "✅ Moved _site to www/Fall23"
-                else
-                  mkdir -p www/Fall23
-                  echo "<h1>Site under construction</h1>" > www/Fall23/index.html
-                  echo "⚠️ Created fallback index.html"
-                fi
-                
-                # Create root redirect
-                cat > www/index.html << 'EOF'
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Computational Thinking</title>
-                    <meta http-equiv="refresh" content="0; url=./Fall23/">
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif; 
-                            text-align: center; 
-                            padding: 50px; 
-                            background-color: #f5f5f5;
-                        }
-                        .container {
-                            max-width: 600px;
-                            margin: 0 auto;
-                            background: white;
-                            padding: 40px;
-                            border-radius: 10px;
-                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                        }
-                        a { 
-                            color: #007bff; 
-                            text-decoration: none; 
-                            font-weight: bold;
-                        }
-                        a:hover { text-decoration: underline; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h1>Computational Thinking</h1>
-                        <p>Redirecting to Fall 23 content...</p>
-                        <p>If not redirected, <a href="./Fall23/">click here</a>.</p>
-                    </div>
-                </body>
-                </html>
-                EOF
-                
-                echo "📁 Final www structure:"
-                tree -L 3 www || find www -type f | sort
-                
-            - name: 🚀 Deploy to GitHub Pages
+                  cat > www/index.html << 'EOF'
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                      <meta charset="UTF-8">
+                      <meta http-equiv="refresh" content="0; url=./Fall23/">
+                  </head>
+                  <body>
+                      <p>Redirecting to <a href="./Fall23/">course content</a>...</p>
+                  </body>
+                  </html>
+                  EOF
+
+            - name: Deploy to GitHub Pages
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/deploy-pages@v4
-              
-            - name: 📦 Upload Pages artifact
+
+            - name: Upload artifact
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/upload-pages-artifact@v3
               with:
                 path: www
-    
-            - name: Deploy PR preview
-              if: github.event_name == 'pull_request' && github.repository == github.event.pull_request.head.repo.full_name
-              uses: JamesIves/github-pages-deploy-action@v4
+
+            # --- Fase 4: Relatório de diagnóstico (só executa se falhar) ---
+            - name: Generate diagnostic report
+              if: failure() || steps.generate.outputs.status == 'failed'
+              run: |
+                  # Instala dependências para o relatório
+                  sudo apt-get update && sudo apt-get install -y tree || true
+                  
+                  echo "# 🛠 Diagnostic Report" > diagnostic_report.md
+                  echo "**Workflow Status:** FAILED" >> diagnostic_report.md
+                  echo "**Date:** $(date)" >> diagnostic_report.md
+                  
+                  # 1. Estrutura do repositório
+                  echo -e "\n## Repository Structure" >> diagnostic_report.md
+                  echo '```sh' >> diagnostic_report.md
+                  tree -a -L 3 -I ".git|_cache" >> diagnostic_report.md 2>&1 || find . -maxdepth 3 >> diagnostic_report.md
+                  echo '```' >> diagnostic_report.md
+                  
+                  # 2. Arquivos de build
+                  echo -e "\n## Build Artifacts" >> diagnostic_report.md
+                  if [ -f "generation_report.html" ]; then
+                      echo -e "\n### Generation Report" >> diagnostic_report.md
+                      echo '```html' >> diagnostic_report.md
+                      head -n 100 generation_report.html >> diagnostic_report.md
+                      echo '```' >> diagnostic_report.md
+                  fi
+                  
+                  # 3. Conteúdo gerado
+                  echo -e "\n### Generated Site Content" >> diagnostic_report.md
+                  if [ -d "_site" ]; then
+                      echo '```' >> diagnostic_report.md
+                      find _site -type f | head -30 >> diagnostic_report.md
+                      echo '```' >> diagnostic_report.md
+                  else
+                      echo "No _site directory found" >> diagnostic_report.md
+                  fi
+                  
+                  # 4. System info
+                  echo -e "\n## Environment" >> diagnostic_report.md
+                  echo '```' >> diagnostic_report.md
+                  julia -e 'using InteractiveUtils; versioninfo()' >> diagnostic_report.md
+                  echo -e "\nJulia Packages:" >> diagnostic_report.md
+                  julia --project=pluto-deployment-environment -e 'using Pkg; Pkg.status()' >> diagnostic_report.md
+                  echo '```' >> diagnostic_report.md
+                  
+                  # Define output
+                  echo "REPORT_FILE=diagnostic_report.md" >> $GITHUB_ENV
+
+            - name: Upload diagnostic report
+              if: failure() || steps.generate.outputs.status == 'failed'
+              uses: actions/upload-artifact@v4
               with:
-                token: ${{ secrets.GITHUB_TOKEN }}
-                branch: output
-                folder: www
-                target-folder: "previews/PR${{ github.event.number }}"
+                name: diagnostic-report
+                path: ${{ env.REPORT_FILE }}
+                retention-days: 7
+
+            - name: Show report in summary
+              if: failure() || steps.generate.outputs.status == 'failed'
+              run: |
+                  echo "## 🚨 Diagnostic Information" >> $GITHUB_STEP_SUMMARY
+                  cat ${{ env.REPORT_FILE }} >> $GITHUB_STEP_SUMMARY
