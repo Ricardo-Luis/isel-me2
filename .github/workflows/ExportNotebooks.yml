@@ -17,7 +17,7 @@ jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-            # --- Fase 1: Setup Inicial ---
+            # --- Fase 1: Setup ---
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
@@ -29,127 +29,100 @@ jobs:
                 version: '1.11'
                 arch: x64
 
-            # --- Fase 2: Configuração Robusta ---
-            - name: Setup environment with debug tools
+            # --- Fase 2: Configuração ---
+            - name: Setup environment
               run: |
                   mkdir -p pluto-deployment-environment
                   julia -e '
                   using Pkg
                   Pkg.activate("pluto-deployment-environment")
-                  
-                  # Pacotes essenciais com versões fixas
                   Pkg.add([
-                      Pkg.PackageSpec(name="Pluto", version="0.20.13"),
-                      Pkg.PackageSpec(name="PlutoPages", version="0.1.12"),
-                      Pkg.PackageSpec(name="PlutoUI", version="0.7.68")
+                      "Pluto",
+                      "PlutoPages",
+                      "PlutoUI",
+                      "HTTP"
                   ])
-                  
-                  # Ferramentas de diagnóstico
-                  Pkg.add(["HTTP", "LoggingExtras"])
-                  
                   Pkg.instantiate()
                   Pkg.precompile()
                   '
 
-            # --- Fase 3: Verificação Profunda ---
-            - name: Deep notebook validation
+            # --- Fase 3: Busca de Notebooks (Método Compatível) ---
+            - name: Find notebooks
+              id: find-notebooks
+              run: |
+                  # Método compatível para buscar notebooks
+                  echo "Notebooks encontrados:"
+                  find content/week0 content/data_science -name "*.jl" | tee notebooks.list
+                  echo "NOTEBOOKS=$(find content/week0 content/data_science -name "*.jl" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+            # --- Fase 4: Validação ---
+            - name: Validate notebooks
               run: |
                   julia --project=pluto-deployment-environment -e '
-                  using Pluto, LoggingExtras
+                  using Pluto
                   
-                  logger = SimpleLogger(open("notebook_validation.log", "w"))
-                  
-                  function validate_notebook(path)
-                      @info "Validating $path"
-                      try
-                          Pluto.activate(dirname(path))
-                          nb = Pluto.load_notebook(path)
-                          
-                          # Verificação adicional
-                          if isempty(nb.cells)
-                              @error "Notebook has no cells" notebook=path
-                              return false
-                          end
-                          
-                          Pluto.update_run!(nb)
-                          return true
-                      catch e
-                          @error "Validation failed" exception=(e, catch_backtrace()) notebook=path
-                          return false
-                      end
-                  end
-                  
-                  # Processa apenas as pastas especificadas
-                  notebooks = vcat(
-                      filter(endswith(".jl"), readdir("content/week0"; join=true, recursive=true)),
-                      filter(endswith(".jl"), readdir("content/data_science"; join=true, recursive=true))
-                  )
-                  
+                  notebooks = ARGS
                   if isempty(notebooks)
-                      @error "No notebooks found in specified folders"
-                      exit(1)
+                      error("Nenhum notebook encontrado")
                   end
                   
-                  global_logger(logger) do
-                      results = validate_notebook.(notebooks)
-                      if !all(results)
-                          @error "Some notebooks failed validation" failed=notebooks[.!results]
+                  for nb in notebooks
+                      println("🔍 Validando: ", nb)
+                      try
+                          Pluto.activate(dirname(nb))
+                          Pluto.load_notebook(nb) |> Pluto.update_run!
+                          println("✅ Válido")
+                      catch e
+                          println("❌ Erro: ")
+                          showerror(stdout, e)
+                          println("\nStacktrace:")
+                          Base.show_backtrace(stdout, catch_backtrace())
                           exit(1)
                       end
                   end
-                  '
+                  ' ${{ steps.find-notebooks.outputs.NOTEBOOKS }}
 
-            # --- Fase 4: Geração com Log Detalhado ---
-            - name: Generate with verbose logging
+            # --- Fase 5: Geração ---
+            - name: Generate site
               run: |
-                  mkdir -p _site
                   ln -sfn content src
                   
                   julia --project=pluto-deployment-environment -e '
-                  using PlutoPages, LoggingExtras
+                  using PlutoPages
                   
-                  logger = SimpleLogger(open("generation.log", "w"))
-                  
-                  global_logger(logger) do
-                      try
-                          @info "Starting generation process"
-                          
-                          # Configuração explícita
-                          PlutoPages.generate(".";
-                              html_report_path="generation_report.html",
-                              notebook_dirs=["week0", "data_science"],
-                              fail_on_error=true,
-                              log_level=Logging.Debug
-                          )
-                          
-                          if !isdir("_site") || isempty(readdir("_site"))
-                              @error "No content generated in _site directory"
-                              exit(1)
-                          end
-                          
-                          @info "Generation completed successfully" file_count=length(readdir("_site"))
-                      catch e
-                          @error "Generation failed" exception=(e, catch_backtrace())
-                          exit(1)
+                  try
+                      println("⚙️ Iniciando geração...")
+                      PlutoPages.generate(".";
+                          html_report_path="generation_log.html",
+                          notebook_dirs=["week0", "data_science"],
+                          fail_on_error=true
+                      )
+                      
+                      if !isdir("_site") || isempty(readdir("_site"))
+                          error("Diretório _site vazio ou não criado")
                       end
+                      println("✅ Geração concluída")
+                  catch e
+                      println("❌ Falha na geração:")
+                      showerror(stdout, e)
+                      exit(1)
                   end
                   '
 
-            # --- Fase 5: Deploy ---
+            # --- Fase 6: Deploy ---
             - name: Prepare and deploy
               run: |
                   mkdir -p www/Fall23
                   
                   if [ -d "_site" ] && [ "$(ls -A _site)" ]; then
                       mv _site/* www/Fall23/
-                      echo "✅ Content deployed"
+                      echo "🚀 Conteúdo pronto para deploy"
                   else
-                      echo "⚠️ No content generated, creating placeholder"
-                      echo "<h1>Content under maintenance</h1>" > www/Fall23/index.html
+                      echo "⚠️ Nenhum conteúdo gerado"
                       exit 1
                   fi
                   
-                  # Redirect
+                  # Página de redirecionamento
                   cat > www/index.html << 'EOF'
                   <!DOCTYPE html>
                   <html>
@@ -158,7 +131,7 @@ jobs:
                       <meta http-equiv="refresh" content="0; url=./Fall23/">
                   </head>
                   <body>
-                      <p>Redirecting to <a href="./Fall23/">course content</a>...</p>
+                      <p>Redirecionando para <a href="./Fall23/">conteúdo do curso</a>...</p>
                   </body>
                   </html>
                   EOF
@@ -167,56 +140,38 @@ jobs:
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/deploy-pages@v4
 
-            # --- Fase 6: Diagnóstico Completo ---
-            - name: Generate full debug package
+            # --- Fase 7: Relatório ---
+            - name: Generate report
               if: always()
               run: |
-                  echo "# 🛠 Full Debug Package" > debug.md
+                  echo "# Relatório de Execução" > report.md
+                  echo "## Notebooks processados" >> report.md
+                  echo '```' >> report.md
+                  cat notebooks.list 2>/dev/null || echo "Nenhum notebook processado" >> report.md
+                  echo '```' >> report.md
                   
-                  # 1. System info
-                  echo "## System Information" >> debug.md
-                  echo '```' >> debug.md
-                  julia -e 'using InteractiveUtils; versioninfo()' >> debug.md
-                  echo '```' >> debug.md
+                  if [ -f "generation_log.html" ]; then
+                      echo "## Log de Geração" >> report.md
+                      echo '```html' >> report.md
+                      head -n 50 generation_log.html >> report.md
+                      echo '```' >> report.md
+                  fi
                   
-                  # 2. Notebook validation
-                  echo "## Notebook Validation" >> debug.md
-                  echo '```' >> debug.md
-                  cat notebook_validation.log 2>/dev/null || echo "No validation log" >> debug.md
-                  echo '```' >> debug.md
+                  echo "## Ambiente" >> report.md
+                  echo '```' >> report.md
+                  julia --project=pluto-deployment-environment -e '
+                  using Pkg
+                  println("Julia ", VERSION)
+                  println("Pluto ", Pkg.dependencies()[findfirst(x->x.name=="Pluto", Pkg.dependencies())].version)
+                  println("PlutoPages ", Pkg.dependencies()[findfirst(x->x.name=="PlutoPages", Pkg.dependencies())].version)
+                  ' >> report.md
+                  echo '```' >> report.md
                   
-                  # 3. Generation log
-                  echo "## Generation Process" >> debug.md
-                  echo '```' >> debug.md
-                  cat generation.log 2>/dev/null || echo "No generation log" >> debug.md
-                  echo '```' >> debug.md
-                  
-                  # 4. Generated files
-                  echo "## Generated Content" >> debug.md
-                  echo '```' >> debug.md
-                  find _site -type f 2>/dev/null | head -50 >> debug.md || echo "No generated files" >> debug.md
-                  echo '```' >> debug.md
-                  
-                  # Create debug bundle
-                  tar czvf debug_bundle.tar.gz \
-                      notebook_validation.log \
-                      generation.log \
-                      generation_report.html \
-                      debug.md \
-                      pluto-deployment-environment/Project.toml \
-                      pluto-deployment-environment/Manifest.toml 2>/dev/null || true
-                  
-                  echo "DEBUG_BUNDLE=debug_bundle.tar.gz" >> $GITHUB_ENV
-                  echo "DEBUG_REPORT=debug.md" >> $GITHUB_ENV
+                  echo "REPORT_FILE=report.md" >> $GITHUB_ENV
 
-            - name: Upload debug bundle
+            - name: Upload report
               uses: actions/upload-artifact@v4
               with:
-                name: debug-bundle
-                path: ${{ env.DEBUG_BUNDLE }}
+                name: execution-report
+                path: ${{ env.REPORT_FILE }}
                 retention-days: 7
-
-            - name: Show debug summary
-              run: |
-                  echo "## Full Debug Information" >> $GITHUB_STEP_SUMMARY
-                  cat ${{ env.DEBUG_REPORT }} >> $GITHUB_STEP_SUMMARY
