@@ -29,6 +29,18 @@ jobs:
                 version: '1.11'
                 arch: x64
 
+            # --- Cache Otimizado ---
+            - name: ⏱ Cache Julia artifacts and environments
+              uses: actions/cache@v4
+              with:
+                path: |
+                    ~/.julia
+                    pluto-deployment-environment
+                    _cache
+                key: ${{ runner.os }}-julia-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                restore-keys: |
+                    ${{ runner.os }}-julia-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+
             # --- Fase 2: Configuração Específica ---
             - name: Setup Pluto environment
               run: |
@@ -36,20 +48,32 @@ jobs:
                   julia -e '
                   using Pkg
                   Pkg.activate("pluto-deployment-environment")
-                  Pkg.add([
-                      "Pluto",
-                      "PlutoPages@0.1.13",
-                      "PlutoUI",
-                      "HTTP"
-                  ])
+                  Pkg.add("Pluto")
+                  Pkg.add("PlutoPages"; version="0.1.13")  # Sintaxe correta
+                  Pkg.add("PlutoUI")
+                  Pkg.add("HTTP")
                   Pkg.instantiate()
                   Pkg.precompile()
                   '
 
-            # --- Fase 3: Validação de Notebooks Corrigida ---
+            - name: Verify PlutoPages installation
+              run: |
+                  julia --project=pluto-deployment-environment -e '
+                  using Pkg
+                  try
+                      Pkg.activate()
+                      @assert haskey(Pkg.project().dependencies, "PlutoPages")
+                      println("✓ PlutoPages installed successfully")
+                  catch e
+                      println("❌ PlutoPages installation failed")
+                      showerror(stdout, e)
+                      exit(1)
+                  end
+                  '
+
+            # --- Fase 3: Validação de Notebooks ---
             - name: Validate notebooks
               run: |
-                  # Lista notebooks usando find (método compatível)
                   NOTEBOOKS=$(find content/week0 content/data_science -name "*.jl")
                   if [ -z "$NOTEBOOKS" ]; then
                       echo "::error::No notebooks found"
@@ -67,7 +91,6 @@ jobs:
                       if !isempty(nb)
                           println("\n🔍 Validating: ", nb)
                           try
-                              # Método correto para ativar ambiente do notebook
                               Pkg.activate(dirname(nb))
                               nb_obj = Pluto.load_notebook(nb)
                               Pluto.update_run!(nb_obj)
