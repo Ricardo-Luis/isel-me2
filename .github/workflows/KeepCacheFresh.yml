@@ -1,25 +1,44 @@
 name: Keep caches fresh
 on:
-    schedule:
-        - cron: "5 4 */4 * *" # every 4 days
+  schedule:
+    - cron: "5 4 */4 * *" # every 4 days at 04:05
+  workflow_dispatch: # Permite acionamento manual
 
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
-        steps:
-            - name: ⏱ Cache notebook states
-              uses: actions/cache@v4
-              with:
-                path: _cache
-                key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
-                restore-keys: |
-                    ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+  refresh-caches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: ⏱ Cache .julia
-              uses: actions/cache@v4
-              with:
-                path: ~/.julia
-                key: ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
-                restore-keys: |
-                    ${{ runner.os }}-dotjulia-v1-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'
 
+      - name: ⏱ Refresh Julia package cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.julia
+            pluto-deployment-environment
+          key: ${{ runner.os }}-julia-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-julia-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+
+      - name: ⏱ Refresh notebook state cache
+        uses: actions/cache@v4
+        with:
+          path: _cache
+          key: ${{ runner.os }}-pluto-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-pluto-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+
+      - name: Install dependencies (to update cache)
+        run: |
+          julia -e '
+          using Pkg
+          Pkg.activate("pluto-deployment-environment")
+          Pkg.instantiate()
+          Pkg.precompile()
+          '
