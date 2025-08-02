@@ -29,6 +29,18 @@ jobs:
                 version: '1.11'
                 arch: x64
 
+            # --- Cache Otimizado ---
+            - name: ⏱ Cache Julia artifacts and environments
+              uses: actions/cache@v4
+              with:
+                path: |
+                    ~/.julia
+                    pluto-deployment-environment
+                    _cache
+                key: ${{ runner.os }}-julia-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                restore-keys: |
+                    ${{ runner.os }}-julia-cache-v4-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+
             # --- Fase 2: Configuração Específica ---
             - name: Setup Pluto environment
               run: |
@@ -36,52 +48,62 @@ jobs:
                   julia -e '
                   using Pkg
                   Pkg.activate("pluto-deployment-environment")
-                  Pkg.add([
-                      "Pluto",
-                      "PlutoPages@0.1.13",
-                      "PlutoUI",
-                      "HTTP"
-                  ])
+                  Pkg.add("Pluto")
+                  Pkg.add(Pkg.PackageSpec(name="PlutoPages", version="0.1.12"))  # Versão estável confirmada
+                  Pkg.add("PlutoUI")
+                  Pkg.add("HTTP")
                   Pkg.instantiate()
                   Pkg.precompile()
                   '
 
+            - name: Verify installed packages
+              run: |
+                  julia --project=pluto-deployment-environment -e '
+                  using Pkg
+                  println("Versões instaladas:")
+                  Pkg.status()
+                  '
+
             # --- Fase 3: Validação de Notebooks Corrigida ---
+            - name: Find notebooks
+              id: find_notebooks
+              run: |
+                  NOTEBOOKS=$(find content/week0 content/data_science -name "*.jl" | tr '\n' ' ')
+                  echo "NOTEBOOKS=${NOTEBOOKS}" >> $GITHUB_OUTPUT
+                  echo "Found notebooks: ${NOTEBOOKS}"
+
             - name: Validate notebooks
               run: |
-                  # Lista notebooks usando find (método compatível)
-                  NOTEBOOKS=$(find content/week0 content/data_science -name "*.jl")
-                  if [ -z "$NOTEBOOKS" ]; then
+                  if [ -z "${{ steps.find_notebooks.outputs.NOTEBOOKS }}" ]; then
                       echo "::error::No notebooks found"
                       exit 1
                   fi
                   
                   julia --project=pluto-deployment-environment -e '
-                  using Pluto
-                  using Pkg
+                  using Pluto, Pkg
                   
-                  notebooks = split("""$NOTEBOOKS""", "\n")
+                  notebooks = split(ENV["NOTEBOOKS"])
                   println("Validating ", length(notebooks), " notebooks")
                   
                   for nb in notebooks
-                      if !isempty(nb)
-                          println("\n🔍 Validating: ", nb)
-                          try
-                              # Método correto para ativar ambiente do notebook
-                              Pkg.activate(dirname(nb))
-                              nb_obj = Pluto.load_notebook(nb)
-                              Pluto.update_run!(nb_obj)
-                              println("✅ Valid")
-                          catch e
-                              println("❌ Error in ", nb)
-                              showerror(stdout, e)
-                              println("\nStacktrace:")
-                              Base.show_backtrace(stdout, catch_backtrace())
-                              exit(1)
-                          end
+                      isempty(nb) && continue
+                      println("\n🔍 Validating: ", nb)
+                      try
+                          Pkg.activate(dirname(nb))
+                          nb_obj = Pluto.load_notebook(nb)
+                          Pluto.update_run!(nb_obj)
+                          println("✅ Valid")
+                      catch e
+                          println("❌ Error in ", nb)
+                          showerror(stdout, e)
+                          println("\nStacktrace:")
+                          Base.show_backtrace(stdout, catch_backtrace())
+                          exit(1)
                       end
                   end
                   '
+              env:
+                  NOTEBOOKS: ${{ steps.find_notebooks.outputs.NOTEBOOKS }}
 
             # --- Fase 4: Geração do Site ---
             - name: Generate static site
@@ -92,7 +114,7 @@ jobs:
                   using PlutoPages
                   
                   try
-                      println("Starting generation...")
+                      println("Starting generation with PlutoPages v0.1.12")
                       PlutoPages.generate("."; 
                           html_report_path="generation_log.html",
                           notebook_dirs=["week0", "data_science"],
@@ -118,9 +140,9 @@ jobs:
                   
                   if [ -d "_site" ] && [ "$(ls -A _site)" ]; then
                       mv _site/* www/Fall23/
-                      echo "✅ Content ready for deployment"
+                      echo "✅ Content moved to www/Fall23"
                   else
-                      echo "::error::No content generated"
+                      echo "::error::No content generated in _site"
                       exit 1
                   fi
                   
@@ -141,6 +163,10 @@ jobs:
             - name: Deploy to GitHub Pages
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/deploy-pages@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  target-branch: gh-pages
+                  publish-dir: ./www
 
             # --- Fase 6: Relatório de Falhas ---
             - name: Generate debug report
@@ -150,16 +176,16 @@ jobs:
                   echo "## Environment" >> debug.md
                   echo '```' >> debug.md
                   julia -e 'using InteractiveUtils; versioninfo()' >> debug.md
-                  echo -e "\nActive packages:" >> debug.md
+                  echo -e "\n## Installed Packages" >> debug.md
                   julia --project=pluto-deployment-environment -e 'using Pkg; Pkg.status()' >> debug.md
                   echo '```' >> debug.md
                   
-                  if [ -f "generation_log.html" ]; then
+                  [ -f "generation_log.html" ] && {
                       echo "## Generation Log" >> debug.md
                       echo '```html' >> debug.md
                       grep -A 50 -B 10 "ERROR" generation_log.html | head -100 >> debug.md || echo "No errors found in log" >> debug.md
                       echo '```' >> debug.md
-                  fi
+                  }
                   
                   echo "REPORT_FILE=debug.md" >> $GITHUB_ENV
 
@@ -167,6 +193,6 @@ jobs:
               if: failure()
               uses: actions/upload-artifact@v4
               with:
-                name: debug-report
-                path: ${{ env.REPORT_FILE }}
-                retention-days: 7
+                  name: debug-report
+                  path: ${{ env.REPORT_FILE }}
+                  retention-days: 7
